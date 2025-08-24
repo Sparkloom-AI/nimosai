@@ -301,6 +301,7 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPhonePrefix, setSelectedPhonePrefix] = useState('');
+  const [showWizard, setShowWizard] = useState(false);
   const [locationData, setLocationData] = useState<LocationData>({
     country: '',
     countryCode: '',
@@ -378,11 +379,15 @@ const Auth = () => {
 
   const onProfessionalAccountSubmit = async (data: ProfessionalAccountFormData) => {
     setIsLoading(true);
+    console.log('Starting account creation...');
     try {
       const fullName = `${data.firstName} ${data.lastName}`;
       const { error } = await signUp(email, data.password, fullName);
       
+      console.log('SignUp result:', { error });
+      
       if (error) {
+        console.log('SignUp error:', error);
         if (error.message.includes('already registered')) {
           toast.error('An account with this email already exists. Please sign in instead.');
           setStep('password');
@@ -390,11 +395,14 @@ const Auth = () => {
           toast.error(error.message || 'Failed to create account');
         }
       } else {
+        console.log('Account created successfully, showing wizard...');
         toast.success('Account created successfully! Please check your email to confirm your account.');
-        // Move to setup wizard step
+        // Show wizard directly
+        setShowWizard(true);
         setStep('setup-wizard');
       }
     } catch (error) {
+      console.log('Unexpected error:', error);
       toast.error('An unexpected error occurred');
     } finally {
       setIsLoading(false);
@@ -417,6 +425,7 @@ const Auth = () => {
   };
 
   const handleSetupComplete = (setupType: 'create' | 'join') => {
+    console.log('Setup completed with type:', setupType);
     // Store the setup choice for later use
     localStorage.setItem('nimos-setup-type', setupType);
     navigate('/dashboard');
@@ -430,6 +439,7 @@ const Auth = () => {
       setStep('email');
       emailForm.setValue('email', email);
     } else if (step === 'setup-wizard') {
+      setShowWizard(false);
       setStep('professional');
     } else {
       navigate('/');
@@ -442,7 +452,10 @@ const Auth = () => {
     professionalForm.setValue('country', newLocationData.country);
   };
 
-  if (step === 'setup-wizard') {
+  console.log('Current state:', { step, showWizard, user });
+
+  if (showWizard || step === 'setup-wizard') {
+    console.log('Rendering setup wizard...');
     return <AccountSetupWizard onComplete={handleSetupComplete} />;
   }
 
