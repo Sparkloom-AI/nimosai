@@ -4,13 +4,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ArrowRight, Building, Users } from 'lucide-react';
 import BusinessSetupForm from './BusinessSetupForm';
 import BusinessCategoryForm from './BusinessCategoryForm';
+import BusinessSetupComplete from './BusinessSetupComplete';
 
 interface AccountSetupWizardProps {
   onComplete: (setupType: 'create' | 'join', businessData?: any) => void;
 }
 
 const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete }) => {
-  const [step, setStep] = useState<'choice' | 'business-setup' | 'business-categories'>('choice');
+  const [step, setStep] = useState<'choice' | 'business-setup' | 'business-categories' | 'complete'>('choice');
   const [selectedOption, setSelectedOption] = useState<'create' | 'join' | null>(null);
   const [businessData, setBusinessData] = useState<any>(null);
 
@@ -50,7 +51,12 @@ const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete }) =
       ...businessData,
       categories,
     };
-    onComplete('create', completeBusinessData);
+    setBusinessData(completeBusinessData);
+    setStep('complete');
+  };
+
+  const handleSetupComplete = () => {
+    onComplete('create', businessData);
   };
 
   const handleBack = () => {
@@ -61,6 +67,14 @@ const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete }) =
       setSelectedOption(null);
     }
   };
+
+  if (step === 'complete') {
+    return (
+      <BusinessSetupComplete
+        onComplete={handleSetupComplete}
+      />
+    );
+  }
 
   if (step === 'business-categories') {
     return (
