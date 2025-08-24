@@ -457,9 +457,14 @@ const Auth = () => {
     }
   };
 
-  const handleSetupComplete = (setupType: 'create' | 'join') => {
-    console.log('Setup completed with type:', setupType);
+  const handleSetupComplete = (setupType: 'create' | 'join', businessData?: any) => {
+    console.log('Setup completed with type:', setupType, 'Business data:', businessData);
     localStorage.setItem('nimos-setup-type', setupType);
+    
+    if (businessData) {
+      localStorage.setItem('nimos-business-data', JSON.stringify(businessData));
+    }
+    
     setShowWizard(false);
     navigate('/dashboard');
   };

@@ -3,12 +3,14 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowRight, Building, Users } from 'lucide-react';
+import BusinessSetupForm from './BusinessSetupForm';
 
 interface AccountSetupWizardProps {
-  onComplete: (setupType: 'create' | 'join') => void;
+  onComplete: (setupType: 'create' | 'join', businessData?: any) => void;
 }
 
 const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete }) => {
+  const [step, setStep] = useState<'choice' | 'business-setup'>('choice');
   const [selectedOption, setSelectedOption] = useState<'create' | 'join' | null>(null);
 
   const options = [
@@ -28,8 +30,34 @@ const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete }) =
 
   const handleOptionSelect = (optionId: 'create' | 'join') => {
     setSelectedOption(optionId);
-    onComplete(optionId);
+    
+    if (optionId === 'create') {
+      setStep('business-setup');
+    } else {
+      // For joining existing business, complete immediately for now
+      onComplete(optionId);
+    }
   };
+
+  const handleBusinessSetupComplete = (businessData: any) => {
+    onComplete('create', businessData);
+  };
+
+  const handleBack = () => {
+    if (step === 'business-setup') {
+      setStep('choice');
+      setSelectedOption(null);
+    }
+  };
+
+  if (step === 'business-setup') {
+    return (
+      <BusinessSetupForm
+        onBack={handleBack}
+        onComplete={handleBusinessSetupComplete}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex">
