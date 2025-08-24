@@ -19,41 +19,41 @@ interface LocationSettingsProps {
 }
 
 const countries = [
-  { code: 'ID', name: 'Indonesia', phone: '+62', timezone: '(GMT +07:00) Jakarta', currency: 'Indonesian Rupiah - IDR', flag: '🇮🇩', language: 'Indonesia' },
-  { code: 'US', name: 'United States', phone: '+1', timezone: '(GMT -05:00) New York', currency: 'US Dollar - USD', flag: '🇺🇸', language: 'English' },
-  { code: 'GB', name: 'United Kingdom', phone: '+44', timezone: '(GMT +00:00) London', currency: 'British Pound - GBP', flag: '🇬🇧', language: 'English' },
-  { code: 'AU', name: 'Australia', phone: '+61', timezone: '(GMT +10:00) Sydney', currency: 'Australian Dollar - AUD', flag: '🇦🇺', language: 'English' },
-  { code: 'DE', name: 'Germany', phone: '+49', timezone: '(GMT +01:00) Berlin', currency: 'Euro - EUR', flag: '🇩🇪', language: 'Deutsch' },
-  { code: 'FR', name: 'France', phone: '+33', timezone: '(GMT +01:00) Paris', currency: 'Euro - EUR', flag: '🇫🇷', language: 'français' },
-  { code: 'IT', name: 'Italy', phone: '+39', timezone: '(GMT +01:00) Rome', currency: 'Euro - EUR', flag: '🇮🇹', language: 'italiano' },
-  { code: 'ES', name: 'Spain', phone: '+34', timezone: '(GMT +01:00) Madrid', currency: 'Euro - EUR', flag: '🇪🇸', language: 'español' },
-  { code: 'NL', name: 'Netherlands', phone: '+31', timezone: '(GMT +01:00) Amsterdam', currency: 'Euro - EUR', flag: '🇳🇱', language: 'Nederlands' },
-  { code: 'JP', name: 'Japan', phone: '+81', timezone: '(GMT +09:00) Tokyo', currency: 'Japanese Yen - JPY', flag: '🇯🇵', language: '日本語' },
-  { code: 'KR', name: 'South Korea', phone: '+82', timezone: '(GMT +09:00) Seoul', currency: 'South Korean Won - KRW', flag: '🇰🇷', language: 'English' },
-  { code: 'CN', name: 'China', phone: '+86', timezone: '(GMT +08:00) Beijing', currency: 'Chinese Yuan - CNY', flag: '🇨🇳', language: '中文' },
-  { code: 'IN', name: 'India', phone: '+91', timezone: '(GMT +05:30) New Delhi', currency: 'Indian Rupee - INR', flag: '🇮🇳', language: 'English' },
-  { code: 'SG', name: 'Singapore', phone: '+65', timezone: '(GMT +08:00) Singapore', currency: 'Singapore Dollar - SGD', flag: '🇸🇬', language: 'English' },
-  { code: 'MY', name: 'Malaysia', phone: '+60', timezone: '(GMT +08:00) Kuala Lumpur', currency: 'Malaysian Ringgit - MYR', flag: '🇲🇾', language: 'English' },
-  { code: 'TH', name: 'Thailand', phone: '+66', timezone: '(GMT +07:00) Bangkok', currency: 'Thai Baht - THB', flag: '🇹🇭', language: 'English' },
-  { code: 'VN', name: 'Vietnam', phone: '+84', timezone: '(GMT +07:00) Ho Chi Minh City', currency: 'Vietnamese Dong - VND', flag: '🇻🇳', language: 'Tiếng Việt' },
-  { code: 'PH', name: 'Philippines', phone: '+63', timezone: '(GMT +08:00) Manila', currency: 'Philippine Peso - PHP', flag: '🇵🇭', language: 'English' },
-  { code: 'BR', name: 'Brazil', phone: '+55', timezone: '(GMT -03:00) São Paulo', currency: 'Brazilian Real - BRL', flag: '🇧🇷', language: 'português (Brasil)' },
-  { code: 'MX', name: 'Mexico', phone: '+52', timezone: '(GMT -06:00) Mexico City', currency: 'Mexican Peso - MXN', flag: '🇲🇽', language: 'español' },
-  { code: 'CA', name: 'Canada', phone: '+1', timezone: '(GMT -05:00) Toronto', currency: 'Canadian Dollar - CAD', flag: '🇨🇦', language: 'English' },
-  { code: 'RU', name: 'Russia', phone: '+7', timezone: '(GMT +03:00) Moscow', currency: 'Russian Ruble - RUB', flag: '🇷🇺', language: 'русский' },
-  { code: 'AR', name: 'Argentina', phone: '+54', timezone: '(GMT -03:00) Buenos Aires', currency: 'Argentine Peso - ARS', flag: '🇦🇷', language: 'español' },
-  { code: 'CL', name: 'Chile', phone: '+56', timezone: '(GMT -03:00) Santiago', currency: 'Chilean Peso - CLP', flag: '🇨🇱', language: 'español' },
-  { code: 'CO', name: 'Colombia', phone: '+57', timezone: '(GMT -05:00) Bogotá', currency: 'Colombian Peso - COP', flag: '🇨🇴', language: 'español' },
-  { code: 'PE', name: 'Peru', phone: '+51', timezone: '(GMT -05:00) Lima', currency: 'Peruvian Sol - PEN', flag: '🇵🇪', language: 'español' },
-  { code: 'ZA', name: 'South Africa', phone: '+27', timezone: '(GMT +02:00) Johannesburg', currency: 'South African Rand - ZAR', flag: '🇿🇦', language: 'English' },
-  { code: 'EG', name: 'Egypt', phone: '+20', timezone: '(GMT +02:00) Cairo', currency: 'Egyptian Pound - EGP', flag: '🇪🇬', language: 'العربية' },
-  { code: 'NG', name: 'Nigeria', phone: '+234', timezone: '(GMT +01:00) Lagos', currency: 'Nigerian Naira - NGN', flag: '🇳🇬', language: 'English' },
-  { code: 'KE', name: 'Kenya', phone: '+254', timezone: '(GMT +03:00) Nairobi', currency: 'Kenyan Shilling - KES', flag: '🇰🇪', language: 'English' },
-  { code: 'MA', name: 'Morocco', phone: '+212', timezone: '(GMT +00:00) Casablanca', currency: 'Moroccan Dirham - MAD', flag: '🇲🇦', language: 'العربية' },
-  { code: 'TR', name: 'Turkey', phone: '+90', timezone: '(GMT +03:00) Istanbul', currency: 'Turkish Lira - TRY', flag: '🇹🇷', language: 'English' },
-  { code: 'SA', name: 'Saudi Arabia', phone: '+966', timezone: '(GMT +03:00) Riyadh', currency: 'Saudi Riyal - SAR', flag: '🇸🇦', language: 'العربية' },
-  { code: 'AE', name: 'United Arab Emirates', phone: '+971', timezone: '(GMT +04:00) Dubai', currency: 'UAE Dirham - AED', flag: '🇦🇪', language: 'العربية' },
-  { code: 'IL', name: 'Israel', phone: '+972', timezone: '(GMT +02:00) Jerusalem', currency: 'Israeli Shekel - ILS', flag: '🇮🇱', language: 'עברית' },
+  { code: 'ID', name: 'Indonesia', phone: '+62', timezone: '(GMT +07:00) Jakarta', currency: 'Indonesian Rupiah - IDR', flag: '🇮🇩', language: 'Indonesia', gmtOffset: 7 },
+  { code: 'US', name: 'United States', phone: '+1', timezone: '(GMT -05:00) New York', currency: 'US Dollar - USD', flag: '🇺🇸', language: 'English', gmtOffset: -5 },
+  { code: 'GB', name: 'United Kingdom', phone: '+44', timezone: '(GMT +00:00) London', currency: 'British Pound - GBP', flag: '🇬🇧', language: 'English', gmtOffset: 0 },
+  { code: 'AU', name: 'Australia', phone: '+61', timezone: '(GMT +10:00) Sydney', currency: 'Australian Dollar - AUD', flag: '🇦🇺', language: 'English', gmtOffset: 10 },
+  { code: 'DE', name: 'Germany', phone: '+49', timezone: '(GMT +01:00) Berlin', currency: 'Euro - EUR', flag: '🇩🇪', language: 'Deutsch', gmtOffset: 1 },
+  { code: 'FR', name: 'France', phone: '+33', timezone: '(GMT +01:00) Paris', currency: 'Euro - EUR', flag: '🇫🇷', language: 'français', gmtOffset: 1 },
+  { code: 'IT', name: 'Italy', phone: '+39', timezone: '(GMT +01:00) Rome', currency: 'Euro - EUR', flag: '🇮🇹', language: 'italiano', gmtOffset: 1 },
+  { code: 'ES', name: 'Spain', phone: '+34', timezone: '(GMT +01:00) Madrid', currency: 'Euro - EUR', flag: '🇪🇸', language: 'español', gmtOffset: 1 },
+  { code: 'NL', name: 'Netherlands', phone: '+31', timezone: '(GMT +01:00) Amsterdam', currency: 'Euro - EUR', flag: '🇳🇱', language: 'Nederlands', gmtOffset: 1 },
+  { code: 'JP', name: 'Japan', phone: '+81', timezone: '(GMT +09:00) Tokyo', currency: 'Japanese Yen - JPY', flag: '🇯🇵', language: '日本語', gmtOffset: 9 },
+  { code: 'KR', name: 'South Korea', phone: '+82', timezone: '(GMT +09:00) Seoul', currency: 'South Korean Won - KRW', flag: '🇰🇷', language: 'English', gmtOffset: 9 },
+  { code: 'CN', name: 'China', phone: '+86', timezone: '(GMT +08:00) Beijing', currency: 'Chinese Yuan - CNY', flag: '🇨🇳', language: '中文', gmtOffset: 8 },
+  { code: 'IN', name: 'India', phone: '+91', timezone: '(GMT +05:30) New Delhi', currency: 'Indian Rupee - INR', flag: '🇮🇳', language: 'English', gmtOffset: 5.5 },
+  { code: 'SG', name: 'Singapore', phone: '+65', timezone: '(GMT +08:00) Singapore', currency: 'Singapore Dollar - SGD', flag: '🇸🇬', language: 'English', gmtOffset: 8 },
+  { code: 'MY', name: 'Malaysia', phone: '+60', timezone: '(GMT +08:00) Kuala Lumpur', currency: 'Malaysian Ringgit - MYR', flag: '🇲🇾', language: 'English', gmtOffset: 8 },
+  { code: 'TH', name: 'Thailand', phone: '+66', timezone: '(GMT +07:00) Bangkok', currency: 'Thai Baht - THB', flag: '🇹🇭', language: 'English', gmtOffset: 7 },
+  { code: 'VN', name: 'Vietnam', phone: '+84', timezone: '(GMT +07:00) Ho Chi Minh City', currency: 'Vietnamese Dong - VND', flag: '🇻🇳', language: 'Tiếng Việt', gmtOffset: 7 },
+  { code: 'PH', name: 'Philippines', phone: '+63', timezone: '(GMT +08:00) Manila', currency: 'Philippine Peso - PHP', flag: '🇵🇭', language: 'English', gmtOffset: 8 },
+  { code: 'BR', name: 'Brazil', phone: '+55', timezone: '(GMT -03:00) São Paulo', currency: 'Brazilian Real - BRL', flag: '🇧🇷', language: 'português (Brasil)', gmtOffset: -3 },
+  { code: 'MX', name: 'Mexico', phone: '+52', timezone: '(GMT -06:00) Mexico City', currency: 'Mexican Peso - MXN', flag: '🇲🇽', language: 'español', gmtOffset: -6 },
+  { code: 'CA', name: 'Canada', phone: '+1', timezone: '(GMT -05:00) Toronto', currency: 'Canadian Dollar - CAD', flag: '🇨🇦', language: 'English', gmtOffset: -5 },
+  { code: 'RU', name: 'Russia', phone: '+7', timezone: '(GMT +03:00) Moscow', currency: 'Russian Ruble - RUB', flag: '🇷🇺', language: 'русский', gmtOffset: 3 },
+  { code: 'AR', name: 'Argentina', phone: '+54', timezone: '(GMT -03:00) Buenos Aires', currency: 'Argentine Peso - ARS', flag: '🇦🇷', language: 'español', gmtOffset: -3 },
+  { code: 'CL', name: 'Chile', phone: '+56', timezone: '(GMT -03:00) Santiago', currency: 'Chilean Peso - CLP', flag: '🇨🇱', language: 'español', gmtOffset: -3 },
+  { code: 'CO', name: 'Colombia', phone: '+57', timezone: '(GMT -05:00) Bogotá', currency: 'Colombian Peso - COP', flag: '🇨🇴', language: 'español', gmtOffset: -5 },
+  { code: 'PE', name: 'Peru', phone: '+51', timezone: '(GMT -05:00) Lima', currency: 'Peruvian Sol - PEN', flag: '🇵🇪', language: 'español', gmtOffset: -5 },
+  { code: 'ZA', name: 'South Africa', phone: '+27', timezone: '(GMT +02:00) Johannesburg', currency: 'South African Rand - ZAR', flag: '🇿🇦', language: 'English', gmtOffset: 2 },
+  { code: 'EG', name: 'Egypt', phone: '+20', timezone: '(GMT +02:00) Cairo', currency: 'Egyptian Pound - EGP', flag: '🇪🇬', language: 'العربية', gmtOffset: 2 },
+  { code: 'NG', name: 'Nigeria', phone: '+234', timezone: '(GMT +01:00) Lagos', currency: 'Nigerian Naira - NGN', flag: '🇳🇬', language: 'English', gmtOffset: 1 },
+  { code: 'KE', name: 'Kenya', phone: '+254', timezone: '(GMT +03:00) Nairobi', currency: 'Kenyan Shilling - KES', flag: '🇰🇪', language: 'English', gmtOffset: 3 },
+  { code: 'MA', name: 'Morocco', phone: '+212', timezone: '(GMT +00:00) Casablanca', currency: 'Moroccan Dirham - MAD', flag: '🇲🇦', language: 'العربية', gmtOffset: 0 },
+  { code: 'TR', name: 'Turkey', phone: '+90', timezone: '(GMT +03:00) Istanbul', currency: 'Turkish Lira - TRY', flag: '🇹🇷', language: 'English', gmtOffset: 3 },
+  { code: 'SA', name: 'Saudi Arabia', phone: '+966', timezone: '(GMT +03:00) Riyadh', currency: 'Saudi Riyal - SAR', flag: '🇸🇦', language: 'العربية', gmtOffset: 3 },
+  { code: 'AE', name: 'United Arab Emirates', phone: '+971', timezone: '(GMT +04:00) Dubai', currency: 'UAE Dirham - AED', flag: '🇦🇪', language: 'العربية', gmtOffset: 4 },
+  { code: 'IL', name: 'Israel', phone: '+972', timezone: '(GMT +02:00) Jerusalem', currency: 'Israeli Shekel - ILS', flag: '🇮🇱', language: 'עברית', gmtOffset: 2 },
 ];
 
 const languages = [
@@ -174,6 +174,9 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({ value, onCha
   // Get unique currencies for the currency dropdown
   const uniqueCurrencies = Array.from(new Set(countries.map(c => c.currency))).sort();
 
+  // Sort timezones by GMT offset
+  const sortedTimezones = [...countries].sort((a, b) => a.gmtOffset - b.gmtOffset);
+
   return (
     <div className="flex items-center justify-between p-3 border rounded-md">
       <span>{value.country || 'Select country'}</span>
@@ -211,7 +214,7 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({ value, onCha
                   <SelectValue placeholder="Select timezone" />
                 </SelectTrigger>
                 <SelectContent>
-                  {countries.map((country) => (
+                  {sortedTimezones.map((country) => (
                     <SelectItem key={country.code} value={country.timezone}>
                       {country.timezone}
                     </SelectItem>
