@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -378,7 +379,7 @@ const AddTeamMemberModal = ({ isOpen, onClose }: AddTeamMemberModalProps) => {
               <Card>
                 <CardHeader>
                   <CardTitle>Services</CardTitle>
-                  <CardDescription>Select which services this team member can provide</CardHeader>
+                  <CardDescription>Select which services this team member can provide</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-2">
