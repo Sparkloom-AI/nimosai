@@ -410,6 +410,21 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({ value, onCha
     }
   };
 
+  const handleCountryHover = (countryCode: string) => {
+    const country = countries.find(c => c.code === countryCode);
+    if (country) {
+      setTempSettings(prev => ({
+        ...prev,
+        country: country.name,
+        countryCode: country.code,
+        phonePrefix: country.phone,
+        timezone: country.timezone,
+        currency: country.currency,
+        language: country.language,
+      }));
+    }
+  };
+
   // Sort timezones by GMT offset
   const sortedTimezones = allTimezones.sort((a, b) => a.gmtOffset - b.gmtOffset);
 
@@ -435,7 +450,12 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({ value, onCha
                 </SelectTrigger>
                 <SelectContent>
                   {countries.map((country) => (
-                    <SelectItem key={country.code} value={country.code}>
+                    <SelectItem 
+                      key={country.code} 
+                      value={country.code}
+                      onMouseEnter={() => handleCountryHover(country.code)}
+                      className="cursor-pointer hover:bg-accent transition-colors"
+                    >
                       {country.flag} {country.name}
                     </SelectItem>
                   ))}
