@@ -390,7 +390,8 @@ const Auth = () => {
           toast.error(error.message || 'Failed to create account');
         }
       } else {
-        toast.success('Account created successfully!');
+        toast.success('Account created successfully! Please check your email to confirm your account.');
+        // Move to setup wizard step
         setStep('setup-wizard');
       }
     } catch (error) {
@@ -428,6 +429,8 @@ const Auth = () => {
     } else if (step === 'password') {
       setStep('email');
       emailForm.setValue('email', email);
+    } else if (step === 'setup-wizard') {
+      setStep('professional');
     } else {
       navigate('/');
     }
@@ -636,8 +639,8 @@ const Auth = () => {
                                 </SelectValue>
                               </SelectTrigger>
                               <SelectContent className="max-h-60 overflow-y-auto">
-                                {phoneCountries.map((country) => (
-                                  <SelectItem key={`${country.code}-${country.phone}`} value={country.phone}>
+                                {phoneCountries.map((country, index) => (
+                                  <SelectItem key={`${country.code}-${country.phone}-${index}`} value={country.phone}>
                                     {country.flag} {country.name} {country.phone}
                                   </SelectItem>
                                 ))}
