@@ -56,6 +56,83 @@ const countries = [
   { code: 'IL', name: 'Israel', phone: '+972', timezone: '(GMT +02:00) Jerusalem', currency: 'Israeli Shekel - ILS', flag: '🇮🇱', language: 'עברית', gmtOffset: 2 },
 ];
 
+// Comprehensive timezone list from GMT-11:00 to GMT+14:00
+const allTimezones = [
+  { name: '(GMT -11:00) Midway Island', gmtOffset: -11 },
+  { name: '(GMT -10:00) Hawaii', gmtOffset: -10 },
+  { name: '(GMT -09:30) Marquesas Islands', gmtOffset: -9.5 },
+  { name: '(GMT -09:00) Alaska', gmtOffset: -9 },
+  { name: '(GMT -08:00) Pacific Time (US & Canada)', gmtOffset: -8 },
+  { name: '(GMT -07:00) Mountain Time (US & Canada)', gmtOffset: -7 },
+  { name: '(GMT -06:00) Central Time (US & Canada)', gmtOffset: -6 },
+  { name: '(GMT -06:00) Mexico City', gmtOffset: -6 },
+  { name: '(GMT -05:00) Eastern Time (US & Canada)', gmtOffset: -5 },
+  { name: '(GMT -05:00) New York', gmtOffset: -5 },
+  { name: '(GMT -05:00) Toronto', gmtOffset: -5 },
+  { name: '(GMT -05:00) Bogotá', gmtOffset: -5 },
+  { name: '(GMT -05:00) Lima', gmtOffset: -5 },
+  { name: '(GMT -04:30) Caracas', gmtOffset: -4.5 },
+  { name: '(GMT -04:00) Atlantic Time (Canada)', gmtOffset: -4 },
+  { name: '(GMT -04:00) Santiago', gmtOffset: -4 },
+  { name: '(GMT -03:30) Newfoundland', gmtOffset: -3.5 },
+  { name: '(GMT -03:00) Brazil', gmtOffset: -3 },
+  { name: '(GMT -03:00) São Paulo', gmtOffset: -3 },
+  { name: '(GMT -03:00) Buenos Aires', gmtOffset: -3 },
+  { name: '(GMT -02:00) Mid-Atlantic', gmtOffset: -2 },
+  { name: '(GMT -01:00) Azores', gmtOffset: -1 },
+  { name: '(GMT +00:00) Greenwich Mean Time', gmtOffset: 0 },
+  { name: '(GMT +00:00) London', gmtOffset: 0 },
+  { name: '(GMT +00:00) Casablanca', gmtOffset: 0 },
+  { name: '(GMT +01:00) Central European Time', gmtOffset: 1 },
+  { name: '(GMT +01:00) Berlin', gmtOffset: 1 },
+  { name: '(GMT +01:00) Paris', gmtOffset: 1 },
+  { name: '(GMT +01:00) Rome', gmtOffset: 1 },
+  { name: '(GMT +01:00) Madrid', gmtOffset: 1 },
+  { name: '(GMT +01:00) Amsterdam', gmtOffset: 1 },
+  { name: '(GMT +01:00) Lagos', gmtOffset: 1 },
+  { name: '(GMT +02:00) Eastern European Time', gmtOffset: 2 },
+  { name: '(GMT +02:00) Cairo', gmtOffset: 2 },
+  { name: '(GMT +02:00) Johannesburg', gmtOffset: 2 },
+  { name: '(GMT +02:00) Jerusalem', gmtOffset: 2 },
+  { name: '(GMT +03:00) Moscow', gmtOffset: 3 },
+  { name: '(GMT +03:00) Istanbul', gmtOffset: 3 },
+  { name: '(GMT +03:00) Riyadh', gmtOffset: 3 },
+  { name: '(GMT +03:00) Nairobi', gmtOffset: 3 },
+  { name: '(GMT +03:30) Tehran', gmtOffset: 3.5 },
+  { name: '(GMT +04:00) Dubai', gmtOffset: 4 },
+  { name: '(GMT +04:00) Baku', gmtOffset: 4 },
+  { name: '(GMT +04:30) Kabul', gmtOffset: 4.5 },
+  { name: '(GMT +05:00) Pakistan', gmtOffset: 5 },
+  { name: '(GMT +05:30) India', gmtOffset: 5.5 },
+  { name: '(GMT +05:30) New Delhi', gmtOffset: 5.5 },
+  { name: '(GMT +05:45) Nepal', gmtOffset: 5.75 },
+  { name: '(GMT +06:00) Bangladesh', gmtOffset: 6 },
+  { name: '(GMT +06:30) Myanmar', gmtOffset: 6.5 },
+  { name: '(GMT +07:00) Bangkok', gmtOffset: 7 },
+  { name: '(GMT +07:00) Jakarta', gmtOffset: 7 },
+  { name: '(GMT +07:00) Ho Chi Minh City', gmtOffset: 7 },
+  { name: '(GMT +08:00) China Standard Time', gmtOffset: 8 },
+  { name: '(GMT +08:00) Beijing', gmtOffset: 8 },
+  { name: '(GMT +08:00) Singapore', gmtOffset: 8 },
+  { name: '(GMT +08:00) Kuala Lumpur', gmtOffset: 8 },
+  { name: '(GMT +08:00) Manila', gmtOffset: 8 },
+  { name: '(GMT +08:00) Perth', gmtOffset: 8 },
+  { name: '(GMT +08:45) Eucla', gmtOffset: 8.75 },
+  { name: '(GMT +09:00) Japan Standard Time', gmtOffset: 9 },
+  { name: '(GMT +09:00) Tokyo', gmtOffset: 9 },
+  { name: '(GMT +09:00) Seoul', gmtOffset: 9 },
+  { name: '(GMT +09:30) Adelaide', gmtOffset: 9.5 },
+  { name: '(GMT +10:00) Australian Eastern Time', gmtOffset: 10 },
+  { name: '(GMT +10:00) Sydney', gmtOffset: 10 },
+  { name: '(GMT +10:30) Lord Howe Island', gmtOffset: 10.5 },
+  { name: '(GMT +11:00) Solomon Islands', gmtOffset: 11 },
+  { name: '(GMT +11:30) Norfolk Island', gmtOffset: 11.5 },
+  { name: '(GMT +12:00) New Zealand', gmtOffset: 12 },
+  { name: '(GMT +12:45) Chatham Islands', gmtOffset: 12.75 },
+  { name: '(GMT +13:00) Tonga', gmtOffset: 13 },
+  { name: '(GMT +14:00) Line Islands', gmtOffset: 14 },
+];
+
 const languages = [
   { code: 'bg', name: 'български', flag: '🇧🇬' },
   { code: 'cs', name: 'čeština', flag: '🇨🇿' },
@@ -175,7 +252,7 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({ value, onCha
   const uniqueCurrencies = Array.from(new Set(countries.map(c => c.currency))).sort();
 
   // Sort timezones by GMT offset
-  const sortedTimezones = [...countries].sort((a, b) => a.gmtOffset - b.gmtOffset);
+  const sortedTimezones = allTimezones.sort((a, b) => a.gmtOffset - b.gmtOffset);
 
   return (
     <div className="flex items-center justify-between p-3 border rounded-md">
@@ -214,9 +291,9 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({ value, onCha
                   <SelectValue placeholder="Select timezone" />
                 </SelectTrigger>
                 <SelectContent>
-                  {sortedTimezones.map((country) => (
-                    <SelectItem key={country.code} value={country.timezone}>
-                      {country.timezone}
+                  {sortedTimezones.map((timezone) => (
+                    <SelectItem key={timezone.name} value={timezone.name}>
+                      {timezone.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
