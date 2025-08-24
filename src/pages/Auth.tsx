@@ -766,8 +766,8 @@ const Auth = () => {
       {/* Right side - Image/Background */}
       <div className="hidden lg:block flex-1 bg-muted relative overflow-hidden">
         <img
-          src="/lovable-uploads/3987781e-df60-45fd-99db-ebbe134a103d.png"
-          alt="Professional working"
+          src="/lovable-uploads/5101447c-92ce-49c1-8837-5de26eeff4b6.png"
+          alt="Professional salon manager using Nimos"
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/10 to-accent/20" />
