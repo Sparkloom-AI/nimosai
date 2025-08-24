@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -6,10 +5,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Mail } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowLeft, Mail, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/sonner';
 
@@ -21,23 +21,25 @@ const passwordSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
-const signUpSchema = z.object({
-  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
-  email: z.string().email('Please enter a valid email address'),
+const professionalAccountSchema = z.object({
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
+  mobileNumber: z.string().min(1, 'Mobile number is required'),
+  country: z.string().min(1, 'Country is required'),
+  agreeToTerms: z.boolean().refine((val) => val === true, {
+    message: 'You must agree to the terms and conditions',
+  }),
 });
 
 type EmailFormData = z.infer<typeof emailSchema>;
 type PasswordFormData = z.infer<typeof passwordSchema>;
-type SignUpFormData = z.infer<typeof signUpSchema>;
+type ProfessionalAccountFormData = z.infer<typeof professionalAccountSchema>;
 
 const Auth = () => {
-  const [step, setStep] = useState<'email' | 'password' | 'signup'>('email');
+  const [step, setStep] = useState<'email' | 'password' | 'professional' | 'signup'>('email');
   const [email, setEmail] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { signIn, signUp, signInWithGoogle, user } = useAuth();
   const navigate = useNavigate();
@@ -52,13 +54,15 @@ const Auth = () => {
     defaultValues: { password: '' },
   });
 
-  const signUpForm = useForm<SignUpFormData>({
-    resolver: zodResolver(signUpSchema),
+  const professionalForm = useForm<ProfessionalAccountFormData>({
+    resolver: zodResolver(professionalAccountSchema),
     defaultValues: {
-      fullName: '',
-      email: email,
+      firstName: '',
+      lastName: '',
       password: '',
-      confirmPassword: '',
+      mobileNumber: '',
+      country: 'Indonesia',
+      agreeToTerms: false,
     },
   });
 
@@ -71,12 +75,12 @@ const Auth = () => {
 
   // Update signup form when email changes
   useEffect(() => {
-    signUpForm.setValue('email', email);
-  }, [email, signUpForm]);
+    // signUpForm.setValue('email', email);
+  }, [email]);
 
   const onEmailSubmit = async (data: EmailFormData) => {
     setEmail(data.email);
-    setStep('password');
+    setStep('professional');
   };
 
   const onPasswordSubmit = async (data: PasswordFormData) => {
@@ -101,21 +105,22 @@ const Auth = () => {
     }
   };
 
-  const onSignUp = async (data: SignUpFormData) => {
+  const onProfessionalAccountSubmit = async (data: ProfessionalAccountFormData) => {
     setIsLoading(true);
     try {
-      const { error } = await signUp(data.email, data.password, data.fullName);
+      const fullName = `${data.firstName} ${data.lastName}`;
+      const { error } = await signUp(email, data.password, fullName);
       
       if (error) {
         if (error.message.includes('already registered')) {
           toast.error('An account with this email already exists. Please sign in instead.');
           setStep('password');
         } else {
-          toast.error(error.message || 'Failed to sign up');
+          toast.error(error.message || 'Failed to create account');
         }
       } else {
         toast.success('Account created! Please check your email to verify your account.');
-        setStep('password');
+        navigate('/dashboard');
       }
     } catch (error) {
       toast.error('An unexpected error occurred');
@@ -140,7 +145,10 @@ const Auth = () => {
   };
 
   const goBack = () => {
-    if (step === 'password' || step === 'signup') {
+    if (step === 'professional') {
+      setStep('email');
+      emailForm.setValue('email', email);
+    } else if (step === 'password') {
       setStep('email');
       emailForm.setValue('email', email);
     } else {
@@ -165,10 +173,14 @@ const Auth = () => {
               Back
             </Button>
             
-            <h1 className="text-3xl font-bold mb-2">Nimos for professionals</h1>
-            <p className="text-muted-foreground">
-              Create an account or log in to manage your business.
-            </p>
+            {step !== 'professional' && (
+              <>
+                <h1 className="text-3xl font-bold mb-2">Nimos for professionals</h1>
+                <p className="text-muted-foreground">
+                  Create an account or log in to manage your business.
+                </p>
+              </>
+            )}
           </div>
 
           {/* Email Step */}
@@ -239,6 +251,189 @@ const Auth = () => {
             </div>
           )}
 
+          {/* Professional Account Creation Step */}
+          {step === 'professional' && (
+            <div className="space-y-6">
+              <div className="mb-6">
+                <h1 className="text-2xl font-semibold mb-2">Create a professional account</h1>
+                <p className="text-muted-foreground text-sm">
+                  You're almost there! Create your new account for{' '}
+                  <span className="font-medium">{email}</span> by completing these details.
+                </p>
+              </div>
+
+              <Form {...professionalForm}>
+                <form onSubmit={professionalForm.handleSubmit(onProfessionalAccountSubmit)} className="space-y-5">
+                  <FormField
+                    control={professionalForm.control}
+                    name="firstName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">First name</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter your first name"
+                            className="h-11"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={professionalForm.control}
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Last name</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter your last name"
+                            className="h-11"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={professionalForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Password</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Enter a password"
+                              className="h-11 pr-10"
+                              {...field}
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? (
+                                <EyeOff className="h-4 w-4 text-muted-foreground" />
+                              ) : (
+                                <Eye className="h-4 w-4 text-muted-foreground" />
+                              )}
+                            </Button>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={professionalForm.control}
+                    name="mobileNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Mobile number</FormLabel>
+                        <FormControl>
+                          <div className="flex">
+                            <Select defaultValue="+62">
+                              <SelectTrigger className="w-20 h-11 rounded-r-none border-r-0">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="+62">+62</SelectItem>
+                                <SelectItem value="+1">+1</SelectItem>
+                                <SelectItem value="+44">+44</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <Input
+                              placeholder="Enter your mobile number"
+                              className="h-11 rounded-l-none flex-1"
+                              {...field}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={professionalForm.control}
+                    name="country"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Country</FormLabel>
+                        <FormControl>
+                          <div className="flex items-center justify-between p-3 border rounded-md">
+                            <span>{field.value}</span>
+                            <Button variant="link" className="text-primary p-0 h-auto">
+                              Edit
+                            </Button>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={professionalForm.control}
+                    name="agreeToTerms"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="mt-1"
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel className="text-sm font-normal">
+                            I agree to the{' '}
+                            <Button variant="link" className="p-0 h-auto text-primary">
+                              Privacy Policy
+                            </Button>
+                            ,{' '}
+                            <Button variant="link" className="p-0 h-auto text-primary">
+                              Terms of Service
+                            </Button>
+                            {' '}and{' '}
+                            <Button variant="link" className="p-0 h-auto text-primary">
+                              Terms of Business
+                            </Button>
+                            .
+                          </FormLabel>
+                          <FormMessage />
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 text-base bg-foreground text-background hover:bg-foreground/90"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Creating account...' : 'Create account'}
+                  </Button>
+                </form>
+              </Form>
+
+              <div className="text-center text-xs text-muted-foreground">
+                This site is protected by reCAPTCHA.<br />
+                Google Privacy Policy and Terms of Service apply
+              </div>
+            </div>
+          )}
+
           {/* Password Step */}
           {step === 'password' && (
             <div className="space-y-6">
@@ -280,100 +475,6 @@ const Auth = () => {
                 <Button 
                   variant="link" 
                   className="text-primary"
-                  onClick={() => setStep('signup')}
-                >
-                  Don't have an account? Sign up
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Sign Up Step */}
-          {step === 'signup' && (
-            <div className="space-y-6">
-              <Form {...signUpForm}>
-                <form onSubmit={signUpForm.handleSubmit(onSignUp)} className="space-y-4">
-                  <FormField
-                    control={signUpForm.control}
-                    name="fullName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            placeholder="Full name"
-                            className="h-12 text-base"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={signUpForm.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            placeholder="Email address"
-                            type="email"
-                            className="h-12 text-base"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={signUpForm.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            placeholder="Password"
-                            type="password"
-                            className="h-12 text-base"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={signUpForm.control}
-                    name="confirmPassword"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            placeholder="Confirm password"
-                            type="password"
-                            className="h-12 text-base"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button 
-                    type="submit" 
-                    className="w-full h-12 text-base bg-foreground text-background hover:bg-foreground/90"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? 'Creating account...' : 'Create account'}
-                  </Button>
-                </form>
-              </Form>
-
-              <div className="text-center">
-                <Button 
-                  variant="link" 
-                  className="text-primary"
                   onClick={() => setStep('password')}
                 >
                   Already have an account? Sign in
@@ -385,14 +486,13 @@ const Auth = () => {
       </div>
 
       {/* Right side - Image/Background */}
-      <div className="hidden lg:block flex-1 bg-muted relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10" />
-        <div className="absolute bottom-8 left-8 right-8">
-          <div className="text-xs text-muted-foreground text-center">
-            This site is protected by reCAPTCHA.<br />
-            Google Privacy Policy and Terms of Service apply
-          </div>
-        </div>
+      <div className="hidden lg:block flex-1 bg-muted relative overflow-hidden">
+        <img
+          src="/lovable-uploads/7499d942-cbd7-4aec-a6ab-9c473cecfe01.png"
+          alt="Professional working"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent" />
       </div>
     </div>
   );
