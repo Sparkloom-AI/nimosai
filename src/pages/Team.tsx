@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
@@ -34,7 +33,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { teamApi } from '@/api/team';
 import { useAuth } from '@/contexts/AuthContext';
-import { AddTeamMemberModal } from '@/components/team/AddTeamMemberModal';
+import AddTeamMemberModal from '@/components/team/AddTeamMemberModal';
 import { toast } from 'sonner';
 
 const Team = () => {
@@ -303,7 +302,7 @@ const Team = () => {
 
         {/* Add Team Member Modal */}
         <AddTeamMemberModal 
-          open={isAddModalOpen} 
+          isOpen={isAddModalOpen} 
           onOpenChange={setIsAddModalOpen}
           onSuccess={refetch}
         />
