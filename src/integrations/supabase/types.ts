@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      locations: {
+        Row: {
+          address: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          phone: string | null
+          studio_id: string
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          phone?: string | null
+          studio_id: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          phone?: string | null
+          studio_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "locations_studio_id_fkey"
+            columns: ["studio_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -41,6 +79,356 @@ export type Database = {
         }
         Relationships: []
       }
+      services: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          duration: number
+          id: string
+          is_active: boolean
+          name: string
+          price: number
+          studio_id: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          duration: number
+          id?: string
+          is_active?: boolean
+          name: string
+          price: number
+          studio_id: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          duration?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          price?: number
+          studio_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "services_studio_id_fkey"
+            columns: ["studio_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_member_addresses: {
+        Row: {
+          address_type: string
+          city: string
+          country: string
+          created_at: string
+          id: string
+          is_primary: boolean
+          postal_code: string
+          state: string
+          street_address: string
+          team_member_id: string
+        }
+        Insert: {
+          address_type?: string
+          city: string
+          country?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          postal_code: string
+          state: string
+          street_address: string
+          team_member_id: string
+        }
+        Update: {
+          address_type?: string
+          city?: string
+          country?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          postal_code?: string
+          state?: string
+          street_address?: string
+          team_member_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_member_addresses_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_member_emergency_contacts: {
+        Row: {
+          contact_name: string
+          created_at: string
+          email: string | null
+          id: string
+          is_primary: boolean
+          phone: string
+          relationship: string
+          team_member_id: string
+        }
+        Insert: {
+          contact_name: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean
+          phone: string
+          relationship: string
+          team_member_id: string
+        }
+        Update: {
+          contact_name?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean
+          phone?: string
+          relationship?: string
+          team_member_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_member_emergency_contacts_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_member_locations: {
+        Row: {
+          created_at: string
+          id: string
+          is_primary: boolean
+          location_id: string
+          team_member_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          location_id: string
+          team_member_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          location_id?: string
+          team_member_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_member_locations_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_member_locations_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_member_services: {
+        Row: {
+          created_at: string
+          custom_price: number | null
+          id: string
+          service_id: string
+          team_member_id: string
+        }
+        Insert: {
+          created_at?: string
+          custom_price?: number | null
+          id?: string
+          service_id: string
+          team_member_id: string
+        }
+        Update: {
+          created_at?: string
+          custom_price?: number | null
+          id?: string
+          service_id?: string
+          team_member_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_member_services_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_member_services_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_members: {
+        Row: {
+          avatar_url: string | null
+          calendar_color: string | null
+          commission_rate: number | null
+          created_at: string
+          email: string
+          employment_type: Database["public"]["Enums"]["employment_type"]
+          end_date: string | null
+          first_name: string
+          hourly_rate: number | null
+          id: string
+          is_bookable: boolean
+          job_title: string | null
+          last_name: string
+          notes: string | null
+          permission_level: Database["public"]["Enums"]["permission_level"]
+          phone: string | null
+          start_date: string
+          studio_id: string
+          team_member_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          calendar_color?: string | null
+          commission_rate?: number | null
+          created_at?: string
+          email: string
+          employment_type?: Database["public"]["Enums"]["employment_type"]
+          end_date?: string | null
+          first_name: string
+          hourly_rate?: number | null
+          id?: string
+          is_bookable?: boolean
+          job_title?: string | null
+          last_name: string
+          notes?: string | null
+          permission_level?: Database["public"]["Enums"]["permission_level"]
+          phone?: string | null
+          start_date?: string
+          studio_id: string
+          team_member_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          calendar_color?: string | null
+          commission_rate?: number | null
+          created_at?: string
+          email?: string
+          employment_type?: Database["public"]["Enums"]["employment_type"]
+          end_date?: string | null
+          first_name?: string
+          hourly_rate?: number | null
+          id?: string
+          is_bookable?: boolean
+          job_title?: string | null
+          last_name?: string
+          notes?: string | null
+          permission_level?: Database["public"]["Enums"]["permission_level"]
+          phone?: string | null
+          start_date?: string
+          studio_id?: string
+          team_member_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_members_studio_id_fkey"
+            columns: ["studio_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_shifts: {
+        Row: {
+          created_at: string
+          end_time: string
+          id: string
+          is_recurring: boolean
+          location_id: string
+          notes: string | null
+          recurring_pattern: string | null
+          shift_date: string
+          start_time: string
+          status: Database["public"]["Enums"]["shift_status"]
+          team_member_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          id?: string
+          is_recurring?: boolean
+          location_id: string
+          notes?: string | null
+          recurring_pattern?: string | null
+          shift_date: string
+          start_time: string
+          status?: Database["public"]["Enums"]["shift_status"]
+          team_member_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          id?: string
+          is_recurring?: boolean
+          location_id?: string
+          notes?: string | null
+          recurring_pattern?: string | null
+          shift_date?: string
+          start_time?: string
+          status?: Database["public"]["Enums"]["shift_status"]
+          team_member_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_shifts_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_shifts_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -49,7 +437,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      employment_type: "full_time" | "part_time" | "contractor" | "intern"
+      permission_level: "low" | "medium" | "high"
+      shift_status:
+        | "scheduled"
+        | "confirmed"
+        | "completed"
+        | "cancelled"
+        | "no_show"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -176,6 +571,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      employment_type: ["full_time", "part_time", "contractor", "intern"],
+      permission_level: ["low", "medium", "high"],
+      shift_status: [
+        "scheduled",
+        "confirmed",
+        "completed",
+        "cancelled",
+        "no_show",
+      ],
+    },
   },
 } as const
