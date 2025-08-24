@@ -1,14 +1,15 @@
+
 import React from 'react';
 import './App.css';
-import { Auth } from '@/pages/Auth';
-import { Index } from '@/pages/Index';
-import { Dashboard } from '@/pages/Dashboard';
-import { NotFound } from '@/pages/NotFound';
-import { CookiePolicy } from '@/pages/CookiePolicy';
-import { ThemeProvider } from "@/components/theme-provider"
+import Auth from '@/pages/Auth';
+import Index from '@/pages/Index';
+import Dashboard from '@/pages/Dashboard';
+import NotFound from '@/pages/NotFound';
+import CookiePolicy from '@/pages/CookiePolicy';
+import { ThemeProvider } from "next-themes";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
-import { ProtectedRoute } from '@/components/ProtectedRoute';
+import ProtectedRoute from '@/components/ProtectedRoute';
 import CookieConsent from 'react-cookie-consent';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Team from '@/pages/Team';
