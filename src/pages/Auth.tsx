@@ -201,7 +201,7 @@ const phoneCountries = [
   { name: 'Mozambique', code: 'MZ', phone: '+258', flag: '🇲🇿' },
   { name: 'Myanmar', code: 'MM', phone: '+95', flag: '🇲🇲' },
   { name: 'Namibia', code: 'NA', phone: '+264', flag: '🇳🇦' },
-  { name: 'Nauru', code: 'NR', phone: '+674', flag: '🇳🇷' },
+  { name: 'Nauru', code: 'NR', phone: '+686', flag: '🇳🇷' },
   { name: 'Nepal', code: 'NP', phone: '+977', flag: '🇳🇵' },
   { name: 'Netherlands', code: 'NL', phone: '+31', flag: '🇳🇱' },
   { name: 'Netherlands Antilles', code: 'AN', phone: '+599', flag: '🇦🇳' },
@@ -770,7 +770,14 @@ const Auth = () => {
           alt="Professional working"
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/10 to-accent/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+        
+        {/* Optional: Add some elegant overlay content */}
+        <div className="absolute bottom-8 left-8 right-8 text-white">
+          <h2 className="text-2xl font-bold mb-2">Welcome to Nimos</h2>
+          <p className="text-white/90 text-lg">Streamline your salon operations with our WhatsApp-first management platform</p>
+        </div>
       </div>
     </div>
   );
