@@ -13,6 +13,118 @@ import { ArrowLeft, Mail, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/sonner';
 
+// Country codes mapping
+const countryPhoneCodes = {
+  'US': '+1',
+  'CA': '+1',
+  'GB': '+44',
+  'AU': '+61',
+  'DE': '+49',
+  'FR': '+33',
+  'IT': '+39',
+  'ES': '+34',
+  'NL': '+31',
+  'BE': '+32',
+  'CH': '+41',
+  'AT': '+43',
+  'SE': '+46',
+  'NO': '+47',
+  'DK': '+45',
+  'FI': '+358',
+  'PL': '+48',
+  'CZ': '+420',
+  'HU': '+36',
+  'RO': '+40',
+  'BG': '+359',
+  'HR': '+385',
+  'SI': '+386',
+  'SK': '+421',
+  'EE': '+372',
+  'LV': '+371',
+  'LT': '+370',
+  'IE': '+353',
+  'PT': '+351',
+  'GR': '+30',
+  'CY': '+357',
+  'MT': '+356',
+  'LU': '+352',
+  'IS': '+354',
+  'JP': '+81',
+  'KR': '+82',
+  'CN': '+86',
+  'HK': '+852',
+  'TW': '+886',
+  'SG': '+65',
+  'MY': '+60',
+  'TH': '+66',
+  'VN': '+84',
+  'PH': '+63',
+  'ID': '+62',
+  'IN': '+91',
+  'PK': '+92',
+  'BD': '+880',
+  'LK': '+94',
+  'NP': '+977',
+  'BT': '+975',
+  'MV': '+960',
+  'AF': '+93',
+  'IR': '+98',
+  'IQ': '+964',
+  'SA': '+966',
+  'AE': '+971',
+  'QA': '+974',
+  'BH': '+973',
+  'KW': '+965',
+  'OM': '+968',
+  'YE': '+967',
+  'JO': '+962',
+  'SY': '+963',
+  'LB': '+961',
+  'IL': '+972',
+  'PS': '+970',
+  'TR': '+90',
+  'EG': '+20',
+  'LY': '+218',
+  'TN': '+216',
+  'DZ': '+213',
+  'MA': '+212',
+  'ZA': '+27',
+  'KE': '+254',
+  'NG': '+234',
+  'GH': '+233',
+  'UG': '+256',
+  'TZ': '+255',
+  'ET': '+251',
+  'MX': '+52',
+  'BR': '+55',
+  'AR': '+54',
+  'CL': '+56',
+  'CO': '+57',
+  'PE': '+51',
+  'VE': '+58',
+  'EC': '+593',
+  'UY': '+598',
+  'PY': '+595',
+  'BO': '+591',
+  'GY': '+592',
+  'SR': '+597',
+  'GF': '+594',
+  'FK': '+500',
+  'RU': '+7',
+  'UA': '+380',
+  'BY': '+375',
+  'MD': '+373',
+  'GE': '+995',
+  'AM': '+374',
+  'AZ': '+994',
+  'KZ': '+7',
+  'UZ': '+998',
+  'TM': '+993',
+  'TJ': '+992',
+  'KG': '+996',
+  'MN': '+976',
+};
+
 const emailSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
 });
@@ -41,8 +153,75 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [detectedCountryCode, setDetectedCountryCode] = useState('+62'); // Default to Indonesia
   const { signIn, signUp, signInWithGoogle, user } = useAuth();
   const navigate = useNavigate();
+
+  // Detect user's location
+  useEffect(() => {
+    const detectCountry = async () => {
+      try {
+        // Try to get timezone first
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        
+        // Map common timezones to country codes
+        const timezoneToCountry: { [key: string]: string } = {
+          'America/New_York': 'US',
+          'America/Los_Angeles': 'US',
+          'America/Chicago': 'US',
+          'America/Denver': 'US',
+          'Europe/London': 'GB',
+          'Europe/Paris': 'FR',
+          'Europe/Berlin': 'DE',
+          'Europe/Rome': 'IT',
+          'Europe/Madrid': 'ES',
+          'Asia/Tokyo': 'JP',
+          'Asia/Seoul': 'KR',
+          'Asia/Shanghai': 'CN',
+          'Asia/Hong_Kong': 'HK',
+          'Asia/Singapore': 'SG',
+          'Asia/Jakarta': 'ID',
+          'Asia/Bangkok': 'TH',
+          'Asia/Manila': 'PH',
+          'Asia/Kuala_Lumpur': 'MY',
+          'Asia/Ho_Chi_Minh': 'VN',
+          'Asia/Kolkata': 'IN',
+          'Australia/Sydney': 'AU',
+          'Australia/Melbourne': 'AU',
+          'Canada/Eastern': 'CA',
+          'Canada/Pacific': 'CA',
+        };
+
+        const countryCode = timezoneToCountry[timezone];
+        if (countryCode && countryPhoneCodes[countryCode]) {
+          setDetectedCountryCode(countryPhoneCodes[countryCode]);
+        }
+
+        // Fallback: try to use geolocation API
+        if (!countryCode && 'geolocation' in navigator) {
+          navigator.geolocation.getCurrentPosition(
+            async (position) => {
+              try {
+                // This would normally require a reverse geocoding service
+                // For now, we'll keep the default
+                console.log('Location detected:', position.coords);
+              } catch (error) {
+                console.log('Geolocation error:', error);
+              }
+            },
+            (error) => {
+              console.log('Geolocation denied or failed:', error);
+            },
+            { timeout: 5000 }
+          );
+        }
+      } catch (error) {
+        console.log('Country detection failed:', error);
+      }
+    };
+
+    detectCountry();
+  }, []);
 
   const emailForm = useForm<EmailFormData>({
     resolver: zodResolver(emailSchema),
@@ -65,6 +244,17 @@ const Auth = () => {
       agreeToTerms: false,
     },
   });
+
+  // Update phone prefix when detected country changes
+  useEffect(() => {
+    if (detectedCountryCode) {
+      // Update the form's default phone prefix
+      const phoneSelect = document.querySelector('[data-phone-prefix]') as HTMLElement;
+      if (phoneSelect) {
+        phoneSelect.setAttribute('data-default-value', detectedCountryCode);
+      }
+    }
+  }, [detectedCountryCode]);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -342,14 +532,39 @@ const Auth = () => {
                         <FormLabel className="text-sm font-medium">Mobile number</FormLabel>
                         <FormControl>
                           <div className="flex">
-                            <Select defaultValue="+62">
-                              <SelectTrigger className="w-20 h-11 rounded-r-none border-r-0">
+                            <Select defaultValue={detectedCountryCode} data-phone-prefix>
+                              <SelectTrigger className="w-24 h-11 rounded-r-none border-r-0">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="+62">+62</SelectItem>
-                                <SelectItem value="+1">+1</SelectItem>
-                                <SelectItem value="+44">+44</SelectItem>
+                                <SelectItem value="+1">🇺🇸 +1</SelectItem>
+                                <SelectItem value="+44">🇬🇧 +44</SelectItem>
+                                <SelectItem value="+49">🇩🇪 +49</SelectItem>
+                                <SelectItem value="+33">🇫🇷 +33</SelectItem>
+                                <SelectItem value="+39">🇮🇹 +39</SelectItem>
+                                <SelectItem value="+34">🇪🇸 +34</SelectItem>
+                                <SelectItem value="+31">🇳🇱 +31</SelectItem>
+                                <SelectItem value="+61">🇦🇺 +61</SelectItem>
+                                <SelectItem value="+81">🇯🇵 +81</SelectItem>
+                                <SelectItem value="+82">🇰🇷 +82</SelectItem>
+                                <SelectItem value="+86">🇨🇳 +86</SelectItem>
+                                <SelectItem value="+852">🇭🇰 +852</SelectItem>
+                                <SelectItem value="+65">🇸🇬 +65</SelectItem>
+                                <SelectItem value="+60">🇲🇾 +60</SelectItem>
+                                <SelectItem value="+66">🇹🇭 +66</SelectItem>
+                                <SelectItem value="+84">🇻🇳 +84</SelectItem>
+                                <SelectItem value="+63">🇵🇭 +63</SelectItem>
+                                <SelectItem value="+62">🇮🇩 +62</SelectItem>
+                                <SelectItem value="+91">🇮🇳 +91</SelectItem>
+                                <SelectItem value="+7">🇷🇺 +7</SelectItem>
+                                <SelectItem value="+55">🇧🇷 +55</SelectItem>
+                                <SelectItem value="+52">🇲🇽 +52</SelectItem>
+                                <SelectItem value="+27">🇿🇦 +27</SelectItem>
+                                <SelectItem value="+234">🇳🇬 +234</SelectItem>
+                                <SelectItem value="+20">🇪🇬 +20</SelectItem>
+                                <SelectItem value="+971">🇦🇪 +971</SelectItem>
+                                <SelectItem value="+966">🇸🇦 +966</SelectItem>
+                                <SelectItem value="+90">🇹🇷 +90</SelectItem>
                               </SelectContent>
                             </Select>
                             <Input
