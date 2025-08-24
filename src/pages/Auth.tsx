@@ -304,6 +304,7 @@ const Auth = () => {
   const [selectedPhonePrefix, setSelectedPhonePrefix] = useState('');
   const [showWizard, setShowWizard] = useState(false);
   const [pendingSignUp, setPendingSignUp] = useState(false);
+  const [userDisplayName, setUserDisplayName] = useState('');
   const [locationData, setLocationData] = useState<LocationData>({
     country: '',
     countryCode: '',
@@ -361,9 +362,60 @@ const Auth = () => {
     }
   }, [user, navigate, showWizard, pendingSignUp]);
 
+  const checkEmailExists = async (email: string) => {
+    try {
+      // Try to sign in with a dummy password to check if email exists
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password: 'dummy-password-to-check-email'
+      });
+      
+      if (error) {
+        // If error message contains "Invalid login credentials", the email exists but password is wrong
+        if (error.message.includes('Invalid login credentials')) {
+          return true; // Email exists
+        }
+        // If error message contains "User not found" or similar, email doesn't exist
+        return false;
+      }
+      
+      // If no error, email exists and password was correct (unlikely with dummy password)
+      return true;
+    } catch (error) {
+      console.error('Error checking email:', error);
+      return false;
+    }
+  };
+
   const onEmailSubmit = async (data: EmailFormData) => {
+    setIsLoading(true);
     setEmail(data.email);
-    setStep('professional');
+    
+    try {
+      const emailExists = await checkEmailExists(data.email);
+      
+      if (emailExists) {
+        // Get user profile to show display name
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('email', data.email)
+          .single();
+        
+        if (profiles?.full_name) {
+          setUserDisplayName(profiles.full_name);
+        }
+        
+        setStep('password');
+      } else {
+        setStep('professional');
+      }
+    } catch (error) {
+      console.error('Error in email submission:', error);
+      toast.error('An error occurred while checking your email');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const onPasswordSubmit = async (data: PasswordFormData) => {
@@ -513,11 +565,23 @@ const Auth = () => {
               Back
             </Button>
             
-            {step !== 'professional' && step !== 'email-confirmation' && (
+            {step !== 'professional' && step !== 'email-confirmation' && step !== 'password' && (
               <>
                 <h1 className="text-3xl font-bold mb-2">Nimos for professionals</h1>
                 <p className="text-muted-foreground">
                   Create an account or log in to manage your business.
+                </p>
+              </>
+            )}
+
+            {step === 'password' && (
+              <>
+                <h1 className="text-3xl font-bold mb-2">
+                  Welcome back to your business account{userDisplayName ? `, ${userDisplayName.split(' ')[0]}` : ''}
+                </h1>
+                <p className="text-muted-foreground">
+                  Enter your password to log in as{' '}
+                  <span className="font-medium">{email}</span>
                 </p>
               </>
             )}
@@ -594,7 +658,7 @@ const Auth = () => {
                     className="w-full h-12 text-base bg-foreground text-background hover:bg-foreground/90"
                     disabled={isLoading}
                   >
-                    Continue
+                    {isLoading ? 'Checking...' : 'Continue'}
                   </Button>
                 </form>
               </Form>
@@ -823,11 +887,6 @@ const Auth = () => {
           {/* Password Step */}
           {step === 'password' && (
             <div className="space-y-6">
-              <div className="text-sm text-muted-foreground mb-4">
-                <Mail className="w-4 h-4 inline mr-2" />
-                {email}
-              </div>
-              
               <Form {...passwordForm}>
                 <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
                   <FormField
@@ -835,37 +894,57 @@ const Auth = () => {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
+                        <FormLabel className="text-sm font-medium">Password</FormLabel>
                         <FormControl>
-                          <Input
-                            placeholder="Enter your password"
-                            type="password"
-                            className="h-12 text-base"
-                            {...field}
-                          />
+                          <div className="relative">
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Enter a password"
+                              className="h-12 text-base pr-10"
+                              {...field}
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? (
+                                <EyeOff className="h-4 w-4 text-muted-foreground" />
+                              ) : (
+                                <Eye className="h-4 w-4 text-muted-foreground" />
+                              )}
+                            </Button>
+                          </div>
                         </FormControl>
                         <FormMessage />
+                        {passwordForm.formState.errors.password && (
+                          <p className="text-sm text-red-600">This field is required</p>
+                        )}
                       </FormItem>
                     )}
                   />
+                  
+                  <div className="text-center">
+                    <Button 
+                      variant="link" 
+                      className="text-primary p-0 h-auto"
+                      type="button"
+                    >
+                      Forgot your password?
+                    </Button>
+                  </div>
+
                   <Button 
                     type="submit" 
                     className="w-full h-12 text-base bg-foreground text-background hover:bg-foreground/90"
                     disabled={isLoading}
                   >
-                    {isLoading ? 'Signing in...' : 'Continue'}
+                    {isLoading ? 'Logging in...' : 'Log in'}
                   </Button>
                 </form>
               </Form>
-
-              <div className="text-center">
-                <Button 
-                  variant="link" 
-                  className="text-primary"
-                  onClick={() => setStep('password')}
-                >
-                  Already have an account? Sign in
-                </Button>
-              </div>
             </div>
           )}
         </div>
