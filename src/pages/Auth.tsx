@@ -766,7 +766,7 @@ const Auth = () => {
       {/* Right side - Image/Background */}
       <div className="hidden lg:block flex-1 bg-muted relative overflow-hidden">
         <img
-          src="/lovable-uploads/7499d942-cbd7-4aec-a6ab-9c473cecfe01.png"
+          src="/lovable-uploads/3987781e-df60-45fd-99db-ebbe134a103d.png"
           alt="Professional working"
           className="absolute inset-0 w-full h-full object-cover"
         />
