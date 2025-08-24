@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -172,6 +171,9 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({ value, onCha
     }
   };
 
+  // Get unique currencies for the currency dropdown
+  const uniqueCurrencies = Array.from(new Set(countries.map(c => c.currency))).sort();
+
   return (
     <div className="flex items-center justify-between p-3 border rounded-md">
       <span>{value.country || 'Select country'}</span>
@@ -225,9 +227,9 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({ value, onCha
                   <SelectValue placeholder="Select currency" />
                 </SelectTrigger>
                 <SelectContent>
-                  {countries.map((country) => (
-                    <SelectItem key={country.code} value={country.currency}>
-                      {country.currency}
+                  {uniqueCurrencies.map((currency) => (
+                    <SelectItem key={currency} value={currency}>
+                      {currency}
                     </SelectItem>
                   ))}
                 </SelectContent>
