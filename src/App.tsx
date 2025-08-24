@@ -13,6 +13,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import CookieConsent from 'react-cookie-consent';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Team from '@/pages/Team';
+import ScheduledShifts from '@/pages/ScheduledShifts';
 
 function App() {
   const queryClient = new QueryClient();
@@ -40,6 +41,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Team />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/scheduled-shifts"
+                  element={
+                    <ProtectedRoute>
+                      <ScheduledShifts />
                     </ProtectedRoute>
                   }
                 />

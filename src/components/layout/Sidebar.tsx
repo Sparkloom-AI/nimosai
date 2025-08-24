@@ -10,13 +10,15 @@ import {
   Briefcase,
   BarChart3,
   MessageSquare,
-  CreditCard
+  CreditCard,
+  Clock
 } from 'lucide-react';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'Calendar', href: '/calendar', icon: Calendar },
   { name: 'Team', href: '/team', icon: Users },
+  { name: 'Scheduled Shifts', href: '/scheduled-shifts', icon: Clock },
   { name: 'Services', href: '/services', icon: Briefcase },
   { name: 'Reports', href: '/reports', icon: BarChart3 },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
