@@ -13,6 +13,7 @@ import { ArrowLeft, Mail, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/sonner';
 import { LocationSettings, detectLocationFromTimezone } from '@/components/auth/LocationSettings';
+import AccountSetupWizard from '@/components/auth/AccountSetupWizard';
 
 const emailSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -295,7 +296,7 @@ const phoneCountries = [
 ];
 
 const Auth = () => {
-  const [step, setStep] = useState<'email' | 'password' | 'professional' | 'signup'>('email');
+  const [step, setStep] = useState<'email' | 'password' | 'professional' | 'setup-wizard'>('email');
   const [email, setEmail] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -389,8 +390,8 @@ const Auth = () => {
           toast.error(error.message || 'Failed to create account');
         }
       } else {
-        toast.success('Account created! Please check your email to verify your account.');
-        navigate('/dashboard');
+        toast.success('Account created successfully!');
+        setStep('setup-wizard');
       }
     } catch (error) {
       toast.error('An unexpected error occurred');
@@ -414,6 +415,12 @@ const Auth = () => {
     }
   };
 
+  const handleSetupComplete = (setupType: 'create' | 'join') => {
+    // Store the setup choice for later use
+    localStorage.setItem('nimos-setup-type', setupType);
+    navigate('/dashboard');
+  };
+
   const goBack = () => {
     if (step === 'professional') {
       setStep('email');
@@ -431,6 +438,10 @@ const Auth = () => {
     setSelectedPhonePrefix(newLocationData.phonePrefix);
     professionalForm.setValue('country', newLocationData.country);
   };
+
+  if (step === 'setup-wizard') {
+    return <AccountSetupWizard onComplete={handleSetupComplete} />;
+  }
 
   return (
     <div className="min-h-screen bg-background flex">
