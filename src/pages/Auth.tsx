@@ -9,11 +9,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Mail, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Mail, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/sonner';
 import { LocationSettings, detectLocationFromTimezone } from '@/components/auth/LocationSettings';
 import AccountSetupWizard from '@/components/auth/AccountSetupWizard';
+import { supabase } from '@/integrations/supabase/client';
 
 const emailSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -296,12 +297,13 @@ const phoneCountries = [
 ];
 
 const Auth = () => {
-  const [step, setStep] = useState<'email' | 'password' | 'professional' | 'setup-wizard'>('email');
+  const [step, setStep] = useState<'email' | 'password' | 'professional' | 'email-confirmation'>('email');
   const [email, setEmail] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPhonePrefix, setSelectedPhonePrefix] = useState('');
   const [showWizard, setShowWizard] = useState(false);
+  const [pendingSignUp, setPendingSignUp] = useState(false);
   const [locationData, setLocationData] = useState<LocationData>({
     country: '',
     countryCode: '',
@@ -343,12 +345,21 @@ const Auth = () => {
     professionalForm.setValue('country', detected.country);
   }, []);
 
-  // Redirect if already authenticated
+  // Check for newly authenticated users who need setup
   useEffect(() => {
-    if (user) {
+    if (user && pendingSignUp) {
+      console.log('Newly authenticated user detected, showing wizard...');
+      setPendingSignUp(false);
+      setShowWizard(true);
+    }
+  }, [user, pendingSignUp]);
+
+  // Redirect if already authenticated (but not if we need to show wizard)
+  useEffect(() => {
+    if (user && !showWizard && !pendingSignUp) {
       navigate('/dashboard');
     }
-  }, [user, navigate]);
+  }, [user, navigate, showWizard, pendingSignUp]);
 
   const onEmailSubmit = async (data: EmailFormData) => {
     setEmail(data.email);
@@ -395,14 +406,36 @@ const Auth = () => {
           toast.error(error.message || 'Failed to create account');
         }
       } else {
-        console.log('Account created successfully, showing wizard...');
+        console.log('Account created successfully, moving to email confirmation...');
+        setPendingSignUp(true);
+        setStep('email-confirmation');
         toast.success('Account created successfully! Please check your email to confirm your account.');
-        // Show wizard directly
-        setShowWizard(true);
-        setStep('setup-wizard');
       }
     } catch (error) {
       console.log('Unexpected error:', error);
+      toast.error('An unexpected error occurred');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendConfirmation = async () => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`
+        }
+      });
+
+      if (error) {
+        toast.error(error.message || 'Failed to resend confirmation email');
+      } else {
+        toast.success('Confirmation email resent! Please check your inbox.');
+      }
+    } catch (error) {
       toast.error('An unexpected error occurred');
     } finally {
       setIsLoading(false);
@@ -426,8 +459,8 @@ const Auth = () => {
 
   const handleSetupComplete = (setupType: 'create' | 'join') => {
     console.log('Setup completed with type:', setupType);
-    // Store the setup choice for later use
     localStorage.setItem('nimos-setup-type', setupType);
+    setShowWizard(false);
     navigate('/dashboard');
   };
 
@@ -438,8 +471,7 @@ const Auth = () => {
     } else if (step === 'password') {
       setStep('email');
       emailForm.setValue('email', email);
-    } else if (step === 'setup-wizard') {
-      setShowWizard(false);
+    } else if (step === 'email-confirmation') {
       setStep('professional');
     } else {
       navigate('/');
@@ -452,9 +484,9 @@ const Auth = () => {
     professionalForm.setValue('country', newLocationData.country);
   };
 
-  console.log('Current state:', { step, showWizard, user });
+  console.log('Current state:', { step, showWizard, user, pendingSignUp });
 
-  if (showWizard || step === 'setup-wizard') {
+  if (showWizard) {
     console.log('Rendering setup wizard...');
     return <AccountSetupWizard onComplete={handleSetupComplete} />;
   }
@@ -476,7 +508,7 @@ const Auth = () => {
               Back
             </Button>
             
-            {step !== 'professional' && (
+            {step !== 'professional' && step !== 'email-confirmation' && (
               <>
                 <h1 className="text-3xl font-bold mb-2">Nimos for professionals</h1>
                 <p className="text-muted-foreground">
@@ -485,6 +517,50 @@ const Auth = () => {
               </>
             )}
           </div>
+
+          {/* Email Confirmation Step */}
+          {step === 'email-confirmation' && (
+            <div className="space-y-6">
+              <div className="text-center">
+                <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                  <Mail className="w-8 h-8 text-primary" />
+                </div>
+                <h1 className="text-2xl font-semibold mb-2">Check your email</h1>
+                <p className="text-muted-foreground mb-4">
+                  We've sent a confirmation link to{' '}
+                  <span className="font-medium">{email}</span>
+                </p>
+                <p className="text-sm text-muted-foreground mb-8">
+                  Click the link in your email to confirm your account and complete setup.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <Button 
+                  onClick={handleResendConfirmation}
+                  variant="outline"
+                  className="w-full h-12 text-base"
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Sending...' : 'Resend confirmation email'}
+                </Button>
+                
+                <div className="text-center text-sm text-muted-foreground">
+                  Didn't receive the email? Check your spam folder or try again.
+                </div>
+              </div>
+
+              <div className="mt-8 p-4 bg-muted/50 rounded-lg">
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                  <div className="text-sm text-muted-foreground">
+                    <p className="font-medium mb-1">What happens next?</p>
+                    <p>After confirming your email, you'll be guided through setting up your business account on Nimos.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Email Step */}
           {step === 'email' && (
