@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, User } from 'lucide-react';
+import { Clock, User, Calendar } from 'lucide-react';
 
 const TodayAppointments = () => {
   // Mock data - in real app this would come from API

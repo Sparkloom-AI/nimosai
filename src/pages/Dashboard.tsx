@@ -1,6 +1,6 @@
 
 import React from 'react';
-import DashboardLayout from '@/components/layout/DashboardLayout';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import RecentSales from '@/components/dashboard/RecentSales';
 import UpcomingAppointments from '@/components/dashboard/UpcomingAppointments';
 import AppointmentsActivity from '@/components/dashboard/AppointmentsActivity';
