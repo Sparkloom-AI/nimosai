@@ -3,44 +3,172 @@ import React, { useState } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { CalendarDays } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { teamApi } from '@/api/team';
+import { shiftsApi } from '@/api/shifts';
 import { useAuth } from '@/contexts/AuthContext';
 import { format, startOfWeek, addDays, addWeeks, subWeeks } from 'date-fns';
+import { toast } from 'sonner';
 import SetRegularShiftsModal from '@/components/team/SetRegularShiftsModal';
 import WeeklyScheduleTable from '@/components/team/WeeklyScheduleTable';
 import WeekNavigation from '@/components/team/WeekNavigation';
 import ScheduledShiftsHeader from '@/components/team/ScheduledShiftsHeader';
+import EditShiftModal from '@/components/team/EditShiftModal';
 
 const ScheduledShifts = () => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [selectedTeamMember, setSelectedTeamMember] = useState<string | null>(null);
+  const [selectedTeamMemberName, setSelectedTeamMemberName] = useState<string>('');
   const [isRegularShiftsModalOpen, setIsRegularShiftsModalOpen] = useState(false);
+  const [isEditShiftModalOpen, setIsEditShiftModalOpen] = useState(false);
+  const [editingShift, setEditingShift] = useState<any>(null);
 
-  const { data: teamMembers, isLoading } = useQuery({
+  // Fetch team members
+  const { data: teamMembers, isLoading: isLoadingTeam } = useQuery({
     queryKey: ['team-members', user?.id],
     queryFn: () => user?.id ? teamApi.getTeamMembers(user.id) : Promise.resolve([]),
     enabled: !!user?.id,
   });
 
-  const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 }); // Start week on Monday
+  // Fetch locations
+  const { data: locations = [] } = useQuery({
+    queryKey: ['locations', user?.id],
+    queryFn: () => user?.id ? teamApi.getLocations(user.id) : Promise.resolve([]),
+    enabled: !!user?.id,
+  });
+
+  const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
+  const weekEnd = addDays(weekStart, 6);
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+
+  // Fetch shifts for the current week
+  const { data: shifts = [], isLoading: isLoadingShifts } = useQuery({
+    queryKey: ['shifts', user?.id, format(weekStart, 'yyyy-MM-dd'), format(weekEnd, 'yyyy-MM-dd')],
+    queryFn: () => user?.id ? shiftsApi.getShiftsForWeek(
+      user.id,
+      format(weekStart, 'yyyy-MM-dd'),
+      format(weekEnd, 'yyyy-MM-dd')
+    ) : Promise.resolve([]),
+    enabled: !!user?.id,
+  });
+
+  // Mutations
+  const createShiftMutation = useMutation({
+    mutationFn: shiftsApi.createShift,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['shifts'] });
+      toast.success('Shift created successfully');
+    },
+    onError: () => {
+      toast.error('Failed to create shift');
+    },
+  });
+
+  const updateShiftMutation = useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: any }) => 
+      shiftsApi.updateShift(id, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['shifts'] });
+      toast.success('Shift updated successfully');
+    },
+    onError: () => {
+      toast.error('Failed to update shift');
+    },
+  });
+
+  const deleteShiftMutation = useMutation({
+    mutationFn: shiftsApi.deleteShift,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['shifts'] });
+      toast.success('Shift deleted successfully');
+    },
+    onError: () => {
+      toast.error('Failed to delete shift');
+    },
+  });
+
+  const deleteShiftsInRangeMutation = useMutation({
+    mutationFn: ({ teamMemberId, startDate, endDate }: { 
+      teamMemberId: string; 
+      startDate: string; 
+      endDate: string; 
+    }) => shiftsApi.deleteShiftsInRange(teamMemberId, startDate, endDate),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['shifts'] });
+      toast.success('All shifts deleted successfully');
+    },
+    onError: () => {
+      toast.error('Failed to delete shifts');
+    },
+  });
 
   const navigateWeek = (direction: 'prev' | 'next') => {
     setCurrentWeek(prev => direction === 'next' ? addWeeks(prev, 1) : subWeeks(prev, 1));
   };
 
   const handleSetRegularShifts = (teamMemberId: string) => {
-    console.log('Setting regular shifts for team member:', teamMemberId);
+    const member = teamMembers?.find(m => m.id === teamMemberId);
     setSelectedTeamMember(teamMemberId);
+    setSelectedTeamMemberName(member ? `${member.first_name} ${member.last_name}` : '');
     setIsRegularShiftsModalOpen(true);
+  };
+
+  const handleEditShift = (shiftData: any) => {
+    setEditingShift(shiftData);
+    setIsEditShiftModalOpen(true);
+  };
+
+  const handleSaveShift = (shiftData: any) => {
+    if (shiftData.id) {
+      // Update existing shift
+      updateShiftMutation.mutate({
+        id: shiftData.id,
+        updates: {
+          start_time: shiftData.startTime,
+          end_time: shiftData.endTime,
+          location_id: shiftData.locationId,
+        }
+      });
+    } else {
+      // Create new shift
+      createShiftMutation.mutate({
+        team_member_id: shiftData.teamMemberId,
+        location_id: shiftData.locationId,
+        shift_date: shiftData.date,
+        start_time: shiftData.startTime,
+        end_time: shiftData.endTime,
+        status: 'scheduled',
+        is_recurring: false,
+      });
+    }
+  };
+
+  const handleDeleteShift = (shiftId: string) => {
+    deleteShiftMutation.mutate(shiftId);
+  };
+
+  const handleDeleteAllShifts = (teamMemberId: string, startDate: string, endDate: string) => {
+    deleteShiftsInRangeMutation.mutate({ teamMemberId, startDate, endDate });
+  };
+
+  const handleShiftsSaved = () => {
+    queryClient.invalidateQueries({ queryKey: ['shifts'] });
   };
 
   const handleModalClose = () => {
     setIsRegularShiftsModalOpen(false);
     setSelectedTeamMember(null);
+    setSelectedTeamMemberName('');
   };
+
+  const handleEditModalClose = () => {
+    setIsEditShiftModalOpen(false);
+    setEditingShift(null);
+  };
+
+  const isLoading = isLoadingTeam || isLoadingShifts;
 
   if (isLoading) {
     return (
@@ -72,7 +200,10 @@ const ScheduledShifts = () => {
           <WeeklyScheduleTable
             teamMembers={teamMembers}
             weekDays={weekDays}
+            shifts={shifts}
             onSetRegularShifts={handleSetRegularShifts}
+            onEditShift={handleEditShift}
+            onDeleteAllShifts={handleDeleteAllShifts}
           />
         ) : (
           <Card>
@@ -105,13 +236,24 @@ const ScheduledShifts = () => {
         </Card>
 
         {/* Set Regular Shifts Modal */}
-        {selectedTeamMember && (
-          <SetRegularShiftsModal 
-            isOpen={isRegularShiftsModalOpen}
-            onOpenChange={handleModalClose}
-            teamMemberId={selectedTeamMember}
-          />
-        )}
+        <SetRegularShiftsModal 
+          isOpen={isRegularShiftsModalOpen}
+          onOpenChange={handleModalClose}
+          teamMemberId={selectedTeamMember}
+          teamMemberName={selectedTeamMemberName}
+          onShiftsSaved={handleShiftsSaved}
+          locations={locations}
+        />
+
+        {/* Edit Shift Modal */}
+        <EditShiftModal
+          isOpen={isEditShiftModalOpen}
+          onOpenChange={handleEditModalClose}
+          shift={editingShift}
+          onSave={handleSaveShift}
+          onDelete={handleDeleteShift}
+          locations={locations}
+        />
       </div>
     </DashboardLayout>
   );
