@@ -51,7 +51,9 @@ const phoneCountries = [
   { name: 'United States', code: 'US', phone: '+1', flag: '🇺🇸' },
   { name: 'United Kingdom', code: 'GB', phone: '+44', flag: '🇬🇧' },
   { name: 'Canada', code: 'CA', phone: '+1', flag: '🇨🇦' },
-  { name: 'United Arab Emirates', code: 'AE', phone: '+971', flag: '🇦🇪' },
+  { name: 'Germany', code: 'DE', phone: '+49', flag: '🇩🇪' },
+  { name: 'France', code: 'FR', phone: '+33', flag: '🇫🇷' },
+  { name: 'Australia', code: 'AU', phone: '+61', flag: '🇦🇺' },
   { name: 'Afghanistan', code: 'AF', phone: '+93', flag: '🇦🇫' },
   { name: 'Åland Islands', code: 'AX', phone: '+358', flag: '🇦🇽' },
   { name: 'Albania', code: 'AL', phone: '+355', flag: '🇦🇱' },
@@ -65,7 +67,6 @@ const phoneCountries = [
   { name: 'Argentina', code: 'AR', phone: '+54', flag: '🇦🇷' },
   { name: 'Armenia', code: 'AM', phone: '+374', flag: '🇦🇲' },
   { name: 'Aruba', code: 'AW', phone: '+297', flag: '🇦🇼' },
-  { name: 'Australia', code: 'AU', phone: '+61', flag: '🇦🇺' },
   { name: 'Austria', code: 'AT', phone: '+43', flag: '🇦🇹' },
   { name: 'Azerbaijan', code: 'AZ', phone: '+994', flag: '🇦🇿' },
   { name: 'Bahamas', code: 'BS', phone: '+1 242', flag: '🇧🇸' },
@@ -278,6 +279,7 @@ const phoneCountries = [
   { name: 'Tuvalu', code: 'TV', phone: '+688', flag: '🇹🇻' },
   { name: 'Uganda', code: 'UG', phone: '+256', flag: '🇺🇬' },
   { name: 'Ukraine', code: 'UA', phone: '+380', flag: '🇺🇦' },
+  { name: 'United Arab Emirates', code: 'AE', phone: '+971', flag: '🇦🇪' },
   { name: 'Uruguay', code: 'UY', phone: '+598', flag: '🇺🇾' },
   { name: 'Uzbekistan', code: 'UZ', phone: '+998', flag: '🇺🇿' },
   { name: 'Vanuatu', code: 'VU', phone: '+678', flag: '🇻🇺' },
@@ -618,7 +620,9 @@ const Auth = () => {
                           <div className="flex">
                             <Select value={selectedPhonePrefix} onValueChange={setSelectedPhonePrefix}>
                               <SelectTrigger className="w-40 h-11 rounded-r-none border-r-0">
-                                <SelectValue placeholder="Code" />
+                                <SelectValue placeholder="Code">
+                                  {selectedPhonePrefix || "Code"}
+                                </SelectValue>
                               </SelectTrigger>
                               <SelectContent className="max-h-60 overflow-y-auto">
                                 {phoneCountries.map((country) => (
