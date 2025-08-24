@@ -18,10 +18,11 @@ import { User, MapPin, Phone, Briefcase, DollarSign, Calendar } from 'lucide-rea
 
 interface AddTeamMemberModalProps {
   isOpen: boolean;
-  onClose: () => void;
+  onOpenChange: (open: boolean) => void;
+  onSuccess: () => void;
 }
 
-const AddTeamMemberModal = ({ isOpen, onClose }: AddTeamMemberModalProps) => {
+const AddTeamMemberModal = ({ isOpen, onOpenChange, onSuccess }: AddTeamMemberModalProps) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('personal');
@@ -131,7 +132,8 @@ const AddTeamMemberModal = ({ isOpen, onClose }: AddTeamMemberModalProps) => {
 
       queryClient.invalidateQueries({ queryKey: ['team-members'] });
       toast.success('Team member created successfully');
-      onClose();
+      onSuccess();
+      onOpenChange(false);
       resetForm();
     },
     onError: (error) => {
@@ -271,7 +273,7 @@ const AddTeamMemberModal = ({ isOpen, onClose }: AddTeamMemberModalProps) => {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add Team Member</DialogTitle>
@@ -549,7 +551,7 @@ const AddTeamMemberModal = ({ isOpen, onClose }: AddTeamMemberModalProps) => {
           </Tabs>
 
           <div className="flex justify-end gap-3 mt-6">
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button type="submit" disabled={createTeamMember.isPending}>
