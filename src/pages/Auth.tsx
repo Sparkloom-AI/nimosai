@@ -46,6 +46,51 @@ interface LocationData {
   language: string;
 }
 
+// Updated phone prefix list sorted by numeric value starting from +1
+const phoneCountries = [
+  { name: 'Guam', code: 'GU', phone: '+1 671', flag: '🇬🇺' },
+  { name: 'Jamaica', code: 'JM', phone: '+1', flag: '🇯🇲' },
+  { name: 'Kazakhstan', code: 'KZ', phone: '+7', flag: '🇰🇿' },
+  { name: 'Kazakhstan', code: 'KZ', phone: '+7 6', flag: '🇰🇿' },
+  { name: 'Kazakhstan', code: 'KZ', phone: '+7 7', flag: '🇰🇿' },
+  { name: 'Hungary', code: 'HU', phone: '+36', flag: '🇭🇺' },
+  { name: 'Italy', code: 'IT', phone: '+39', flag: '🇮🇹' },
+  { name: 'Isle Of Man', code: 'IM', phone: '+44', flag: '🇮🇲' },
+  { name: 'Guernsey', code: 'GG', phone: '+44', flag: '🇬🇬' },
+  { name: 'Jersey', code: 'JE', phone: '+44', flag: '🇯🇪' },
+  { name: 'India', code: 'IN', phone: '+91', flag: '🇮🇳' },
+  { name: 'Indonesia', code: 'ID', phone: '+62', flag: '🇮🇩' },
+  { name: 'Iran, Islamic Republic Of', code: 'IR', phone: '+98', flag: '🇮🇷' },
+  { name: 'Iraq', code: 'IQ', phone: '+964', flag: '🇮🇶' },
+  { name: 'Ireland', code: 'IE', phone: '+353', flag: '🇮🇪' },
+  { name: 'Israel', code: 'IL', phone: '+972', flag: '🇮🇱' },
+  { name: 'Japan', code: 'JP', phone: '+81', flag: '🇯🇵' },
+  { name: 'Jordan', code: 'JO', phone: '+962', flag: '🇯🇴' },
+  { name: 'Kenya', code: 'KE', phone: '+254', flag: '🇰🇪' },
+  { name: 'Kiribati', code: 'KI', phone: '+686', flag: '🇰🇮' },
+  { name: 'Korea, Democratic People\'s Republic Of', code: 'KP', phone: '+850', flag: '🇰🇵' },
+  { name: 'Korea, Republic Of', code: 'KR', phone: '+82', flag: '🇰🇷' },
+  { name: 'Kosovo', code: 'XK', phone: '+383', flag: '🇽🇰' },
+  { name: 'Kuwait', code: 'KW', phone: '+965', flag: '🇰🇼' },
+  { name: 'Kyrgyzstan', code: 'KG', phone: '+996', flag: '🇰🇬' },
+  { name: 'Lao People\'s Democratic Republic', code: 'LA', phone: '+856', flag: '🇱🇦' },
+  { name: 'Latvia', code: 'LV', phone: '+371', flag: '🇱🇻' },
+  { name: 'Grenada', code: 'GD', phone: '+1 473', flag: '🇬🇩' },
+  { name: 'Guadeloupe', code: 'GP', phone: '+590', flag: '🇬🇵' },
+  { name: 'Guatemala', code: 'GT', phone: '+502', flag: '🇬🇹' },
+  { name: 'Guinea', code: 'GN', phone: '+224', flag: '🇬🇳' },
+  { name: 'Guinea-bissau', code: 'GW', phone: '+245', flag: '🇬🇼' },
+  { name: 'Guyana', code: 'GY', phone: '+592', flag: '🇬🇾' },
+  { name: 'Haiti', code: 'HT', phone: '+509', flag: '🇭🇹' },
+  { name: 'Honduras', code: 'HN', phone: '+504', flag: '🇭🇳' },
+  { name: 'Hong Kong', code: 'HK', phone: '+852', flag: '🇭🇰' },
+  { name: 'Iceland', code: 'IS', phone: '+354', flag: '🇮🇸' },
+].sort((a, b) => {
+  const phoneA = parseInt(a.phone.replace(/[^\d]/g, ''));
+  const phoneB = parseInt(b.phone.replace(/[^\d]/g, ''));
+  return phoneA - phoneB;
+});
+
 const Auth = () => {
   const [step, setStep] = useState<'email' | 'password' | 'professional' | 'signup'>('email');
   const [email, setEmail] = useState('');
@@ -375,105 +420,11 @@ const Auth = () => {
                                 <SelectValue placeholder="Code" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="+93">🇦🇫 +93</SelectItem>
-                                <SelectItem value="+355">🇦🇱 +355</SelectItem>
-                                <SelectItem value="+213">🇩🇿 +213</SelectItem>
-                                <SelectItem value="+54">🇦🇷 +54</SelectItem>
-                                <SelectItem value="+374">🇦🇲 +374</SelectItem>
-                                <SelectItem value="+61">🇦🇺 +61</SelectItem>
-                                <SelectItem value="+43">🇦🇹 +43</SelectItem>
-                                <SelectItem value="+994">🇦🇿 +994</SelectItem>
-                                <SelectItem value="+973">🇧🇭 +973</SelectItem>
-                                <SelectItem value="+880">🇧🇩 +880</SelectItem>
-                                <SelectItem value="+375">🇧🇾 +375</SelectItem>
-                                <SelectItem value="+32">🇧🇪 +32</SelectItem>
-                                <SelectItem value="+591">🇧🇴 +591</SelectItem>
-                                <SelectItem value="+55">🇧🇷 +55</SelectItem>
-                                <SelectItem value="+359">🇧🇬 +359</SelectItem>
-                                <SelectItem value="+1">🇨🇦 +1</SelectItem>
-                                <SelectItem value="+56">🇨🇱 +56</SelectItem>
-                                <SelectItem value="+86">🇨🇳 +86</SelectItem>
-                                <SelectItem value="+57">🇨🇴 +57</SelectItem>
-                                <SelectItem value="+385">🇭🇷 +385</SelectItem>
-                                <SelectItem value="+420">🇨🇿 +420</SelectItem>
-                                <SelectItem value="+45">🇩🇰 +45</SelectItem>
-                                <SelectItem value="+593">🇪🇨 +593</SelectItem>
-                                <SelectItem value="+20">🇪🇬 +20</SelectItem>
-                                <SelectItem value="+372">🇪🇪 +372</SelectItem>
-                                <SelectItem value="+251">🇪🇹 +251</SelectItem>
-                                <SelectItem value="+358">🇫🇮 +358</SelectItem>
-                                <SelectItem value="+33">🇫🇷 +33</SelectItem>
-                                <SelectItem value="+995">🇬🇪 +995</SelectItem>
-                                <SelectItem value="+49">🇩🇪 +49</SelectItem>
-                                <SelectItem value="+233">🇬🇭 +233</SelectItem>
-                                <SelectItem value="+30">🇬🇷 +30</SelectItem>
-                                <SelectItem value="+502">🇬🇹 +502</SelectItem>
-                                <SelectItem value="+852">🇭🇰 +852</SelectItem>
-                                <SelectItem value="+36">🇭🇺 +36</SelectItem>
-                                <SelectItem value="+354">🇮🇸 +354</SelectItem>
-                                <SelectItem value="+91">🇮🇳 +91</SelectItem>
-                                <SelectItem value="+62">🇮🇩 +62</SelectItem>
-                                <SelectItem value="+98">🇮🇷 +98</SelectItem>
-                                <SelectItem value="+964">🇮🇶 +964</SelectItem>
-                                <SelectItem value="+353">🇮🇪 +353</SelectItem>
-                                <SelectItem value="+972">🇮🇱 +972</SelectItem>
-                                <SelectItem value="+39">🇮🇹 +39</SelectItem>
-                                <SelectItem value="+81">🇯🇵 +81</SelectItem>
-                                <SelectItem value="+962">🇯🇴 +962</SelectItem>
-                                <SelectItem value="+7">🇰🇿 +7</SelectItem>
-                                <SelectItem value="+254">🇰🇪 +254</SelectItem>
-                                <SelectItem value="+965">🇰🇼 +965</SelectItem>
-                                <SelectItem value="+996">🇰🇬 +996</SelectItem>
-                                <SelectItem value="+371">🇱🇻 +371</SelectItem>
-                                <SelectItem value="+961">🇱🇧 +961</SelectItem>
-                                <SelectItem value="+218">🇱🇾 +218</SelectItem>
-                                <SelectItem value="+370">🇱🇹 +370</SelectItem>
-                                <SelectItem value="+352">🇱🇺 +352</SelectItem>
-                                <SelectItem value="+853">🇲🇴 +853</SelectItem>
-                                <SelectItem value="+60">🇲🇾 +60</SelectItem>
-                                <SelectItem value="+960">🇲🇻 +960</SelectItem>
-                                <SelectItem value="+356">🇲🇹 +356</SelectItem>
-                                <SelectItem value="+52">🇲🇽 +52</SelectItem>
-                                <SelectItem value="+373">🇲🇩 +373</SelectItem>
-                                <SelectItem value="+976">🇲🇳 +976</SelectItem>
-                                <SelectItem value="+212">🇲🇦 +212</SelectItem>
-                                <SelectItem value="+31">🇳🇱 +31</SelectItem>
-                                <SelectItem value="+64">🇳🇿 +64</SelectItem>
-                                <SelectItem value="+234">🇳🇬 +234</SelectItem>
-                                <SelectItem value="+47">🇳🇴 +47</SelectItem>
-                                <SelectItem value="+968">🇴🇲 +968</SelectItem>
-                                <SelectItem value="+92">🇵🇰 +92</SelectItem>
-                                <SelectItem value="+51">🇵🇪 +51</SelectItem>
-                                <SelectItem value="+63">🇵🇭 +63</SelectItem>
-                                <SelectItem value="+48">🇵🇱 +48</SelectItem>
-                                <SelectItem value="+351">🇵🇹 +351</SelectItem>
-                                <SelectItem value="+974">🇶🇦 +974</SelectItem>
-                                <SelectItem value="+40">🇷🇴 +40</SelectItem>
-                                <SelectItem value="+7">🇷🇺 +7</SelectItem>
-                                <SelectItem value="+966">🇸🇦 +966</SelectItem>
-                                <SelectItem value="+65">🇸🇬 +65</SelectItem>
-                                <SelectItem value="+421">🇸🇰 +421</SelectItem>
-                                <SelectItem value="+386">🇸🇮 +386</SelectItem>
-                                <SelectItem value="+27">🇿🇦 +27</SelectItem>
-                                <SelectItem value="+82">🇰🇷 +82</SelectItem>
-                                <SelectItem value="+34">🇪🇸 +34</SelectItem>
-                                <SelectItem value="+94">🇱🇰 +94</SelectItem>
-                                <SelectItem value="+46">🇸🇪 +46</SelectItem>
-                                <SelectItem value="+41">🇨🇭 +41</SelectItem>
-                                <SelectItem value="+963">🇸🇾 +963</SelectItem>
-                                <SelectItem value="+886">🇹🇼 +886</SelectItem>
-                                <SelectItem value="+66">🇹🇭 +66</SelectItem>
-                                <SelectItem value="+216">🇹🇳 +216</SelectItem>
-                                <SelectItem value="+90">🇹🇷 +90</SelectItem>
-                                <SelectItem value="+380">🇺🇦 +380</SelectItem>
-                                <SelectItem value="+971">🇦🇪 +971</SelectItem>
-                                <SelectItem value="+44">🇬🇧 +44</SelectItem>
-                                <SelectItem value="+1">🇺🇸 +1</SelectItem>
-                                <SelectItem value="+598">🇺🇾 +598</SelectItem>
-                                <SelectItem value="+998">🇺🇿 +998</SelectItem>
-                                <SelectItem value="+58">🇻🇪 +58</SelectItem>
-                                <SelectItem value="+84">🇻🇳 +84</SelectItem>
-                                <SelectItem value="+967">🇾🇪 +967</SelectItem>
+                                {phoneCountries.map((country) => (
+                                  <SelectItem key={`${country.code}-${country.phone}`} value={country.phone}>
+                                    {country.flag} {country.name} {country.phone}
+                                  </SelectItem>
+                                ))}
                               </SelectContent>
                             </Select>
                             <Input
