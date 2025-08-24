@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -44,16 +43,34 @@ const countries = [
 ];
 
 const languages = [
-  { code: 'en', name: 'English', flag: '🇺🇸' },
-  { code: 'id', name: 'Bahasa Indonesia', flag: '🇮🇩' },
-  { code: 'es', name: 'Español', flag: '🇪🇸' },
-  { code: 'fr', name: 'Français', flag: '🇫🇷' },
+  { code: 'bg', name: 'български', flag: '🇧🇬' },
+  { code: 'cs', name: 'čeština', flag: '🇨🇿' },
+  { code: 'da', name: 'dansk', flag: '🇩🇰' },
   { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-  { code: 'it', name: 'Italiano', flag: '🇮🇹' },
+  { code: 'el', name: 'Ελληνικά', flag: '🇬🇷' },
+  { code: 'en', name: 'English', flag: '🇬🇧' },
+  { code: 'es', name: 'español', flag: '🇪🇸' },
+  { code: 'fi', name: 'suomi', flag: '🇫🇮' },
+  { code: 'fr', name: 'français', flag: '🇫🇷' },
+  { code: 'hr', name: 'hrvatski', flag: '🇭🇷' },
+  { code: 'hu', name: 'magyar', flag: '🇭🇺' },
+  { code: 'it', name: 'italiano', flag: '🇮🇹' },
+  { code: 'nb', name: 'norsk bokmål', flag: '🇳🇴' },
+  { code: 'nl', name: 'Nederlands', flag: '🇳🇱' },
+  { code: 'pl', name: 'polski', flag: '🇵🇱' },
+  { code: 'pt', name: 'português (Brasil)', flag: '🇧🇷' },
+  { code: 'ro', name: 'română', flag: '🇷🇴' },
+  { code: 'sv', name: 'svenska', flag: '🇸🇪' },
+  { code: 'ru', name: 'русский', flag: '🇷🇺' },
+  { code: 'uk', name: 'українська', flag: '🇺🇦' },
+  { code: 'ar', name: 'العربية', flag: '🇸🇦' },
+  { code: 'id', name: 'Indonesia', flag: '🇮🇩' },
+  { code: 'sl', name: 'slovenščina', flag: '🇸🇮' },
+  { code: 'lt', name: 'lietuvių', flag: '🇱🇹' },
   { code: 'ja', name: '日本語', flag: '🇯🇵' },
-  { code: 'ko', name: '한국어', flag: '🇰🇷' },
+  { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
+  { code: 'he', name: 'עברית', flag: '🇮🇱' },
   { code: 'zh', name: '中文', flag: '🇨🇳' },
-  { code: 'pt', name: 'Português', flag: '🇧🇷' },
 ];
 
 const detectLocationFromTimezone = (): LocationData => {
