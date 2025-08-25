@@ -4,6 +4,7 @@ import './App.css';
 import Auth from '@/pages/Auth';
 import Index from '@/pages/Index';
 import Dashboard from '@/pages/Dashboard';
+import Calendar from '@/pages/Calendar';
 import NotFound from '@/pages/NotFound';
 import CookiePolicy from '@/pages/CookiePolicy';
 import { ThemeProvider } from "next-themes";
@@ -33,6 +34,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/calendar"
+                  element={
+                    <ProtectedRoute>
+                      <Calendar />
                     </ProtectedRoute>
                   }
                 />
