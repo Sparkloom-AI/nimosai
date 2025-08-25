@@ -1,5 +1,5 @@
 
-export type AppRole = 'studio_owner' | 'manager' | 'staff' | 'receptionist' | 'super_admin';
+export type AppRole = 'studio_owner' | 'manager' | 'staff' | 'freelancer' | 'super_admin';
 
 export interface UserRole {
   id: string;
@@ -24,7 +24,7 @@ export const ROLE_HIERARCHY: Record<AppRole, number> = {
   studio_owner: 2,
   manager: 3,
   staff: 4,
-  receptionist: 5,
+  freelancer: 5,
 };
 
 export const ROLE_PERMISSIONS: Record<AppRole, RolePermissions> = {
@@ -60,7 +60,7 @@ export const ROLE_PERMISSIONS: Record<AppRole, RolePermissions> = {
     canManageRoles: false,
     canAccessAllStudios: false,
   },
-  receptionist: {
+  freelancer: {
     canManageTeam: false,
     canManageServices: false,
     canManageLocations: false,
@@ -76,7 +76,7 @@ export const getRoleDisplayName = (role: AppRole): string => {
     studio_owner: 'Studio Owner',
     manager: 'Manager',
     staff: 'Staff Member',
-    receptionist: 'Receptionist',
+    freelancer: 'Freelancer',
   };
   return names[role];
 };

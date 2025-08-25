@@ -42,8 +42,8 @@ const RoleManagement: React.FC<RoleManagementProps> = ({ studioId }) => {
   });
 
   const availableRoles: AppRole[] = currentRole === 'super_admin' 
-    ? ['studio_owner', 'manager', 'staff', 'receptionist']
-    : ['manager', 'staff', 'receptionist'];
+    ? ['studio_owner', 'manager', 'staff', 'freelancer']
+    : ['manager', 'staff', 'freelancer'];
 
   const handleAssignRole = async () => {
     if (!newUserEmail || !newUserRole) {
@@ -81,7 +81,7 @@ const RoleManagement: React.FC<RoleManagementProps> = ({ studioId }) => {
       case 'studio_owner': return 'default';
       case 'manager': return 'secondary';
       case 'staff': return 'outline';
-      case 'receptionist': return 'outline';
+      case 'freelancer': return 'outline';
       default: return 'outline';
     }
   };
@@ -195,7 +195,7 @@ const RoleManagement: React.FC<RoleManagementProps> = ({ studioId }) => {
                       {new Date(userRole.created_at).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
-                      {ROLE_HIERARCHY[userRole.role] > ROLE_HIERARCHY[currentRole || 'receptionist'] && (
+                      {ROLE_HIERARCHY[userRole.role] > ROLE_HIERARCHY[currentRole || 'freelancer'] && (
                         <Button
                           variant="ghost"
                           size="sm"
