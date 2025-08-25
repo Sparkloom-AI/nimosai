@@ -33,7 +33,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { teamApi } from '@/api/team';
 import { useAuth } from '@/contexts/AuthContext';
-import AddTeamMemberModal from '@/components/team/AddTeamMemberModal';
+import AddTeamMemberModal from '@/components/domain/team/AddTeamMemberModal';
 import { toast } from 'sonner';
 
 const Team = () => {

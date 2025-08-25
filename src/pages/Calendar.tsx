@@ -1,9 +1,9 @@
 
 import React, { useState } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import CalendarHeader from '@/components/calendar/CalendarHeader';
-import CalendarSidebar from '@/components/calendar/CalendarSidebar';
-import CalendarView from '@/components/calendar/CalendarView';
+import CalendarHeader from '@/components/domain/calendar/CalendarHeader';
+import CalendarSidebar from '@/components/domain/calendar/CalendarSidebar';
+import CalendarView from '@/components/domain/calendar/CalendarView';
 import { addDays, startOfWeek, startOfMonth, endOfMonth, endOfWeek } from 'date-fns';
 
 export type CalendarViewType = 'day' | '3-day' | 'week' | 'month';

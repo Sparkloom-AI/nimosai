@@ -1,12 +1,12 @@
 
 import React from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import RecentSales from '@/components/dashboard/RecentSales';
-import UpcomingAppointments from '@/components/dashboard/UpcomingAppointments';
-import AppointmentsActivity from '@/components/dashboard/AppointmentsActivity';
-import TodayAppointments from '@/components/dashboard/TodayAppointments';
-import TopServices from '@/components/dashboard/TopServices';
-import TopTeamMembers from '@/components/dashboard/TopTeamMembers';
+import RecentSales from '@/components/domain/dashboard/RecentSales';
+import UpcomingAppointments from '@/components/domain/dashboard/UpcomingAppointments';
+import AppointmentsActivity from '@/components/domain/dashboard/AppointmentsActivity';
+import TodayAppointments from '@/components/domain/dashboard/TodayAppointments';
+import TopServices from '@/components/domain/dashboard/TopServices';
+import TopTeamMembers from '@/components/domain/dashboard/TopTeamMembers';
 
 const Dashboard = () => {
   return (

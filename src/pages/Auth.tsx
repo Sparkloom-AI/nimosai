@@ -12,8 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Mail, Eye, EyeOff, CheckCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/sonner';
-import { LocationSettings, detectLocationFromTimezone } from '@/components/auth/LocationSettings';
-import AccountSetupWizard from '@/components/auth/AccountSetupWizard';
+import { LocationSettings, detectLocationFromTimezone } from '@/components/domain/auth/LocationSettings';
+import AccountSetupWizard from '@/components/domain/auth/AccountSetupWizard';
 import { supabase } from '@/integrations/supabase/client';
 
 const emailSchema = z.object({

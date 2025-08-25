@@ -9,11 +9,11 @@ import { shiftsApi } from '@/api/shifts';
 import { useAuth } from '@/contexts/AuthContext';
 import { format, startOfWeek, addDays, addWeeks, subWeeks } from 'date-fns';
 import { toast } from 'sonner';
-import SetRegularShiftsModal from '@/components/team/SetRegularShiftsModal';
-import WeeklyScheduleTable from '@/components/team/WeeklyScheduleTable';
-import WeekNavigation from '@/components/team/WeekNavigation';
-import ScheduledShiftsHeader from '@/components/team/ScheduledShiftsHeader';
-import EditShiftModal from '@/components/team/EditShiftModal';
+import SetRegularShiftsModal from '@/components/domain/team/SetRegularShiftsModal';
+import WeeklyScheduleTable from '@/components/domain/team/WeeklyScheduleTable';
+import WeekNavigation from '@/components/domain/team/WeekNavigation';
+import ScheduledShiftsHeader from '@/components/domain/team/ScheduledShiftsHeader';
+import EditShiftModal from '@/components/domain/team/EditShiftModal';
 
 const ScheduledShifts = () => {
   const { user } = useAuth();

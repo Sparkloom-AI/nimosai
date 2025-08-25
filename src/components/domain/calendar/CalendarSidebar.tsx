@@ -30,9 +30,9 @@ const CalendarSidebar = ({
   });
 
   const calendarCategories = [
-    { name: 'My Calendar', color: '#007AFF', enabled: true },
-    { name: 'Appointments', color: '#FF3B30', enabled: true },
-    { name: 'Blocked Time', color: '#FF9500', enabled: true },
+    { name: 'My Calendar', color: 'hsl(var(--primary))', enabled: true },
+    { name: 'Appointments', color: 'hsl(var(--destructive))', enabled: true },
+    { name: 'Blocked Time', color: 'hsl(var(--warning))', enabled: true },
   ];
 
   if (collapsed) {
@@ -105,7 +105,7 @@ const CalendarSidebar = ({
               <div className="flex items-center gap-2">
                 <div 
                   className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: member.calendar_color || '#007AFF' }}
+                  style={{ backgroundColor: member.calendar_color || 'hsl(var(--primary))' }}
                 />
                 <span className="text-sm text-foreground">
                   {member.first_name} {member.last_name}
