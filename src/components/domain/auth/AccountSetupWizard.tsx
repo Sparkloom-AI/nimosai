@@ -2,18 +2,23 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowRight, Building, Users } from 'lucide-react';
+import { toast } from 'sonner';
 import BusinessSetupForm from './BusinessSetupForm';
 import BusinessCategoryForm from './BusinessCategoryForm';
 import BusinessSetupComplete from './BusinessSetupComplete';
+import { studiosApi } from '@/api/studios';
+import { useRole } from '@/contexts/RoleContext';
 
 interface AccountSetupWizardProps {
-  onComplete: (setupType: 'create' | 'join', businessData?: any) => void;
+  onComplete: () => void;
 }
 
 const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete }) => {
   const [step, setStep] = useState<'choice' | 'business-setup' | 'business-categories' | 'complete'>('choice');
   const [selectedOption, setSelectedOption] = useState<'create' | 'join' | null>(null);
   const [businessData, setBusinessData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const { refreshRoles, setCurrentStudioId } = useRole();
 
   const options = [
     {
@@ -37,7 +42,7 @@ const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete }) =
       setStep('business-setup');
     } else {
       // For joining existing business, complete immediately for now
-      onComplete(optionId);
+      onComplete();
     }
   };
 
@@ -46,17 +51,41 @@ const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete }) =
     setStep('business-categories');
   };
 
-  const handleCategoriesComplete = (categories: string[]) => {
+  const handleCategoriesComplete = async (categories: string[]) => {
     const completeBusinessData = {
       ...businessData,
-      categories,
+      business_category: categories.join(', '),
     };
     setBusinessData(completeBusinessData);
     setStep('complete');
   };
 
-  const handleSetupComplete = () => {
-    onComplete('create', businessData);
+  const handleSetupComplete = async () => {
+    if (!businessData) return;
+
+    setIsLoading(true);
+    try {
+      // Create the studio in the database
+      const studio = await studiosApi.createStudio({
+        name: businessData.businessName,
+        website: businessData.website,
+        business_category: businessData.business_category,
+      });
+
+      // Refresh roles to get the newly assigned studio_owner role
+      await refreshRoles();
+      
+      // Set the new studio as the current context
+      setCurrentStudioId(studio.id);
+
+      toast.success('Studio created successfully!');
+      onComplete();
+    } catch (error: any) {
+      console.error('Error creating studio:', error);
+      toast.error(error.message || 'Failed to create studio. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleBack = () => {
@@ -72,6 +101,7 @@ const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete }) =
     return (
       <BusinessSetupComplete
         onComplete={handleSetupComplete}
+        isLoading={isLoading}
       />
     );
   }
