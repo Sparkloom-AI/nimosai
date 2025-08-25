@@ -36,7 +36,7 @@ const AddTeamMemberModal = ({ isOpen, onOpenChange, onSuccess }: AddTeamMemberMo
     phone: '',
     avatar_url: '',
     job_title: '',
-    calendar_color: '#3B82F6',
+    calendar_color: 'hsl(var(--primary))',
     notes: '',
     
     // Work Details
