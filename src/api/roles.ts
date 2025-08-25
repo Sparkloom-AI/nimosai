@@ -5,6 +5,31 @@ import { AppRole, UserRole } from '@/types/roles';
 
 type UserRoleInsert = Database['public']['Tables']['user_roles']['Insert'];
 type UserRoleUpdate = Database['public']['Tables']['user_roles']['Update'];
+type DatabaseRole = Database['public']['Enums']['app_role'];
+
+// Helper function to convert database role to AppRole
+const convertToAppRole = (dbRole: DatabaseRole): AppRole => {
+  if (dbRole === 'receptionist') {
+    return 'freelancer';
+  }
+  return dbRole as AppRole;
+};
+
+// Helper function to convert AppRole to database role
+const convertToDbRole = (appRole: AppRole): DatabaseRole => {
+  if (appRole === 'freelancer') {
+    return 'receptionist';
+  }
+  return appRole as DatabaseRole;
+};
+
+// Helper function to convert database user role to UserRole
+const convertDbUserRole = (dbUserRole: any): UserRole => {
+  return {
+    ...dbUserRole,
+    role: convertToAppRole(dbUserRole.role)
+  };
+};
 
 export const rolesApi = {
   // Get all roles for a user
@@ -15,7 +40,7 @@ export const rolesApi = {
       .eq('user_id', userId);
     
     if (error) throw error;
-    return data || [];
+    return (data || []).map(convertDbUserRole);
   },
 
   // Get user's role for a specific studio
@@ -26,14 +51,14 @@ export const rolesApi = {
     });
     
     if (error) throw error;
-    return data;
+    return data ? convertToAppRole(data) : null;
   },
 
   // Check if user has a specific role
   async hasRole(userId: string, role: AppRole, studioId?: string): Promise<boolean> {
     const { data, error } = await supabase.rpc('has_role', {
       _user_id: userId,
-      _role: role,
+      _role: convertToDbRole(role),
       _studio_id: studioId || null,
     });
     
@@ -53,28 +78,38 @@ export const rolesApi = {
   },
 
   // Assign role to user
-  async assignRole(roleData: UserRoleInsert): Promise<UserRole> {
+  async assignRole(roleData: Omit<UserRoleInsert, 'role'> & { role: AppRole }): Promise<UserRole> {
+    const dbRoleData = {
+      ...roleData,
+      role: convertToDbRole(roleData.role)
+    };
+    
     const { data, error } = await supabase
       .from('user_roles')
-      .insert(roleData)
+      .insert(dbRoleData)
       .select()
       .single();
     
     if (error) throw error;
-    return data;
+    return convertDbUserRole(data);
   },
 
   // Update user role
-  async updateRole(id: string, updates: UserRoleUpdate): Promise<UserRole> {
+  async updateRole(id: string, updates: Omit<UserRoleUpdate, 'role'> & { role?: AppRole }): Promise<UserRole> {
+    const dbUpdates = updates.role ? {
+      ...updates,
+      role: convertToDbRole(updates.role)
+    } : updates;
+    
     const { data, error } = await supabase
       .from('user_roles')
-      .update(updates)
+      .update(dbUpdates)
       .eq('id', id)
       .select()
       .single();
     
     if (error) throw error;
-    return data;
+    return convertDbUserRole(data);
   },
 
   // Remove role from user
@@ -99,6 +134,6 @@ export const rolesApi = {
       .order('created_at', { ascending: false });
     
     if (error) throw error;
-    return data || [];
+    return (data || []).map(convertDbUserRole);
   },
 };
