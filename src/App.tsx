@@ -7,6 +7,7 @@ import Dashboard from '@/pages/Dashboard';
 import Calendar from '@/pages/Calendar';
 import NotFound from '@/pages/NotFound';
 import CookiePolicy from '@/pages/CookiePolicy';
+import ForgotPasswordForm from '@/components/ui/forgot-password';
 import { ThemeProvider } from "next-themes";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -28,6 +29,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/forgot-password" element={<ForgotPasswordForm />} />
                 <Route path="/cookie-policy" element={<CookiePolicy />} />
                 <Route
                   path="/dashboard"

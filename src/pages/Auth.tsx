@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -15,12 +15,15 @@ import { toast } from '@/components/ui/sonner';
 import { LocationSettings, detectLocationFromTimezone } from '@/components/auth/LocationSettings';
 import AccountSetupWizard from '@/components/auth/AccountSetupWizard';
 import { supabase } from '@/integrations/supabase/client';
+
 const emailSchema = z.object({
   email: z.string().email('Please enter a valid email address')
 });
+
 const passwordSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters')
 });
+
 const professionalAccountSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
@@ -31,9 +34,11 @@ const professionalAccountSchema = z.object({
     message: 'You must agree to the terms and conditions'
   })
 });
+
 type EmailFormData = z.infer<typeof emailSchema>;
 type PasswordFormData = z.infer<typeof passwordSchema>;
 type ProfessionalAccountFormData = z.infer<typeof professionalAccountSchema>;
+
 interface LocationData {
   country: string;
   countryCode: string;
@@ -1265,8 +1270,9 @@ const phoneCountries = [{
   phone: '+263',
   flag: '🇿🇼'
 }];
+
 const Auth = () => {
-  const [step, setStep] = useState<'email' | 'password' | 'professional' | 'email-confirmation'>('email');
+  const [step, setStep] = useState<'email' | 'password' | 'professional' | 'email-confirmation' | 'reset-password'>('email');
   const [email, setEmail] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -1282,6 +1288,8 @@ const Auth = () => {
     currency: '',
     language: 'English'
   });
+  const [searchParams] = useSearchParams();
+  const [resetToken, setResetToken] = useState<string | null>(null);
   const {
     signIn,
     signUp,
@@ -1336,6 +1344,18 @@ const Auth = () => {
       navigate('/dashboard');
     }
   }, [user, navigate, showWizard, pendingSignUp]);
+
+  // Check for password reset mode on component mount
+  useEffect(() => {
+    const mode = searchParams.get('mode');
+    const token = searchParams.get('token');
+    
+    if (mode === 'reset' && token) {
+      setResetToken(token);
+      setStep('reset-password');
+    }
+  }, [searchParams]);
+
   const checkEmailExists = async (email: string) => {
     try {
       // Try to sign in with a dummy password to check if email exists
@@ -1361,6 +1381,7 @@ const Auth = () => {
       return false;
     }
   };
+
   const onEmailSubmit = async (data: EmailFormData) => {
     setIsLoading(true);
     setEmail(data.email);
@@ -1385,6 +1406,7 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
+
   const onPasswordSubmit = async (data: PasswordFormData) => {
     setIsLoading(true);
     try {
@@ -1407,6 +1429,7 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
+
   const onProfessionalAccountSubmit = async (data: ProfessionalAccountFormData) => {
     setIsLoading(true);
     console.log('Starting account creation...');
@@ -1439,6 +1462,7 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
+
   const handleResendConfirmation = async () => {
     setIsLoading(true);
     try {
@@ -1462,6 +1486,7 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
+
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
@@ -1477,6 +1502,7 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
+
   const handleSetupComplete = (setupType: 'create' | 'join', businessData?: any) => {
     console.log('Setup completed with type:', setupType, 'Business data:', businessData);
     localStorage.setItem('nimos-setup-type', setupType);
@@ -1486,6 +1512,7 @@ const Auth = () => {
     setShowWizard(false);
     navigate('/dashboard');
   };
+
   const goBack = () => {
     if (step === 'professional') {
       setStep('email');
@@ -1499,21 +1526,55 @@ const Auth = () => {
       navigate('/');
     }
   };
+
   const handleLocationDataChange = (newLocationData: LocationData) => {
     setLocationData(newLocationData);
     setSelectedPhonePrefix(newLocationData.phonePrefix);
     professionalForm.setValue('country', newLocationData.country);
   };
+
+  const handleForgotPassword = () => {
+    navigate('/forgot-password');
+  };
+
+  const onResetPasswordSubmit = async (data: PasswordFormData) => {
+    if (!resetToken) {
+      toast.error('Invalid reset token');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: data.password
+      });
+
+      if (error) {
+        toast.error(error.message || 'Failed to reset password');
+      } else {
+        toast.success('Password reset successfully! You can now log in.');
+        setStep('email');
+        setResetToken(null);
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   console.log('Current state:', {
     step,
     showWizard,
     user,
     pendingSignUp
   });
+
   if (showWizard) {
     console.log('Rendering setup wizard...');
     return <AccountSetupWizard onComplete={handleSetupComplete} />;
   }
+
   return <div className="min-h-screen bg-background flex">
       {/* Left side - Form */}
       <div className="flex-1 flex items-center justify-center p-8">
@@ -1525,7 +1586,7 @@ const Auth = () => {
               Back
             </Button>
             
-            {step !== 'professional' && step !== 'email-confirmation' && step !== 'password' && <>
+            {step !== 'professional' && step !== 'email-confirmation' && step !== 'password' && step !== 'reset-password' && <>
                 <h1 className="text-3xl font-bold mb-2">Nimos for professionals</h1>
                 <p className="text-muted-foreground">
                   Create an account or log in to manage your business.
@@ -1539,6 +1600,13 @@ const Auth = () => {
                 <p className="text-muted-foreground">
                   Enter your password to log in as{' '}
                   <span className="font-medium">{email}</span>
+                </p>
+              </>}
+
+            {step === 'reset-password' && <>
+                <h1 className="text-2xl font-semibold mb-2">Reset your password</h1>
+                <p className="text-muted-foreground">
+                  Enter a new password for your account.
                 </p>
               </>}
           </div>
@@ -1763,13 +1831,39 @@ const Auth = () => {
                       </FormItem>} />
                   
                   <div className="text-center">
-                    <Button variant="link" className="text-primary p-0 h-auto" type="button">
+                    <Button variant="link" className="text-primary p-0 h-auto" type="button" onClick={handleForgotPassword}>
                       Forgot your password?
                     </Button>
                   </div>
 
                   <Button type="submit" className="w-full h-12 text-base bg-foreground text-background hover:bg-foreground/90" disabled={isLoading}>
                     {isLoading ? 'Logging in...' : 'Log in'}
+                  </Button>
+                </form>
+              </Form>
+            </div>}
+
+          {/* Reset Password Step */}
+          {step === 'reset-password' && <div className="space-y-6">
+              <Form {...passwordForm}>
+                <form onSubmit={passwordForm.handleSubmit(onResetPasswordSubmit)} className="space-y-4">
+                  <FormField control={passwordForm.control} name="password" render={({
+                field
+              }) => <FormItem>
+                        <FormLabel className="text-sm font-medium">New Password</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input type={showPassword ? "text" : "password"} placeholder="Enter your new password" className="h-12 text-base pr-10" {...field} />
+                            <Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full px-3 hover:bg-transparent" onClick={() => setShowPassword(!showPassword)}>
+                              {showPassword ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
+                            </Button>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>} />
+
+                  <Button type="submit" className="w-full h-12 text-base bg-foreground text-background hover:bg-foreground/90" disabled={isLoading}>
+                    {isLoading ? 'Resetting password...' : 'Reset password'}
                   </Button>
                 </form>
               </Form>
@@ -1788,4 +1882,5 @@ const Auth = () => {
       </div>
     </div>;
 };
+
 export default Auth;
