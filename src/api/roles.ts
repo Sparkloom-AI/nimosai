@@ -15,6 +15,15 @@ const convertToAppRole = (dbRole: string): AppRole => {
   return dbRole as AppRole;
 };
 
+// Helper function to convert AppRole back to database role for RPC calls
+const convertToDbRole = (appRole: AppRole): string => {
+  // Convert freelancer back to receptionist for database compatibility
+  if (appRole === 'freelancer') {
+    return 'receptionist';
+  }
+  return appRole;
+};
+
 export const rolesApi = {
   // Get all roles for a user
   async getUserRoles(userId: string): Promise<UserRole[]> {
@@ -45,7 +54,7 @@ export const rolesApi = {
   async hasRole(userId: string, role: AppRole, studioId?: string): Promise<boolean> {
     const { data, error } = await supabase.rpc('has_role', {
       _user_id: userId,
-      _role: role as string,
+      _role: convertToDbRole(role),
       _studio_id: studioId || null,
     });
     
