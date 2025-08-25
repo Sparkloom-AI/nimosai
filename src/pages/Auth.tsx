@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Mail, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Mail, Eye, EyeOff, CheckCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/sonner';
 import { LocationSettings, detectLocationFromTimezone } from '@/components/auth/LocationSettings';
@@ -48,7 +48,6 @@ interface LocationData {
   language: string;
 }
 
-// Comprehensive list of all world countries with phone prefixes, starting with the specific ones from the image
 const phoneCountries = [{
   name: 'United States',
   code: 'US',
@@ -1297,6 +1296,7 @@ const Auth = () => {
     user
   } = useAuth();
   const navigate = useNavigate();
+  
   const emailForm = useForm<EmailFormData>({
     resolver: zodResolver(emailSchema),
     defaultValues: {
@@ -1321,7 +1321,6 @@ const Auth = () => {
     }
   });
 
-  // Auto-detect location on component mount
   useEffect(() => {
     const detected = detectLocationFromTimezone();
     setLocationData(detected);
@@ -1329,7 +1328,6 @@ const Auth = () => {
     professionalForm.setValue('country', detected.country);
   }, []);
 
-  // Check for newly authenticated users who need setup
   useEffect(() => {
     if (user && pendingSignUp) {
       console.log('Newly authenticated user detected, showing wizard...');
@@ -1338,14 +1336,12 @@ const Auth = () => {
     }
   }, [user, pendingSignUp]);
 
-  // Redirect if already authenticated (but not if we need to show wizard)
   useEffect(() => {
     if (user && !showWizard && !pendingSignUp) {
       navigate('/dashboard');
     }
   }, [user, navigate, showWizard, pendingSignUp]);
 
-  // Check for password reset mode on component mount
   useEffect(() => {
     const mode = searchParams.get('mode');
     const token = searchParams.get('token');
@@ -1358,40 +1354,38 @@ const Auth = () => {
 
   const checkEmailExists = async (email: string) => {
     try {
-      // Try to sign in with a dummy password to check if email exists
-      const {
-        error
-      } = await supabase.auth.signInWithPassword({
-        email,
-        password: 'dummy-password-to-check-email'
-      });
-      if (error) {
-        // If error message contains "Invalid login credentials", the email exists but password is wrong
-        if (error.message.includes('Invalid login credentials')) {
-          return true; // Email exists
-        }
-        // If error message contains "User not found" or similar, email doesn't exist
-        return false;
+      const { data: profiles, error } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('email', email)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error checking email:', error);
+        throw error;
       }
 
-      // If no error, email exists and password was correct (unlikely with dummy password)
-      return true;
+      return profiles !== null;
     } catch (error) {
       console.error('Error checking email:', error);
-      return false;
+      throw error;
     }
   };
 
   const onEmailSubmit = async (data: EmailFormData) => {
     setIsLoading(true);
     setEmail(data.email);
+    
     try {
       const emailExists = await checkEmailExists(data.email);
+      
       if (emailExists) {
-        // Get user profile to show display name
-        const {
-          data: profiles
-        } = await supabase.from('profiles').select('full_name').eq('email', data.email).single();
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('email', data.email)
+          .single();
+        
         if (profiles?.full_name) {
           setUserDisplayName(profiles.full_name);
         }
@@ -1401,7 +1395,7 @@ const Auth = () => {
       }
     } catch (error) {
       console.error('Error in email submission:', error);
-      toast.error('An error occurred while checking your email');
+      toast.error('Unable to verify email. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -1410,9 +1404,7 @@ const Auth = () => {
   const onPasswordSubmit = async (data: PasswordFormData) => {
     setIsLoading(true);
     try {
-      const {
-        error
-      } = await signIn(email, data.password);
+      const { error } = await signIn(email, data.password);
       if (error) {
         if (error.message.includes('Invalid login credentials')) {
           toast.error('Invalid email or password');
@@ -1435,12 +1427,9 @@ const Auth = () => {
     console.log('Starting account creation...');
     try {
       const fullName = `${data.firstName} ${data.lastName}`;
-      const {
-        error
-      } = await signUp(email, data.password, fullName);
-      console.log('SignUp result:', {
-        error
-      });
+      const { error } = await signUp(email, data.password, fullName);
+      console.log('SignUp result:', { error });
+      
       if (error) {
         console.log('SignUp error:', error);
         if (error.message.includes('already registered')) {
@@ -1466,9 +1455,7 @@ const Auth = () => {
   const handleResendConfirmation = async () => {
     setIsLoading(true);
     try {
-      const {
-        error
-      } = await supabase.auth.resend({
+      const { error } = await supabase.auth.resend({
         type: 'signup',
         email: email,
         options: {
@@ -1490,9 +1477,7 @@ const Auth = () => {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
-      const {
-        error
-      } = await signInWithGoogle();
+      const { error } = await signInWithGoogle();
       if (error) {
         toast.error(error.message || 'Failed to sign in with Google');
         setIsLoading(false);
@@ -1575,7 +1560,8 @@ const Auth = () => {
     return <AccountSetupWizard onComplete={handleSetupComplete} />;
   }
 
-  return <div className="min-h-screen bg-background flex">
+  return (
+    <div className="min-h-screen bg-background flex">
       {/* Left side - Form */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
@@ -1586,14 +1572,17 @@ const Auth = () => {
               Back
             </Button>
             
-            {step !== 'professional' && step !== 'email-confirmation' && step !== 'password' && step !== 'reset-password' && <>
+            {step !== 'professional' && step !== 'email-confirmation' && step !== 'password' && step !== 'reset-password' && (
+              <>
                 <h1 className="text-3xl font-bold mb-2">Nimos for professionals</h1>
                 <p className="text-muted-foreground">
                   Create an account or log in to manage your business.
                 </p>
-              </>}
+              </>
+            )}
 
-            {step === 'password' && <>
+            {step === 'password' && (
+              <>
                 <h1 className="text-3xl font-bold mb-2">
                   Welcome back to your business account{userDisplayName ? `, ${userDisplayName.split(' ')[0]}` : ''}
                 </h1>
@@ -1601,18 +1590,22 @@ const Auth = () => {
                   Enter your password to log in as{' '}
                   <span className="font-medium">{email}</span>
                 </p>
-              </>}
+              </>
+            )}
 
-            {step === 'reset-password' && <>
+            {step === 'reset-password' && (
+              <>
                 <h1 className="text-2xl font-semibold mb-2">Reset your password</h1>
                 <p className="text-muted-foreground">
                   Enter a new password for your account.
                 </p>
-              </>}
+              </>
+            )}
           </div>
 
           {/* Email Confirmation Step */}
-          {step === 'email-confirmation' && <div className="space-y-6">
+          {step === 'email-confirmation' && (
+            <div className="space-y-6">
               <div className="text-center">
                 <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
                   <Mail className="w-8 h-8 text-primary" />
@@ -1628,7 +1621,13 @@ const Auth = () => {
               </div>
 
               <div className="space-y-4">
-                <Button onClick={handleResendConfirmation} variant="outline" className="w-full h-12 text-base" disabled={isLoading}>
+                <Button 
+                  onClick={handleResendConfirmation} 
+                  variant="outline" 
+                  className="w-full h-12 text-base" 
+                  disabled={isLoading}
+                >
+                  {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                   {isLoading ? 'Sending...' : 'Resend confirmation email'}
                 </Button>
                 
@@ -1646,21 +1645,37 @@ const Auth = () => {
                   </div>
                 </div>
               </div>
-            </div>}
+            </div>
+          )}
 
           {/* Email Step */}
-          {step === 'email' && <div className="space-y-6">
+          {step === 'email' && (
+            <div className="space-y-6">
               <Form {...emailForm}>
                 <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-4">
-                  <FormField control={emailForm.control} name="email" render={({
-                field
-              }) => <FormItem>
+                  <FormField 
+                    control={emailForm.control} 
+                    name="email" 
+                    render={({ field }) => (
+                      <FormItem>
                         <FormControl>
-                          <Input placeholder="Enter your email address" type="email" className="h-12 text-base" {...field} />
+                          <Input 
+                            placeholder="Enter your email address" 
+                            type="email" 
+                            className="h-12 text-base" 
+                            {...field} 
+                          />
                         </FormControl>
                         <FormMessage />
-                      </FormItem>} />
-                  <Button type="submit" disabled={isLoading} className="w-full h-12 text-base bg-foreground text-background hover:bg-foreground/90 text-center">
+                      </FormItem>
+                    )} 
+                  />
+                  <Button 
+                    type="submit" 
+                    disabled={isLoading} 
+                    className="w-full h-12 text-base bg-foreground text-background hover:bg-foreground/90"
+                  >
+                    {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                     {isLoading ? 'Checking...' : 'Continue'}
                   </Button>
                 </form>
@@ -1675,24 +1690,31 @@ const Auth = () => {
                 </div>
               </div>
 
-              {/* Social Login Buttons */}
               <div className="space-y-3">
-                <Button variant="outline" onClick={handleGoogleSignIn} disabled={isLoading} className="w-full h-12 text-base justify-start text-center">
-                  <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                  </svg>
+                <Button 
+                  variant="outline" 
+                  onClick={handleGoogleSignIn} 
+                  disabled={isLoading} 
+                  className="w-full h-12 text-base justify-start"
+                >
+                  {isLoading && <Loader2 className="w-5 h-5 mr-3 animate-spin" />}
+                  {!isLoading && (
+                    <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
+                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                    </svg>
+                  )}
                   Continue with Google
                 </Button>
               </div>
-
-              
-            </div>}
+            </div>
+          )}
 
           {/* Professional Account Creation Step */}
-          {step === 'professional' && <div className="space-y-6">
+          {step === 'professional' && (
+            <div className="space-y-6">
               <div className="mb-6">
                 <h1 className="text-2xl font-semibold mb-2">Create a professional account</h1>
                 <p className="text-muted-foreground text-sm">
@@ -1703,102 +1725,134 @@ const Auth = () => {
 
               <Form {...professionalForm}>
                 <form onSubmit={professionalForm.handleSubmit(onProfessionalAccountSubmit)} className="space-y-5">
-                  <FormField control={professionalForm.control} name="firstName" render={({
-                field
-              }) => <FormItem>
-                        <FormLabel className="text-sm font-medium">First name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter your first name" className="h-11" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>} />
+                  <FormField control={professionalForm.control} name="firstName" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">First name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter your first name" className="h-11" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
 
-                  <FormField control={professionalForm.control} name="lastName" render={({
-                field
-              }) => <FormItem>
-                        <FormLabel className="text-sm font-medium">Last name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter your last name" className="h-11" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>} />
+                  <FormField control={professionalForm.control} name="lastName" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">Last name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter your last name" className="h-11" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
 
-                  <FormField control={professionalForm.control} name="password" render={({
-                field
-              }) => <FormItem>
-                        <FormLabel className="text-sm font-medium">Password</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Input type={showPassword ? "text" : "password"} placeholder="Enter a password" className="h-11 pr-10" {...field} />
-                            <Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full px-3 hover:bg-transparent" onClick={() => setShowPassword(!showPassword)}>
-                              {showPassword ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
-                            </Button>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>} />
-
-                  <FormField control={professionalForm.control} name="mobileNumber" render={({
-                field
-              }) => <FormItem>
-                        <FormLabel className="text-sm font-medium">Mobile number</FormLabel>
-                        <FormControl>
-                          <div className="flex">
-                            <Select value={selectedPhonePrefix} onValueChange={setSelectedPhonePrefix}>
-                              <SelectTrigger className="w-40 h-11 rounded-r-none border-r-0">
-                                <SelectValue placeholder="Code">
-                                  {selectedPhonePrefix || "Code"}
-                                </SelectValue>
-                              </SelectTrigger>
-                              <SelectContent className="max-h-60 overflow-y-auto">
-                                {phoneCountries.map((country, index) => <SelectItem key={`${country.code}-${country.phone}-${index}`} value={country.phone}>
-                                    {country.flag} {country.name} {country.phone}
-                                  </SelectItem>)}
-                              </SelectContent>
-                            </Select>
-                            <Input placeholder="Enter your mobile number" className="h-11 rounded-l-none flex-1" {...field} />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>} />
-
-                  <FormField control={professionalForm.control} name="country" render={({
-                field
-              }) => <FormItem>
-                        <FormLabel className="text-sm font-medium">Country</FormLabel>
-                        <FormControl>
-                          <LocationSettings value={locationData} onChange={handleLocationDataChange} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>} />
-
-                  <FormField control={professionalForm.control} name="agreeToTerms" render={({
-                field
-              }) => <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                        <FormControl>
-                          <Checkbox checked={field.value} onCheckedChange={field.onChange} className="mt-1" />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel className="text-sm font-normal">
-                            I agree to the{' '}
-                            <Button variant="link" className="p-0 h-auto text-primary">
-                              Privacy Policy
-                            </Button>
-                            ,{' '}
-                            <Button variant="link" className="p-0 h-auto text-primary">
-                              Terms of Service
-                            </Button>
-                            {' '}and{' '}
-                            <Button variant="link" className="p-0 h-auto text-primary">
-                              Terms of Business
-                            </Button>
-                            .
-                          </FormLabel>
-                          <FormMessage />
+                  <FormField control={professionalForm.control} name="password" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">Password</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input 
+                            type={showPassword ? "text" : "password"} 
+                            placeholder="Enter a password" 
+                            className="h-11 pr-10" 
+                            {...field} 
+                          />
+                          <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="sm" 
+                            className="absolute right-0 top-0 h-full px-3 hover:bg-transparent" 
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? 
+                              <EyeOff className="h-4 w-4 text-muted-foreground" /> : 
+                              <Eye className="h-4 w-4 text-muted-foreground" />
+                            }
+                          </Button>
                         </div>
-                      </FormItem>} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
 
-                  <Button type="submit" className="w-full h-12 text-base bg-foreground text-background hover:bg-foreground/90" disabled={isLoading}>
+                  <FormField control={professionalForm.control} name="mobileNumber" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">Mobile number</FormLabel>
+                      <FormControl>
+                        <div className="flex">
+                          <Select value={selectedPhonePrefix} onValueChange={setSelectedPhonePrefix}>
+                            <SelectTrigger className="w-40 h-11 rounded-r-none border-r-0">
+                              <SelectValue placeholder="Code">
+                                {selectedPhonePrefix || "Code"}
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent className="max-h-60 overflow-y-auto">
+                              {phoneCountries.map((country, index) => (
+                                <SelectItem key={`${country.code}-${country.phone}-${index}`} value={country.phone}>
+                                  {country.flag} {country.name} {country.phone}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Input 
+                            placeholder="Enter your mobile number" 
+                            className="h-11 rounded-l-none flex-1" 
+                            {...field} 
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+
+                  <FormField control={professionalForm.control} name="country" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">Country</FormLabel>
+                      <FormControl>
+                        <LocationSettings 
+                          value={locationData} 
+                          onChange={handleLocationDataChange} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+
+                  <FormField control={professionalForm.control} name="agreeToTerms" render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox 
+                          checked={field.value} 
+                          onCheckedChange={field.onChange} 
+                          className="mt-1" 
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="text-sm font-normal">
+                          I agree to the{' '}
+                          <Button variant="link" className="p-0 h-auto text-primary">
+                            Privacy Policy
+                          </Button>
+                          ,{' '}
+                          <Button variant="link" className="p-0 h-auto text-primary">
+                            Terms of Service
+                          </Button>
+                          {' '}and{' '}
+                          <Button variant="link" className="p-0 h-auto text-primary">
+                            Terms of Business
+                          </Button>
+                          .
+                        </FormLabel>
+                        <FormMessage />
+                      </div>
+                    </FormItem>
+                  )} />
+
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 text-base bg-foreground text-background hover:bg-foreground/90" 
+                    disabled={isLoading}
+                  >
+                    {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                     {isLoading ? 'Creating account...' : 'Create account'}
                   </Button>
                 </form>
@@ -1808,79 +1862,128 @@ const Auth = () => {
                 This site is protected by reCAPTCHA.<br />
                 Google Privacy Policy and Terms of Service apply
               </div>
-            </div>}
+            </div>
+          )}
 
           {/* Password Step */}
-          {step === 'password' && <div className="space-y-6">
+          {step === 'password' && (
+            <div className="space-y-6">
               <Form {...passwordForm}>
                 <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
-                  <FormField control={passwordForm.control} name="password" render={({
-                field
-              }) => <FormItem>
-                        <FormLabel className="text-sm font-medium">Password</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Input type={showPassword ? "text" : "password"} placeholder="Enter a password" className="h-12 text-base pr-10" {...field} />
-                            <Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full px-3 hover:bg-transparent" onClick={() => setShowPassword(!showPassword)}>
-                              {showPassword ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
-                            </Button>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                        {passwordForm.formState.errors.password && <p className="text-sm text-red-600">This field is required</p>}
-                      </FormItem>} />
+                  <FormField control={passwordForm.control} name="password" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">Password</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input 
+                            type={showPassword ? "text" : "password"} 
+                            placeholder="Enter a password" 
+                            className="h-12 text-base pr-10" 
+                            {...field} 
+                          />
+                          <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="sm" 
+                            className="absolute right-0 top-0 h-full px-3 hover:bg-transparent" 
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? 
+                              <EyeOff className="h-4 w-4 text-muted-foreground" /> : 
+                              <Eye className="h-4 w-4 text-muted-foreground" />
+                            }
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
                   
                   <div className="text-center">
-                    <Button variant="link" className="text-primary p-0 h-auto" type="button" onClick={handleForgotPassword}>
+                    <Button 
+                      variant="link" 
+                      className="text-primary p-0 h-auto" 
+                      type="button" 
+                      onClick={handleForgotPassword}
+                    >
                       Forgot your password?
                     </Button>
                   </div>
 
-                  <Button type="submit" className="w-full h-12 text-base bg-foreground text-background hover:bg-foreground/90" disabled={isLoading}>
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 text-base bg-foreground text-background hover:bg-foreground/90" 
+                    disabled={isLoading}
+                  >
+                    {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                     {isLoading ? 'Logging in...' : 'Log in'}
                   </Button>
                 </form>
               </Form>
-            </div>}
+            </div>
+          )}
 
           {/* Reset Password Step */}
-          {step === 'reset-password' && <div className="space-y-6">
+          {step === 'reset-password' && (
+            <div className="space-y-6">
               <Form {...passwordForm}>
                 <form onSubmit={passwordForm.handleSubmit(onResetPasswordSubmit)} className="space-y-4">
-                  <FormField control={passwordForm.control} name="password" render={({
-                field
-              }) => <FormItem>
-                        <FormLabel className="text-sm font-medium">New Password</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Input type={showPassword ? "text" : "password"} placeholder="Enter your new password" className="h-12 text-base pr-10" {...field} />
-                            <Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full px-3 hover:bg-transparent" onClick={() => setShowPassword(!showPassword)}>
-                              {showPassword ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
-                            </Button>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>} />
+                  <FormField control={passwordForm.control} name="password" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">New Password</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input 
+                            type={showPassword ? "text" : "password"} 
+                            placeholder="Enter your new password" 
+                            className="h-12 text-base pr-10" 
+                            {...field} 
+                          />
+                          <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="sm" 
+                            className="absolute right-0 top-0 h-full px-3 hover:bg-transparent" 
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? 
+                              <EyeOff className="h-4 w-4 text-muted-foreground" /> : 
+                              <Eye className="h-4 w-4 text-muted-foreground" />
+                            }
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
 
-                  <Button type="submit" className="w-full h-12 text-base bg-foreground text-background hover:bg-foreground/90" disabled={isLoading}>
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 text-base bg-foreground text-background hover:bg-foreground/90" 
+                    disabled={isLoading}
+                  >
+                    {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                     {isLoading ? 'Resetting password...' : 'Reset password'}
                   </Button>
                 </form>
               </Form>
-            </div>}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Right side - Image/Background */}
       <div className="hidden lg:block flex-1 bg-muted relative overflow-hidden">
-        <img src="/lovable-uploads/5101447c-92ce-49c1-8837-5de26eeff4b6.png" alt="Professional salon manager using Nimos" className="absolute inset-0 w-full h-full object-cover" />
+        <img 
+          src="/lovable-uploads/5101447c-92ce-49c1-8837-5de26eeff4b6.png" 
+          alt="Professional salon manager using Nimos" 
+          className="absolute inset-0 w-full h-full object-cover" 
+        />
         <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/10 to-accent/20" />
         <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-        
-        {/* Optional: Add some elegant overlay content */}
-        
       </div>
-    </div>;
+    </div>
+  );
 };
 
 export default Auth;
