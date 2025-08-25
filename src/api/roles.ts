@@ -6,24 +6,6 @@ import { AppRole, UserRole } from '@/types/roles';
 type UserRoleInsert = Database['public']['Tables']['user_roles']['Insert'];
 type UserRoleUpdate = Database['public']['Tables']['user_roles']['Update'];
 
-// Helper function to convert database role to AppRole
-const convertToAppRole = (dbRole: string): AppRole => {
-  // Handle the conversion from receptionist to freelancer for backwards compatibility
-  if (dbRole === 'receptionist') {
-    return 'freelancer';
-  }
-  return dbRole as AppRole;
-};
-
-// Helper function to convert AppRole back to database role for RPC calls
-const convertToDbRole = (appRole: AppRole): string => {
-  // Convert freelancer back to receptionist for database compatibility
-  if (appRole === 'freelancer') {
-    return 'receptionist';
-  }
-  return appRole;
-};
-
 export const rolesApi = {
   // Get all roles for a user
   async getUserRoles(userId: string): Promise<UserRole[]> {
@@ -33,10 +15,7 @@ export const rolesApi = {
       .eq('user_id', userId);
     
     if (error) throw error;
-    return (data || []).map(role => ({
-      ...role,
-      role: convertToAppRole(role.role)
-    }));
+    return data || [];
   },
 
   // Get user's role for a specific studio
@@ -47,14 +26,14 @@ export const rolesApi = {
     });
     
     if (error) throw error;
-    return data ? convertToAppRole(data) : null;
+    return data;
   },
 
   // Check if user has a specific role
   async hasRole(userId: string, role: AppRole, studioId?: string): Promise<boolean> {
     const { data, error } = await supabase.rpc('has_role', {
       _user_id: userId,
-      _role: convertToDbRole(role),
+      _role: role,
       _studio_id: studioId || null,
     });
     
@@ -82,10 +61,7 @@ export const rolesApi = {
       .single();
     
     if (error) throw error;
-    return {
-      ...data,
-      role: convertToAppRole(data.role)
-    };
+    return data;
   },
 
   // Update user role
@@ -98,10 +74,7 @@ export const rolesApi = {
       .single();
     
     if (error) throw error;
-    return {
-      ...data,
-      role: convertToAppRole(data.role)
-    };
+    return data;
   },
 
   // Remove role from user
@@ -126,9 +99,6 @@ export const rolesApi = {
       .order('created_at', { ascending: false });
     
     if (error) throw error;
-    return (data || []).map(role => ({
-      ...role,
-      role: convertToAppRole(role.role)
-    }));
+    return data || [];
   },
 };
