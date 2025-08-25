@@ -11,7 +11,7 @@ interface WeekViewProps {
   viewType: 'week' | '3-day';
 }
 
-const WeekView = ({ currentDate, dateRange, viewType }: WeekViewProps) => {
+const WeekView = ({ currentDate, viewType }: WeekViewProps) => {
   const days = viewType === 'week' 
     ? Array.from({ length: 7 }, (_, i) => addDays(dateRange.start, i))
     : Array.from({ length: 3 }, (_, i) => addDays(currentDate, i));
