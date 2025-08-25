@@ -429,14 +429,62 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          studio_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          studio_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          studio_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_manage_studio: {
+        Args: { _studio_id: string; _user_id: string }
+        Returns: boolean
+      }
+      get_user_role: {
+        Args: { _studio_id: string; _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _studio_id?: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
+      app_role:
+        | "studio_owner"
+        | "manager"
+        | "staff"
+        | "receptionist"
+        | "super_admin"
       employment_type: "full_time" | "part_time" | "contractor" | "intern"
       permission_level: "low" | "medium" | "high"
       shift_status:
@@ -572,6 +620,13 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: [
+        "studio_owner",
+        "manager",
+        "staff",
+        "receptionist",
+        "super_admin",
+      ],
       employment_type: ["full_time", "part_time", "contractor", "intern"],
       permission_level: ["low", "medium", "high"],
       shift_status: [
