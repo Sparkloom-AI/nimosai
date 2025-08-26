@@ -1,48 +1,64 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, ArrowRight, Scissors, Hand, Eye, ShoppingBag, Sparkles, Zap, Bed, Droplets, Wand2, Heart, Sun, Bike, Dumbbell, Plus, Stethoscope, PawPrint, Grid3X3 } from 'lucide-react';
-
-interface BusinessCategory {
-  id: string;
-  title: string;
-  icon: React.ComponentType<any>;
-}
-
-const businessCategories: BusinessCategory[] = [
-  { id: 'hair-salon', title: 'Hair salon', icon: Scissors },
-  { id: 'nails', title: 'Nails', icon: Hand },
-  { id: 'eyebrows-lashes', title: 'Eyebrows & lashes', icon: Eye },
-  { id: 'beauty-salon', title: 'Beauty salon', icon: ShoppingBag },
-  { id: 'medspa', title: 'Medspa', icon: Sparkles },
-  { id: 'barber', title: 'Barber', icon: Zap },
-  { id: 'massage', title: 'Massage', icon: Bed },
-  { id: 'spa-sauna', title: 'Spa & sauna', icon: Droplets },
-  { id: 'waxing-salon', title: 'Waxing salon', icon: Wand2 },
-  { id: 'tattooing-piercing', title: 'Tattooing & piercing', icon: Heart },
-  { id: 'tanning-studio', title: 'Tanning studio', icon: Sun },
-  { id: 'fitness-recovery', title: 'Fitness & recovery', icon: Bike },
-  { id: 'physical-therapy', title: 'Physical therapy', icon: Stethoscope },
-  { id: 'health-practice', title: 'Health practice', icon: Plus },
-  { id: 'pet-grooming', title: 'Pet grooming', icon: PawPrint },
-  { id: 'other', title: 'Other', icon: Grid3X3 },
-];
+import { ArrowLeft, ArrowRight, Scissors, Hand, Eye, ShoppingBag, Sparkles, Zap, Bed, Droplets, Wand2, Heart, Sun, Bike, Dumbbell, Plus, Stethoscope, PawPrint, Grid3X3, Loader2 } from 'lucide-react';
+import { businessCategoriesApi } from '@/api/businessCategories';
+import { BusinessCategory } from '@/types/studio';
+import { toast } from 'sonner';
 
 interface BusinessCategoryFormProps {
   onBack: () => void;
   onComplete: (categories: string[]) => void;
 }
 
+// Icon mapping for different business categories
+const getIconForCategory = (categoryName: string) => {
+  const iconMap: { [key: string]: React.ComponentType<any> } = {
+    'Hair Salon': Scissors,
+    'Nail Salon': Hand,
+    'Beauty Salon': Eye,
+    'Spa': Bed,
+    'Barbershop': Zap,
+    'Massage Therapy': Bed,
+    'Fitness Studio': Dumbbell,
+    'Yoga Studio': Bike,
+    'Wellness Center': Heart,
+    'Medical Spa': Sparkles,
+    'Tattoo & Piercing': Heart,
+    'General': Grid3X3,
+  };
+  
+  return iconMap[categoryName] || ShoppingBag;
+};
+
 const BusinessCategoryForm: React.FC<BusinessCategoryFormProps> = ({ onBack, onComplete }) => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [businessCategories, setBusinessCategories] = useState<BusinessCategory[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleCategoryToggle = (categoryId: string) => {
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categories = await businessCategoriesApi.getBusinessCategories();
+        setBusinessCategories(categories);
+      } catch (error: any) {
+        console.error('Failed to fetch business categories:', error);
+        toast.error('Failed to load business categories');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  const handleCategoryToggle = (categoryName: string) => {
     setSelectedCategories(prev => {
-      if (prev.includes(categoryId)) {
-        return prev.filter(id => id !== categoryId);
+      if (prev.includes(categoryName)) {
+        return prev.filter(name => name !== categoryName);
       } else if (prev.length < 4) { // Allow up to 4 selections (1 primary + 3 related)
-        return [...prev, categoryId];
+        return [...prev, categoryName];
       }
       return prev;
     });
@@ -53,6 +69,17 @@ const BusinessCategoryForm: React.FC<BusinessCategoryFormProps> = ({ onBack, onC
       onComplete(selectedCategories);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex items-center space-x-2">
+          <Loader2 className="w-6 h-6 animate-spin" />
+          <span>Loading categories...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -77,7 +104,7 @@ const BusinessCategoryForm: React.FC<BusinessCategoryFormProps> = ({ onBack, onC
                 Select categories that best describe your business
               </h1>
               <p className="text-muted-foreground">
-                Choose your primary and up to 3 related service type
+                Choose your primary and up to 3 related service types
               </p>
             </div>
           </div>
@@ -85,8 +112,8 @@ const BusinessCategoryForm: React.FC<BusinessCategoryFormProps> = ({ onBack, onC
           {/* Categories Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             {businessCategories.map((category) => {
-              const IconComponent = category.icon;
-              const isSelected = selectedCategories.includes(category.id);
+              const IconComponent = getIconForCategory(category.name);
+              const isSelected = selectedCategories.includes(category.name);
               
               return (
                 <Card
@@ -94,7 +121,7 @@ const BusinessCategoryForm: React.FC<BusinessCategoryFormProps> = ({ onBack, onC
                   className={`cursor-pointer transition-all duration-200 hover:shadow-md hover:border-primary/20 ${
                     isSelected ? 'border-primary shadow-sm bg-primary/5' : ''
                   }`}
-                  onClick={() => handleCategoryToggle(category.id)}
+                  onClick={() => handleCategoryToggle(category.name)}
                 >
                   <CardContent className="p-6">
                     <div className="flex flex-col items-center text-center space-y-3">
@@ -102,7 +129,7 @@ const BusinessCategoryForm: React.FC<BusinessCategoryFormProps> = ({ onBack, onC
                         <IconComponent className="w-6 h-6" />
                       </div>
                       <h3 className="font-medium text-sm">
-                        {category.title}
+                        {category.name}
                       </h3>
                     </div>
                   </CardContent>

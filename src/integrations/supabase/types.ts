@@ -483,7 +483,7 @@ export type Database = {
         | "studio_owner"
         | "manager"
         | "staff"
-        | "receptionist"
+        | "freelancer"
         | "super_admin"
       employment_type: "full_time" | "part_time" | "contractor" | "intern"
       permission_level: "low" | "medium" | "high"
@@ -624,7 +624,7 @@ export const Constants = {
         "studio_owner",
         "manager",
         "staff",
-        "receptionist",
+        "freelancer",
         "super_admin",
       ],
       employment_type: ["full_time", "part_time", "contractor", "intern"],

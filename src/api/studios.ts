@@ -15,7 +15,7 @@ interface CreateStudioData {
 export const studiosApi = {
   // Create a new studio
   async createStudio(studioData: CreateStudioData): Promise<Studio> {
-    const { data, error } = await supabase.rpc('create_studio_with_data' as any, {
+    const { data, error } = await supabase.rpc('create_studio_with_data', {
       studio_name: studioData.name,
       studio_website: studioData.website || null,
       studio_business_category: studioData.business_category,
@@ -31,7 +31,7 @@ export const studiosApi = {
 
   // Get user's studios
   async getUserStudios(): Promise<Studio[]> {
-    const { data, error } = await supabase.rpc('get_user_studios' as any);
+    const { data, error } = await supabase.rpc('get_user_studios');
 
     if (error) throw error;
     return (data || []) as Studio[];
@@ -39,7 +39,7 @@ export const studiosApi = {
 
   // Get a specific studio
   async getStudio(studioId: string): Promise<Studio | null> {
-    const { data, error } = await supabase.rpc('get_studio_by_id' as any, { 
+    const { data, error } = await supabase.rpc('get_studio_by_id', { 
       studio_id: studioId 
     });
 
@@ -49,7 +49,7 @@ export const studiosApi = {
 
   // Update studio
   async updateStudio(studioId: string, updates: Partial<CreateStudioData>): Promise<Studio> {
-    const { data, error } = await supabase.rpc('update_studio_data' as any, {
+    const { data, error } = await supabase.rpc('update_studio_data', {
       studio_id: studioId,
       studio_name: updates.name || null,
       studio_website: updates.website || null,
