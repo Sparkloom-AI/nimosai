@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
@@ -32,19 +33,19 @@ import {
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { teamApi } from '@/api/team';
-import { useAuth } from '@/contexts/AuthContext';
+import { useRole } from '@/contexts/RoleContext';
 import AddTeamMemberModal from '@/components/domain/team/AddTeamMemberModal';
 import { toast } from 'sonner';
 
 const Team = () => {
-  const { user } = useAuth();
+  const { currentStudioId } = useRole();
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const { data: teamMembers, isLoading, refetch } = useQuery({
-    queryKey: ['team-members', user?.id],
-    queryFn: () => user?.id ? teamApi.getTeamMembers(user.id) : Promise.resolve([]),
-    enabled: !!user?.id,
+    queryKey: ['team-members', currentStudioId],
+    queryFn: () => currentStudioId ? teamApi.getTeamMembers(currentStudioId) : Promise.resolve([]),
+    enabled: !!currentStudioId,
   });
 
   const filteredTeamMembers = teamMembers?.filter(member => 
@@ -75,7 +76,7 @@ const Team = () => {
     return type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
 
-  if (isLoading) {
+  if (isLoading || !currentStudioId) {
     return (
       <DashboardLayout>
         <div className="p-6">
