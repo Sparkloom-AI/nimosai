@@ -41,32 +41,57 @@ export type Database = {
       locations: {
         Row: {
           address: string
+          city: string
+          country: string
           created_at: string
           id: string
           is_active: boolean
+          is_primary: boolean
           name: string
           phone: string | null
+          postal_code: string
+          state: string
           studio_id: string
+          updated_at: string
         }
         Insert: {
           address: string
+          city?: string
+          country?: string
           created_at?: string
           id?: string
           is_active?: boolean
+          is_primary?: boolean
           name: string
           phone?: string | null
+          postal_code?: string
+          state?: string
           studio_id: string
+          updated_at?: string
         }
         Update: {
           address?: string
+          city?: string
+          country?: string
           created_at?: string
           id?: string
           is_active?: boolean
+          is_primary?: boolean
           name?: string
           phone?: string | null
+          postal_code?: string
+          state?: string
           studio_id?: string
+          updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_locations_studio_id"
+            columns: ["studio_id"]
+            isOneToOne: false
+            referencedRelation: "studios"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "locations_studio_id_fkey"
             columns: ["studio_id"]
@@ -141,6 +166,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_services_studio_id"
+            columns: ["studio_id"]
+            isOneToOne: false
+            referencedRelation: "studios"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "services_studio_id_fkey"
             columns: ["studio_id"]
@@ -424,6 +456,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_team_members_studio_id"
+            columns: ["studio_id"]
+            isOneToOne: false
+            referencedRelation: "studios"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "team_members_studio_id_fkey"
             columns: ["studio_id"]
             isOneToOne: false
@@ -619,14 +658,31 @@ export type Database = {
       }
     }
     Enums: {
+      address_type: "home" | "work" | "mailing" | "emergency"
       app_role:
         | "studio_owner"
         | "manager"
         | "staff"
         | "freelancer"
         | "super_admin"
+      appointment_status:
+        | "scheduled"
+        | "confirmed"
+        | "in_progress"
+        | "completed"
+        | "cancelled"
+        | "no_show"
       employment_type: "full_time" | "part_time" | "contractor" | "intern"
       permission_level: "low" | "medium" | "high"
+      service_category:
+        | "haircut"
+        | "color"
+        | "styling"
+        | "treatment"
+        | "nails"
+        | "skincare"
+        | "massage"
+        | "other"
       shift_status:
         | "scheduled"
         | "confirmed"
@@ -760,6 +816,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      address_type: ["home", "work", "mailing", "emergency"],
       app_role: [
         "studio_owner",
         "manager",
@@ -767,8 +824,26 @@ export const Constants = {
         "freelancer",
         "super_admin",
       ],
+      appointment_status: [
+        "scheduled",
+        "confirmed",
+        "in_progress",
+        "completed",
+        "cancelled",
+        "no_show",
+      ],
       employment_type: ["full_time", "part_time", "contractor", "intern"],
       permission_level: ["low", "medium", "high"],
+      service_category: [
+        "haircut",
+        "color",
+        "styling",
+        "treatment",
+        "nails",
+        "skincare",
+        "massage",
+        "other",
+      ],
       shift_status: [
         "scheduled",
         "confirmed",
