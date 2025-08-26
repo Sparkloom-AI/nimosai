@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      business_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       locations: {
         Row: {
           address: string
@@ -125,6 +149,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      studios: {
+        Row: {
+          business_category: string
+          created_at: string
+          description: string | null
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          timezone: string
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          business_category?: string
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          timezone?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          business_category?: string
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          timezone?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
       }
       team_member_addresses: {
         Row: {
@@ -465,9 +528,62 @@ export type Database = {
         Args: { _studio_id: string; _user_id: string }
         Returns: boolean
       }
+      create_studio_with_data: {
+        Args: {
+          studio_business_category?: string
+          studio_description?: string
+          studio_email?: string
+          studio_name: string
+          studio_phone?: string
+          studio_timezone?: string
+          studio_website?: string
+        }
+        Returns: {
+          business_category: string
+          created_at: string
+          description: string
+          email: string
+          id: string
+          name: string
+          phone: string
+          timezone: string
+          updated_at: string
+          website: string
+        }[]
+      }
+      get_studio_by_id: {
+        Args: { studio_id: string }
+        Returns: {
+          business_category: string
+          created_at: string
+          description: string
+          email: string
+          id: string
+          name: string
+          phone: string
+          timezone: string
+          updated_at: string
+          website: string
+        }[]
+      }
       get_user_role: {
         Args: { _studio_id: string; _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
+      }
+      get_user_studios: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          business_category: string
+          created_at: string
+          description: string
+          email: string
+          id: string
+          name: string
+          phone: string
+          timezone: string
+          updated_at: string
+          website: string
+        }[]
       }
       has_role: {
         Args: {
@@ -476,6 +592,30 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      update_studio_data: {
+        Args: {
+          studio_business_category?: string
+          studio_description?: string
+          studio_email?: string
+          studio_id: string
+          studio_name?: string
+          studio_phone?: string
+          studio_timezone?: string
+          studio_website?: string
+        }
+        Returns: {
+          business_category: string
+          created_at: string
+          description: string
+          email: string
+          id: string
+          name: string
+          phone: string
+          timezone: string
+          updated_at: string
+          website: string
+        }[]
       }
     }
     Enums: {

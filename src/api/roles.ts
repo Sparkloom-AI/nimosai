@@ -10,10 +10,6 @@ type DbAppRole = Database['public']['Enums']['app_role'];
 
 // Convert database role to application role
 const convertToAppRole = (dbRole: DbAppRole): AppRole => {
-  // Handle the transition from receptionist to freelancer
-  if (dbRole === 'freelancer') {
-    return 'freelancer';
-  }
   return dbRole as AppRole;
 };
 

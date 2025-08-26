@@ -6,18 +6,18 @@ export const businessCategoriesApi = {
   // Get all business categories
   async getBusinessCategories(): Promise<BusinessCategory[]> {
     const { data, error } = await supabase
-      .from('business_categories' as any)
+      .from('business_categories')
       .select('*')
       .order('name');
 
     if (error) throw error;
-    return (data || []) as unknown as BusinessCategory[];
+    return data || [];
   },
 
   // Get a specific business category
   async getBusinessCategory(categoryId: string): Promise<BusinessCategory | null> {
     const { data, error } = await supabase
-      .from('business_categories' as any)
+      .from('business_categories')
       .select('*')
       .eq('id', categoryId)
       .maybeSingle();
@@ -26,19 +26,19 @@ export const businessCategoriesApi = {
       console.error('Error fetching business category:', error);
       throw error;
     }
-    return data as unknown as BusinessCategory | null;
+    return data;
   },
 
   // Create a new business category (super admin only)
   async createBusinessCategory(name: string, description?: string): Promise<BusinessCategory> {
     const { data, error } = await supabase
-      .from('business_categories' as any)
-      .insert({ name, description } as any)
+      .from('business_categories')
+      .insert({ name, description })
       .select()
       .single();
 
     if (error) throw error;
-    return data as unknown as BusinessCategory;
+    return data;
   },
 
   // Update a business category (super admin only)
@@ -47,20 +47,20 @@ export const businessCategoriesApi = {
     updates: { name?: string; description?: string }
   ): Promise<BusinessCategory> {
     const { data, error } = await supabase
-      .from('business_categories' as any)
-      .update(updates as any)
+      .from('business_categories')
+      .update(updates)
       .eq('id', categoryId)
       .select()
       .single();
 
     if (error) throw error;
-    return data as unknown as BusinessCategory;
+    return data;
   },
 
   // Delete a business category (super admin only)
   async deleteBusinessCategory(categoryId: string): Promise<void> {
     const { error } = await supabase
-      .from('business_categories' as any)
+      .from('business_categories')
       .delete()
       .eq('id', categoryId);
 
