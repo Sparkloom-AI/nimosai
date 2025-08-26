@@ -2,29 +2,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Location } from '@/types/studio';
 
-interface CreateLocationData {
-  studio_id: string;
-  name: string;
-  address: string;
-  city: string;
-  state: string;
-  postal_code: string;
-  country?: string;
-  phone?: string;
-  is_primary?: boolean;
-}
-
-interface UpdateLocationData {
-  name?: string;
-  address?: string;
-  city?: string;
-  state?: string;
-  postal_code?: string;
-  country?: string;
-  phone?: string;
-  is_primary?: boolean;
-}
-
 export const locationsApi = {
   // Get all locations for a studio
   async getStudioLocations(studioId: string): Promise<Location[]> {
@@ -45,22 +22,36 @@ export const locationsApi = {
       .from('locations')
       .select('*')
       .eq('id', locationId)
-      .single();
+      .maybeSingle();
 
-    if (error) {
-      if (error.code === 'PGRST116') return null; // No rows returned
-      throw error;
-    }
+    if (error) throw error;
     return data;
   },
 
   // Create a new location
-  async createLocation(locationData: CreateLocationData): Promise<Location> {
+  async createLocation(locationData: {
+    studio_id: string;
+    name: string;
+    address: string;
+    city: string;
+    state: string;
+    postal_code: string;
+    country?: string;
+    phone?: string;
+    is_primary?: boolean;
+  }): Promise<Location> {
     const { data, error } = await supabase
       .from('locations')
       .insert({
-        ...locationData,
+        studio_id: locationData.studio_id,
+        name: locationData.name,
+        address: locationData.address,
+        city: locationData.city,
+        state: locationData.state,
+        postal_code: locationData.postal_code,
         country: locationData.country || 'US',
+        phone: locationData.phone,
+        is_primary: locationData.is_primary || false,
       })
       .select()
       .single();
@@ -69,8 +60,21 @@ export const locationsApi = {
     return data;
   },
 
-  // Update a location
-  async updateLocation(locationId: string, updates: UpdateLocationData): Promise<Location> {
+  // Update an existing location
+  async updateLocation(
+    locationId: string,
+    updates: Partial<{
+      name: string;
+      address: string;
+      city: string;
+      state: string;
+      postal_code: string;
+      country: string;
+      phone: string;
+      is_primary: boolean;
+      is_active: boolean;
+    }>
+  ): Promise<Location> {
     const { data, error } = await supabase
       .from('locations')
       .update(updates)
@@ -82,7 +86,7 @@ export const locationsApi = {
     return data;
   },
 
-  // Delete a location (soft delete)
+  // Delete a location (soft delete by setting is_active to false)
   async deleteLocation(locationId: string): Promise<void> {
     const { error } = await supabase
       .from('locations')
@@ -92,20 +96,23 @@ export const locationsApi = {
     if (error) throw error;
   },
 
-  // Set primary location for a studio
-  async setPrimaryLocation(studioId: string, locationId: string): Promise<void> {
-    // First, unset all primary locations for this studio
-    await supabase
+  // Set a location as primary (unsets other primary locations for the studio)
+  async setPrimaryLocation(locationId: string, studioId: string): Promise<void> {
+    // First, unset all other primary locations for this studio
+    const { error: unsetError } = await supabase
       .from('locations')
       .update({ is_primary: false })
-      .eq('studio_id', studioId);
+      .eq('studio_id', studioId)
+      .neq('id', locationId);
 
-    // Then set the selected location as primary
-    const { error } = await supabase
+    if (unsetError) throw unsetError;
+
+    // Then set this location as primary
+    const { error: setError } = await supabase
       .from('locations')
       .update({ is_primary: true })
       .eq('id', locationId);
 
-    if (error) throw error;
+    if (setError) throw setError;
   },
 };
