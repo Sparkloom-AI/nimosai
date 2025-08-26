@@ -11,7 +11,7 @@ export const businessCategoriesApi = {
       .order('name');
 
     if (error) throw error;
-    return (data || []) as BusinessCategory[];
+    return (data || []) as unknown as BusinessCategory[];
   },
 
   // Get a specific business category
@@ -26,7 +26,7 @@ export const businessCategoriesApi = {
       console.error('Error fetching business category:', error);
       throw error;
     }
-    return data as BusinessCategory | null;
+    return data as unknown as BusinessCategory | null;
   },
 
   // Create a new business category (super admin only)
@@ -38,7 +38,7 @@ export const businessCategoriesApi = {
       .single();
 
     if (error) throw error;
-    return data as BusinessCategory;
+    return data as unknown as BusinessCategory;
   },
 
   // Update a business category (super admin only)
@@ -54,7 +54,7 @@ export const businessCategoriesApi = {
       .single();
 
     if (error) throw error;
-    return data as BusinessCategory;
+    return data as unknown as BusinessCategory;
   },
 
   // Delete a business category (super admin only)

@@ -13,7 +13,7 @@ export const locationsApi = {
       .order('name');
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as unknown as Location[];
   },
 
   // Get a specific location
@@ -25,7 +25,7 @@ export const locationsApi = {
       .maybeSingle();
 
     if (error) throw error;
-    return data;
+    return data as unknown as Location | null;
   },
 
   // Create a new location
@@ -52,12 +52,12 @@ export const locationsApi = {
         country: locationData.country || 'US',
         phone: locationData.phone,
         is_primary: locationData.is_primary || false,
-      })
+      } as any)
       .select()
       .single();
 
     if (error) throw error;
-    return data;
+    return data as unknown as Location;
   },
 
   // Update an existing location
@@ -77,20 +77,20 @@ export const locationsApi = {
   ): Promise<Location> {
     const { data, error } = await supabase
       .from('locations')
-      .update(updates)
+      .update(updates as any)
       .eq('id', locationId)
       .select()
       .single();
 
     if (error) throw error;
-    return data;
+    return data as unknown as Location;
   },
 
   // Delete a location (soft delete by setting is_active to false)
   async deleteLocation(locationId: string): Promise<void> {
     const { error } = await supabase
       .from('locations')
-      .update({ is_active: false })
+      .update({ is_active: false } as any)
       .eq('id', locationId);
 
     if (error) throw error;
@@ -101,7 +101,7 @@ export const locationsApi = {
     // First, unset all other primary locations for this studio
     const { error: unsetError } = await supabase
       .from('locations')
-      .update({ is_primary: false })
+      .update({ is_primary: false } as any)
       .eq('studio_id', studioId)
       .neq('id', locationId);
 
@@ -110,7 +110,7 @@ export const locationsApi = {
     // Then set this location as primary
     const { error: setError } = await supabase
       .from('locations')
-      .update({ is_primary: true })
+      .update({ is_primary: true } as any)
       .eq('id', locationId);
 
     if (setError) throw setError;
