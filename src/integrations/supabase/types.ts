@@ -466,7 +466,7 @@ export type Database = {
             foreignKeyName: "team_members_studio_id_fkey"
             columns: ["studio_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "studios"
             referencedColumns: ["id"]
           },
         ]
