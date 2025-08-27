@@ -1,4 +1,5 @@
 
+
 import React, { useState, useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -18,45 +19,33 @@ export const MobilePrefixSelector: React.FC<MobilePrefixSelectorProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Create unique phone prefixes with country info
-  const phoneOptions = useMemo(() => {
-    const uniquePrefixes = new Map();
-    
-    countries.forEach(country => {
-      const key = country.phone;
-      if (!uniquePrefixes.has(key)) {
-        uniquePrefixes.set(key, []);
-      }
-      uniquePrefixes.get(key).push(country);
-    });
-
-    return Array.from(uniquePrefixes.entries()).map(([phone, countryList]) => {
-      // If multiple countries share the same prefix, show the primary one
-      const primaryCountry = countryList[0];
-      const additionalCountries = countryList.slice(1);
-      
-      return {
-        phone,
-        country: primaryCountry,
-        additionalCountries,
-        searchText: `${primaryCountry.name} ${phone} ${countryList.map(c => c.name).join(' ')}`
-      };
-    }).sort((a, b) => {
-      // Sort by phone number numerically
+  // Create individual entries for each country
+  const countryOptions = useMemo(() => {
+    return countries.map(country => ({
+      phone: country.phone,
+      flag: country.flag,
+      name: country.name,
+      code: country.code,
+      searchText: `${country.name} ${country.phone} ${country.code}`
+    })).sort((a, b) => {
+      // Sort by phone number numerically, then by country name
       const aNum = parseInt(a.phone.replace('+', ''));
       const bNum = parseInt(b.phone.replace('+', ''));
+      if (aNum === bNum) {
+        return a.name.localeCompare(b.name);
+      }
       return aNum - bNum;
     });
   }, []);
 
   const filteredOptions = useMemo(() => {
-    if (!searchQuery) return phoneOptions;
+    if (!searchQuery) return countryOptions;
     
-    return phoneOptions.filter(option =>
+    return countryOptions.filter(option =>
       option.searchText.toLowerCase().includes(searchQuery.toLowerCase()) ||
       option.phone.includes(searchQuery)
     );
-  }, [phoneOptions, searchQuery]);
+  }, [countryOptions, searchQuery]);
 
   return (
     <Select value={value} onValueChange={onValueChange}>
@@ -76,19 +65,14 @@ export const MobilePrefixSelector: React.FC<MobilePrefixSelectorProps> = ({
           />
         </div>
         <div className="max-h-60 overflow-auto">
-          {filteredOptions.map((option) => (
-            <SelectItem key={option.phone} value={option.phone} className="flex items-center py-2">
+          {filteredOptions.map((option, index) => (
+            <SelectItem key={`${option.phone}-${option.code}-${index}`} value={option.phone} className="flex items-center py-2">
               <div className="flex items-center">
-                <span className="text-lg mr-2">{option.country.flag}</span>
+                <span className="text-lg mr-2">{option.flag}</span>
                 <span className="font-mono text-sm font-medium text-primary mr-2">
                   {option.phone}
                 </span>
-                <span className="font-medium">{option.country.name}</span>
-                {option.additionalCountries.length > 0 && (
-                  <span className="text-xs text-muted-foreground ml-2">
-                    (+{option.additionalCountries.map(c => c.name).join(', ')})
-                  </span>
-                )}
+                <span className="font-medium">{option.name}</span>
               </div>
             </SelectItem>
           ))}
@@ -102,3 +86,4 @@ export const MobilePrefixSelector: React.FC<MobilePrefixSelectorProps> = ({
     </Select>
   );
 };
+
