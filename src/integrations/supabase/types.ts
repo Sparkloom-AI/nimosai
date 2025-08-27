@@ -567,6 +567,10 @@ export type Database = {
         Args: { _studio_id: string; _user_id: string }
         Returns: boolean
       }
+      check_email_exists: {
+        Args: { email_address: string }
+        Returns: boolean
+      }
       create_studio_with_data: {
         Args: {
           studio_business_category?: string

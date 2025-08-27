@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import AccountSetupWizard from '@/components/domain/auth/AccountSetupWizard';
+import { authApi } from '@/api/auth';
 
 type AuthStep = 'email' | 'login' | 'register' | 'email-confirmation' | 'setup';
 
@@ -22,6 +23,7 @@ const Auth = () => {
   const [fullName, setFullName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [emailCheckLoading, setEmailCheckLoading] = useState(false);
 
   // Check if user needs setup after authentication
   useEffect(() => {
@@ -44,12 +46,30 @@ const Auth = () => {
     }
   }, [user, userRoles, navigate]);
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    // For simplicity, we'll assume existing users go to login, new users to register
-    // In a real app, you'd check if the email exists
-    setStep('login');
+
+    setEmailCheckLoading(true);
+    try {
+      // Check if email exists in the database
+      const emailExists = await authApi.checkEmailExists(email);
+      
+      if (emailExists) {
+        // Existing user - go to login
+        setStep('login');
+        toast.success('Welcome back! Please enter your password to continue.');
+      } else {
+        // New user - go to registration
+        setStep('register');
+        toast.success('Let\'s get you started! Please complete your account setup.');
+      }
+    } catch (error: any) {
+      console.error('Error checking email:', error);
+      toast.error('Unable to verify email. Please try again.');
+    } finally {
+      setEmailCheckLoading(false);
+    }
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -118,6 +138,13 @@ const Auth = () => {
     navigate('/dashboard');
   };
 
+  const handleBackToEmail = () => {
+    setStep('email');
+    setPassword('');
+    setFullName('');
+    setShowPassword(false);
+  };
+
   // Show loading spinner while checking auth state
   if (authLoading || rolesLoading) {
     return (
@@ -145,7 +172,7 @@ const Auth = () => {
             </p>
             <Button 
               variant="outline" 
-              onClick={() => setStep('email')}
+              onClick={handleBackToEmail}
               className="w-full"
             >
               Back to sign in
@@ -166,8 +193,8 @@ const Auth = () => {
             <h1 className="text-3xl font-bold mb-2">Welcome to Nimos</h1>
             <p className="text-muted-foreground">
               {step === 'email' && 'Enter your email to get started'}
-              {step === 'login' && 'Sign in to your account'}
-              {step === 'register' && 'Create your account'}
+              {step === 'login' && 'Welcome back! Sign in to your account'}
+              {step === 'register' && 'Let\'s create your account'}
             </p>
           </div>
 
@@ -176,7 +203,7 @@ const Auth = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => step === 'register' ? setStep('email') : setStep('email')}
+              onClick={handleBackToEmail}
               className="mb-6 p-0 h-auto text-muted-foreground hover:text-foreground"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -197,10 +224,22 @@ const Auth = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 h-12"
                     required
+                    disabled={emailCheckLoading}
                   />
                 </div>
-                <Button type="submit" className="w-full h-12">
-                  Continue
+                <Button 
+                  type="submit" 
+                  className="w-full h-12" 
+                  disabled={emailCheckLoading}
+                >
+                  {emailCheckLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Checking...
+                    </>
+                  ) : (
+                    'Continue'
+                  )}
                 </Button>
               </form>
 
@@ -219,7 +258,7 @@ const Auth = () => {
                 type="button"
                 variant="outline"
                 onClick={handleGoogleSignIn}
-                disabled={isLoading}
+                disabled={isLoading || emailCheckLoading}
                 className="w-full h-12"
               >
                 {isLoading ? (
@@ -234,16 +273,6 @@ const Auth = () => {
                 )}
                 Continue with Google
               </Button>
-
-              <div className="text-center">
-                <Button
-                  variant="link"
-                  onClick={() => setStep('register')}
-                  className="text-sm text-muted-foreground"
-                >
-                  New to Nimos? Create an account
-                </Button>
-              </div>
             </div>
           )}
 
@@ -295,15 +324,6 @@ const Auth = () => {
                   'Sign in'
                 )}
               </Button>
-              <div className="text-center">
-                <Button
-                  variant="link"
-                  onClick={() => setStep('register')}
-                  className="text-sm text-muted-foreground"
-                >
-                  Don't have an account? Sign up
-                </Button>
-              </div>
             </form>
           )}
 
@@ -367,15 +387,6 @@ const Auth = () => {
                   'Create account'
                 )}
               </Button>
-              <div className="text-center">
-                <Button
-                  variant="link"
-                  onClick={() => setStep('login')}
-                  className="text-sm text-muted-foreground"
-                >
-                  Already have an account? Sign in
-                </Button>
-              </div>
             </form>
           )}
         </div>
