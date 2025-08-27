@@ -104,26 +104,44 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          country: string | null
+          country_code: string | null
           created_at: string
+          currency: string | null
           email: string
           full_name: string | null
           id: string
+          language: string | null
+          phone_prefix: string | null
+          timezone: string | null
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
+          country?: string | null
+          country_code?: string | null
           created_at?: string
+          currency?: string | null
           email: string
           full_name?: string | null
           id: string
+          language?: string | null
+          phone_prefix?: string | null
+          timezone?: string | null
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
+          country?: string | null
+          country_code?: string | null
           created_at?: string
+          currency?: string | null
           email?: string
           full_name?: string | null
           id?: string
+          language?: string | null
+          phone_prefix?: string | null
+          timezone?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -677,7 +695,7 @@ export type Database = {
         | "cancelled"
         | "no_show"
       employment_type: "full_time" | "part_time" | "contractor" | "intern"
-      permission_level: "low" | "medium" | "high"
+      permission_level: "low" | "medium" | "high" | "admin"
       service_category:
         | "haircut"
         | "color"
@@ -837,7 +855,7 @@ export const Constants = {
         "no_show",
       ],
       employment_type: ["full_time", "part_time", "contractor", "intern"],
-      permission_level: ["low", "medium", "high"],
+      permission_level: ["low", "medium", "high", "admin"],
       service_category: [
         "haircut",
         "color",
