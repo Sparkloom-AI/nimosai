@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -400,7 +399,7 @@ const Auth = () => {
             </form>
           )}
 
-          {/* Enhanced Register Step with Smart Location Detection */}
+          {/* Register Step - REORDERED FIELDS */}
           {step === 'register' && (
             <div className="space-y-6">
               {/* Location Detection Banner */}
@@ -482,6 +481,7 @@ const Auth = () => {
                   </div>
                 </div>
 
+                {/* MOVED: Mobile number field now comes after password */}
                 <div>
                   <label htmlFor="mobile" className="block text-sm font-medium mb-2">
                     Mobile number
@@ -509,6 +509,7 @@ const Auth = () => {
                   )}
                 </div>
 
+                {/* MOVED: Country field now comes after mobile number */}
                 <div>
                   <label htmlFor="country" className="block text-sm font-medium mb-2">
                     Country
