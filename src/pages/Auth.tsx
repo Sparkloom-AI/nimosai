@@ -399,7 +399,7 @@ const Auth = () => {
             </form>
           )}
 
-          {/* Register Step - REORDERED FIELDS */}
+          {/* Register Step */}
           {step === 'register' && (
             <div className="space-y-6">
               {/* Location Detection Banner */}
@@ -509,27 +509,6 @@ const Auth = () => {
                       Mobile number is required
                     </p>
                   )}
-                </div>
-
-                {/* 4. Country field (appears when Edit is clicked) */}
-                <div>
-                  <label htmlFor="country" className="block text-sm font-medium mb-2">
-                    Country
-                  </label>
-                  <div className="flex items-center justify-between p-3 border rounded-md bg-muted/30">
-                    <span className="text-sm">
-                      {locationData.country || 'Select country'}
-                    </span>
-                    <Button 
-                      type="button"
-                      variant="link" 
-                      size="sm"
-                      onClick={handleEditLocation}
-                      className="text-primary p-0 h-auto"
-                    >
-                      Edit
-                    </Button>
-                  </div>
                 </div>
 
                 <div className="flex items-center space-x-2 py-4">
