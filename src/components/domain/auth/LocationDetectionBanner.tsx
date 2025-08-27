@@ -47,7 +47,7 @@ export const LocationDetectionBanner: React.FC<LocationDetectionBannerProps> = (
       <div className="flex items-center">
         <Check className="h-4 w-4 mr-2 text-emerald-600" />
         <span className="text-sm text-emerald-800">
-          Location detected: <span className="font-medium">{detectedCountry}</span>
+          Country: <span className="font-medium">{detectedCountry}</span>
         </span>
       </div>
       <Button variant="link" size="sm" onClick={onEditLocation} className="h-auto p-0 text-emerald-700">
