@@ -1,8 +1,7 @@
-
 import React, { useState, useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Search, ChevronDown } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { countries } from '@/hooks/useIPLocationDetection';
 
 interface MobilePrefixSelectorProps {
@@ -61,12 +60,9 @@ export const MobilePrefixSelector: React.FC<MobilePrefixSelectorProps> = ({
   return (
     <Select value={value} onValueChange={onValueChange}>
       <SelectTrigger className={`w-32 ${className}`}>
-        <div className="flex items-center justify-between w-full">
-          <span className="font-mono text-sm">
-            {value || "+1"}
-          </span>
-          <ChevronDown className="h-4 w-4 opacity-50" />
-        </div>
+        <span className="font-mono text-sm">
+          {value || "+1"}
+        </span>
       </SelectTrigger>
       <SelectContent className="w-80">
         <div className="flex items-center border-b px-3 pb-2 mb-2">
