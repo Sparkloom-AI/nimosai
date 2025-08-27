@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -5,12 +6,16 @@ import { useRole } from '@/contexts/RoleContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, Loader2, Phone } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, ArrowLeft, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import AccountSetupWizard from '@/components/domain/auth/AccountSetupWizard';
 import { authApi } from '@/api/auth';
+import { useIPLocationDetection } from '@/hooks/useIPLocationDetection';
+import { LocationDetectionBanner } from '@/components/domain/auth/LocationDetectionBanner';
+import { MobilePrefixSelector } from '@/components/domain/auth/MobilePrefixSelector';
+import { ExpandableLocationSettings } from '@/components/domain/auth/ExpandableLocationSettings';
+import { supabase } from '@/integrations/supabase/client';
 
 type AuthStep = 'email' | 'login' | 'register' | 'email-confirmation' | 'setup';
 
@@ -25,35 +30,43 @@ const Auth = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [country, setCountry] = useState('Indonesia');
-  const [countryCode, setCountryCode] = useState('+62');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [emailCheckLoading, setEmailCheckLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [showLocationSettings, setShowLocationSettings] = useState(false);
 
-  // Country codes mapping
-  const countryCodes = [
-    { country: 'Indonesia', code: '+62' },
-    { country: 'United States', code: '+1' },
-    { country: 'United Kingdom', code: '+44' },
-    { country: 'Germany', code: '+49' },
-    { country: 'France', code: '+33' },
-    { country: 'Australia', code: '+61' },
-    { country: 'Canada', code: '+1' },
-    { country: 'Singapore', code: '+65' },
-    { country: 'Malaysia', code: '+60' },
-  ];
+  // Location detection
+  const detectedLocation = useIPLocationDetection();
+  const [locationData, setLocationData] = useState({
+    country: '',
+    countryCode: '',
+    phonePrefix: '',
+    timezone: '',
+    currency: '',
+    language: 'English'
+  });
+
+  // Update location data when detection completes
+  useEffect(() => {
+    if (detectedLocation.isDetected && !detectedLocation.isLoading) {
+      setLocationData({
+        country: detectedLocation.country,
+        countryCode: detectedLocation.countryCode,
+        phonePrefix: detectedLocation.phonePrefix,
+        timezone: detectedLocation.timezone,
+        currency: detectedLocation.currency,
+        language: detectedLocation.language
+      });
+    }
+  }, [detectedLocation]);
 
   // Check if user needs setup after authentication
   useEffect(() => {
     if (user && !authLoading && !rolesLoading) {
-      // Check if user has any roles assigned
       if (userRoles.length === 0) {
-        // New user without roles - show setup wizard
         setStep('setup');
       } else {
-        // Existing user with roles - redirect to dashboard
         navigate('/dashboard');
       }
     }
@@ -72,15 +85,12 @@ const Auth = () => {
 
     setEmailCheckLoading(true);
     try {
-      // Check if email exists in the database
       const emailExists = await authApi.checkEmailExists(email);
       
       if (emailExists) {
-        // Existing user - go to login
         setStep('login');
         toast.success('Welcome back! Please enter your password to continue.');
       } else {
-        // New user - go to registration
         setStep('register');
         toast.success('Let\'s get you started! Please complete your account setup.');
       }
@@ -133,6 +143,29 @@ const Auth = () => {
           toast.error(error.message || 'Failed to create account');
         }
       } else {
+        // Store location data in profile after successful signup
+        try {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+              id: user?.id,
+              email: email,
+              full_name: fullName,
+              country: locationData.country,
+              country_code: locationData.countryCode,
+              phone_prefix: locationData.phonePrefix,
+              timezone: locationData.timezone,
+              currency: locationData.currency,
+              language: locationData.language
+            });
+          
+          if (profileError) {
+            console.error('Error saving location data:', profileError);
+          }
+        } catch (locationError) {
+          console.error('Failed to save location data:', locationError);
+        }
+        
         setStep('email-confirmation');
       }
     } catch (error: any) {
@@ -170,14 +203,11 @@ const Auth = () => {
     setPhoneNumber('');
     setShowPassword(false);
     setAgreedToTerms(false);
+    setShowLocationSettings(false);
   };
 
-  const handleCountryChange = (newCountry: string) => {
-    setCountry(newCountry);
-    const countryData = countryCodes.find(c => c.country === newCountry);
-    if (countryData) {
-      setCountryCode(countryData.code);
-    }
+  const handleEditLocation = () => {
+    setShowLocationSettings(!showLocationSettings);
   };
 
   // Show loading spinner while checking auth state
@@ -370,156 +400,170 @@ const Auth = () => {
             </form>
           )}
 
-          {/* Enhanced Register Step */}
+          {/* Enhanced Register Step with Smart Location Detection */}
           {step === 'register' && (
-            <form onSubmit={handleRegister} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium mb-2">
-                    First name
-                  </label>
-                  <Input
-                    id="firstName"
-                    type="text"
-                    placeholder="Enter your first name"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    className="h-12"
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium mb-2">
-                    Last name
-                  </label>
-                  <Input
-                    id="lastName"
-                    type="text"
-                    placeholder="Enter your last name"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    className="h-12"
-                    required
-                  />
-                </div>
-              </div>
+            <div className="space-y-6">
+              {/* Location Detection Banner */}
+              <LocationDetectionBanner
+                detectedCountry={locationData.country}
+                isDetected={detectedLocation.isDetected}
+                isLoading={detectedLocation.isLoading}
+                onEditLocation={handleEditLocation}
+              />
 
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter a password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pr-10 h-12"
-                    required
-                    minLength={6}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-12 px-3"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="mobile" className="block text-sm font-medium mb-2">
-                  Mobile number
-                </label>
-                <div className="flex gap-2">
-                  <Select value={countryCode} onValueChange={(value) => setCountryCode(value)}>
-                    <SelectTrigger className="w-20 h-12">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {countryCodes.map((item) => (
-                        <SelectItem key={item.code} value={item.code}>
-                          {item.code}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Input
-                    id="mobile"
-                    type="tel"
-                    placeholder="Enter your mobile number"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    className="flex-1 h-12"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="country" className="block text-sm font-medium mb-2">
-                  Country
-                </label>
-                <div className="flex items-center justify-between">
-                  <Select value={country} onValueChange={handleCountryChange}>
-                    <SelectTrigger className="w-full h-12">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {countryCodes.map((item) => (
-                        <SelectItem key={item.country} value={item.country}>
-                          {item.country}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button variant="link" className="text-primary ml-2">
-                    Edit
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-2 py-4">
-                <Checkbox
-                  id="terms"
-                  checked={agreedToTerms}
-                  onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+              {/* Expandable Location Settings */}
+              {showLocationSettings && (
+                <ExpandableLocationSettings
+                  locationData={locationData}
+                  onLocationDataChange={setLocationData}
                 />
-                <label htmlFor="terms" className="text-sm text-muted-foreground">
-                  I agree to the{' '}
-                  <a href="#" className="text-primary hover:underline">Privacy Policy</a>,{' '}
-                  <a href="#" className="text-primary hover:underline">Terms of Service</a> and{' '}
-                  <a href="#" className="text-primary hover:underline">Terms of Business</a>.
-                </label>
-              </div>
+              )}
 
-              <Button 
-                type="submit" 
-                disabled={isLoading || !agreedToTerms} 
-                className="w-full h-12 bg-foreground text-background hover:bg-foreground/90"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Creating account...
-                  </>
-                ) : (
-                  'Create account'
-                )}
-              </Button>
+              <form onSubmit={handleRegister} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="firstName" className="block text-sm font-medium mb-2">
+                      First name
+                    </label>
+                    <Input
+                      id="firstName"
+                      type="text"
+                      placeholder="Enter your first name"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="h-12"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="lastName" className="block text-sm font-medium mb-2">
+                      Last name
+                    </label>
+                    <Input
+                      id="lastName"
+                      type="text"
+                      placeholder="Enter your last name"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="h-12"
+                      required
+                    />
+                  </div>
+                </div>
 
-              <p className="text-xs text-muted-foreground text-center mt-4">
-                This site is protected by reCAPTCHA<br />
-                Google Privacy Policy and Terms of Service apply
-              </p>
-            </form>
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium mb-2">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter a password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pr-10 h-12"
+                      required
+                      minLength={6}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-12 px-3"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="mobile" className="block text-sm font-medium mb-2">
+                    Mobile number
+                  </label>
+                  <div className="flex gap-2">
+                    <MobilePrefixSelector
+                      value={locationData.phonePrefix}
+                      onValueChange={(prefix) => 
+                        setLocationData(prev => ({ ...prev, phonePrefix: prefix }))
+                      }
+                    />
+                    <Input
+                      id="mobile"
+                      type="tel"
+                      placeholder="Enter your mobile number"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      className="flex-1 h-12"
+                    />
+                  </div>
+                  {phoneNumber && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Mobile number is required
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="country" className="block text-sm font-medium mb-2">
+                    Country
+                  </label>
+                  <div className="flex items-center justify-between p-3 border rounded-md bg-muted/30">
+                    <span className="text-sm">
+                      {locationData.country || 'Select country'}
+                    </span>
+                    <Button 
+                      type="button"
+                      variant="link" 
+                      size="sm"
+                      onClick={handleEditLocation}
+                      className="text-primary p-0 h-auto"
+                    >
+                      Edit
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2 py-4">
+                  <Checkbox
+                    id="terms"
+                    checked={agreedToTerms}
+                    onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+                  />
+                  <label htmlFor="terms" className="text-sm text-muted-foreground">
+                    I agree to the{' '}
+                    <a href="#" className="text-primary hover:underline">Privacy Policy</a>,{' '}
+                    <a href="#" className="text-primary hover:underline">Terms of Service</a> and{' '}
+                    <a href="#" className="text-primary hover:underline">Terms of Business</a>.
+                  </label>
+                </div>
+
+                <Button 
+                  type="submit" 
+                  disabled={isLoading || !agreedToTerms} 
+                  className="w-full h-12 bg-foreground text-background hover:bg-foreground/90"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Creating account...
+                    </>
+                  ) : (
+                    'Create account'
+                  )}
+                </Button>
+
+                <p className="text-xs text-muted-foreground text-center mt-4">
+                  This site is protected by reCAPTCHA<br />
+                  Google Privacy Policy and Terms of Service apply
+                </p>
+              </form>
+            </div>
           )}
         </div>
       </div>
