@@ -419,6 +419,7 @@ const Auth = () => {
               )}
 
               <form onSubmit={handleRegister} className="space-y-4">
+                {/* 1. First name / Last name (at the top) */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="firstName" className="block text-sm font-medium mb-2">
@@ -450,6 +451,7 @@ const Auth = () => {
                   </div>
                 </div>
 
+                {/* 2. Password (after names) */}
                 <div>
                   <label htmlFor="password" className="block text-sm font-medium mb-2">
                     Password
@@ -481,7 +483,7 @@ const Auth = () => {
                   </div>
                 </div>
 
-                {/* MOVED: Mobile number field now comes after password */}
+                {/* 3. Mobile number field (after password) */}
                 <div>
                   <label htmlFor="mobile" className="block text-sm font-medium mb-2">
                     Mobile number
@@ -509,7 +511,7 @@ const Auth = () => {
                   )}
                 </div>
 
-                {/* MOVED: Country field now comes after mobile number */}
+                {/* 4. Country field (appears when Edit is clicked) */}
                 <div>
                   <label htmlFor="country" className="block text-sm font-medium mb-2">
                     Country
