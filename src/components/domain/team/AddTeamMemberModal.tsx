@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { teamApi } from '@/api/team';
 import { toast } from 'sonner';
-import { useAuth } from '@/contexts/AuthContext';
+import { useRole } from '@/contexts/RoleContext';
 import { User, MapPin, Phone, Briefcase, DollarSign, Calendar } from 'lucide-react';
 
 interface AddTeamMemberModalProps {
@@ -23,7 +23,7 @@ interface AddTeamMemberModalProps {
 }
 
 const AddTeamMemberModal = ({ isOpen, onOpenChange, onSuccess }: AddTeamMemberModalProps) => {
-  const { user } = useAuth();
+  const { currentStudioId } = useRole();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('personal');
 
@@ -36,7 +36,7 @@ const AddTeamMemberModal = ({ isOpen, onOpenChange, onSuccess }: AddTeamMemberMo
     phone: '',
     avatar_url: '',
     job_title: '',
-    calendar_color: 'hsl(var(--primary))',
+    calendar_color: '#3B82F6',
     notes: '',
     
     // Work Details
@@ -78,15 +78,15 @@ const AddTeamMemberModal = ({ isOpen, onOpenChange, onSuccess }: AddTeamMemberMo
 
   // Fetch services and locations
   const { data: services = [] } = useQuery({
-    queryKey: ['services', user?.id],
-    queryFn: () => user?.id ? teamApi.getServices(user.id) : Promise.resolve([]),
-    enabled: !!user?.id
+    queryKey: ['services', currentStudioId],
+    queryFn: () => currentStudioId ? teamApi.getServices(currentStudioId) : Promise.resolve([]),
+    enabled: !!currentStudioId
   });
 
   const { data: locations = [] } = useQuery({
-    queryKey: ['locations', user?.id],
-    queryFn: () => user?.id ? teamApi.getLocations(user.id) : Promise.resolve([]),
-    enabled: !!user?.id
+    queryKey: ['locations', currentStudioId],
+    queryFn: () => currentStudioId ? teamApi.getLocations(currentStudioId) : Promise.resolve([]),
+    enabled: !!currentStudioId
   });
 
   // Create team member mutation
@@ -145,8 +145,8 @@ const AddTeamMemberModal = ({ isOpen, onOpenChange, onSuccess }: AddTeamMemberMo
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!user?.id) {
-      toast.error('User not authenticated');
+    if (!currentStudioId) {
+      toast.error('No studio selected');
       return;
     }
 
@@ -156,7 +156,7 @@ const AddTeamMemberModal = ({ isOpen, onOpenChange, onSuccess }: AddTeamMemberMo
     }
 
     const teamMemberData = {
-      studio_id: user.id,
+      studio_id: currentStudioId,
       first_name: formData.first_name,
       last_name: formData.last_name,
       email: formData.email,
@@ -186,7 +186,7 @@ const AddTeamMemberModal = ({ isOpen, onOpenChange, onSuccess }: AddTeamMemberMo
       phone: '',
       avatar_url: '',
       job_title: '',
-      calendar_color: 'hsl(var(--primary))',
+      calendar_color: '#3B82F6',
       notes: '',
       start_date: new Date().toISOString().split('T')[0],
       end_date: '',
