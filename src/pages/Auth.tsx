@@ -5,7 +5,9 @@ import { useRole } from '@/contexts/RoleContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, Loader2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, Loader2, Phone } from 'lucide-react';
 import { toast } from 'sonner';
 import AccountSetupWizard from '@/components/domain/auth/AccountSetupWizard';
 import { authApi } from '@/api/auth';
@@ -20,10 +22,28 @@ const Auth = () => {
   const [step, setStep] = useState<AuthStep>('email');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [country, setCountry] = useState('Indonesia');
+  const [countryCode, setCountryCode] = useState('+62');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [emailCheckLoading, setEmailCheckLoading] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+  // Country codes mapping
+  const countryCodes = [
+    { country: 'Indonesia', code: '+62' },
+    { country: 'United States', code: '+1' },
+    { country: 'United Kingdom', code: '+44' },
+    { country: 'Germany', code: '+49' },
+    { country: 'France', code: '+33' },
+    { country: 'Australia', code: '+61' },
+    { country: 'Canada', code: '+1' },
+    { country: 'Singapore', code: '+65' },
+    { country: 'Malaysia', code: '+60' },
+  ];
 
   // Check if user needs setup after authentication
   useEffect(() => {
@@ -96,10 +116,14 @@ const Auth = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password || !fullName) return;
+    if (!email || !password || !firstName || !lastName || !agreedToTerms) {
+      toast.error('Please fill in all required fields and agree to the terms.');
+      return;
+    }
 
     setIsLoading(true);
     try {
+      const fullName = `${firstName} ${lastName}`;
       const { error } = await signUp(email, password, fullName);
       if (error) {
         if (error.message.includes('User already registered')) {
@@ -141,8 +165,19 @@ const Auth = () => {
   const handleBackToEmail = () => {
     setStep('email');
     setPassword('');
-    setFullName('');
+    setFirstName('');
+    setLastName('');
+    setPhoneNumber('');
     setShowPassword(false);
+    setAgreedToTerms(false);
+  };
+
+  const handleCountryChange = (newCountry: string) => {
+    setCountry(newCountry);
+    const countryData = countryCodes.find(c => c.country === newCountry);
+    if (countryData) {
+      setCountryCode(countryData.code);
+    }
   };
 
   // Show loading spinner while checking auth state
@@ -190,11 +225,19 @@ const Auth = () => {
         <div className="w-full max-w-md">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2">Welcome to Nimos</h1>
+            <h1 className="text-3xl font-bold mb-2">
+              {step === 'register' ? 'Create a professional account' : 'Welcome to Nimos'}
+            </h1>
             <p className="text-muted-foreground">
               {step === 'email' && 'Enter your email to get started'}
               {step === 'login' && 'Welcome back! Sign in to your account'}
-              {step === 'register' && 'Let\'s create your account'}
+              {step === 'register' && (
+                <>
+                  You're almost there! Create your new account for{' '}
+                  <span className="font-medium text-foreground">{email}</span>{' '}
+                  by completing these details.
+                </>
+              )}
             </p>
           </div>
 
@@ -327,57 +370,141 @@ const Auth = () => {
             </form>
           )}
 
-          {/* Register Step */}
+          {/* Enhanced Register Step */}
           {step === 'register' && (
             <form onSubmit={handleRegister} className="space-y-4">
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Full name"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="pl-10 h-12"
-                  required
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="firstName" className="block text-sm font-medium mb-2">
+                    First name
+                  </label>
+                  <Input
+                    id="firstName"
+                    type="text"
+                    placeholder="Enter your first name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="h-12"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="lastName" className="block text-sm font-medium mb-2">
+                    Last name
+                  </label>
+                  <Input
+                    id="lastName"
+                    type="text"
+                    placeholder="Enter your last name"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="h-12"
+                    required
+                  />
+                </div>
               </div>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 h-12"
-                  required
-                />
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium mb-2">
+                  Password
+                </label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Enter a password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pr-10 h-12"
+                    required
+                    minLength={6}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-12 px-3"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </div>
               </div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10 h-12"
-                  required
-                  minLength={6}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-12 px-3"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </Button>
+
+              <div>
+                <label htmlFor="mobile" className="block text-sm font-medium mb-2">
+                  Mobile number
+                </label>
+                <div className="flex gap-2">
+                  <Select value={countryCode} onValueChange={(value) => setCountryCode(value)}>
+                    <SelectTrigger className="w-20 h-12">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {countryCodes.map((item) => (
+                        <SelectItem key={item.code} value={item.code}>
+                          {item.code}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    id="mobile"
+                    type="tel"
+                    placeholder="Enter your mobile number"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    className="flex-1 h-12"
+                  />
+                </div>
               </div>
-              <Button type="submit" disabled={isLoading} className="w-full h-12">
+
+              <div>
+                <label htmlFor="country" className="block text-sm font-medium mb-2">
+                  Country
+                </label>
+                <div className="flex items-center justify-between">
+                  <Select value={country} onValueChange={handleCountryChange}>
+                    <SelectTrigger className="w-full h-12">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {countryCodes.map((item) => (
+                        <SelectItem key={item.country} value={item.country}>
+                          {item.country}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button variant="link" className="text-primary ml-2">
+                    Edit
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2 py-4">
+                <Checkbox
+                  id="terms"
+                  checked={agreedToTerms}
+                  onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+                />
+                <label htmlFor="terms" className="text-sm text-muted-foreground">
+                  I agree to the{' '}
+                  <a href="#" className="text-primary hover:underline">Privacy Policy</a>,{' '}
+                  <a href="#" className="text-primary hover:underline">Terms of Service</a> and{' '}
+                  <a href="#" className="text-primary hover:underline">Terms of Business</a>.
+                </label>
+              </div>
+
+              <Button 
+                type="submit" 
+                disabled={isLoading || !agreedToTerms} 
+                className="w-full h-12 bg-foreground text-background hover:bg-foreground/90"
+              >
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -387,6 +514,11 @@ const Auth = () => {
                   'Create account'
                 )}
               </Button>
+
+              <p className="text-xs text-muted-foreground text-center mt-4">
+                This site is protected by reCAPTCHA<br />
+                Google Privacy Policy and Terms of Service apply
+              </p>
             </form>
           )}
         </div>
