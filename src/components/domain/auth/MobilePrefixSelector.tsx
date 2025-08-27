@@ -1,5 +1,4 @@
 
-
 import React, { useState, useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -49,9 +48,9 @@ export const MobilePrefixSelector: React.FC<MobilePrefixSelectorProps> = ({
 
   return (
     <Select value={value} onValueChange={onValueChange}>
-      <SelectTrigger className={`w-32 ${className}`}>
+      <SelectTrigger className={`w-24 flex-shrink-0 ${className}`}>
         <span className="font-mono text-sm">
-          {value || "+1"}
+          {value || "+62"}
         </span>
       </SelectTrigger>
       <SelectContent className="w-80">
@@ -86,4 +85,3 @@ export const MobilePrefixSelector: React.FC<MobilePrefixSelectorProps> = ({
     </Select>
   );
 };
-

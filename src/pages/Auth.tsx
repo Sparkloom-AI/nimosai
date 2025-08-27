@@ -250,7 +250,7 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-background flex">
       {/* Left side - Auth Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
         <div className="w-full max-w-md">
           {/* Header */}
           <div className="text-center mb-8">
@@ -276,10 +276,9 @@ const Auth = () => {
               variant="ghost"
               size="sm"
               onClick={handleBackToEmail}
-              className="mb-6 p-0 h-auto text-muted-foreground hover:text-foreground"
+              className="mb-6 -ml-3 h-10 px-3 text-muted-foreground hover:text-foreground hover:bg-transparent rounded-full"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
+              <ArrowLeft className="w-5 h-5" />
             </Button>
           )}
 
@@ -402,7 +401,7 @@ const Auth = () => {
           {/* Register Step */}
           {step === 'register' && (
             <div className="space-y-6">
-              <form onSubmit={handleRegister} className="space-y-5">
+              <form onSubmit={handleRegister} className="space-y-6">
                 {/* 1. First name / Last name */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -415,7 +414,7 @@ const Auth = () => {
                       placeholder="Enter your first name"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      className="h-11"
+                      className="h-12"
                       required
                     />
                   </div>
@@ -429,7 +428,7 @@ const Auth = () => {
                       placeholder="Enter your last name"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      className="h-11"
+                      className="h-12"
                       required
                     />
                   </div>
@@ -447,7 +446,7 @@ const Auth = () => {
                       placeholder="Enter a password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pr-10 h-11"
+                      className="pr-10 h-12"
                       required
                       minLength={6}
                     />
@@ -455,7 +454,7 @@ const Auth = () => {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute right-0 top-0 h-11 px-3"
+                      className="absolute right-0 top-0 h-12 px-3"
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? (
@@ -472,12 +471,13 @@ const Auth = () => {
                   <label htmlFor="mobile" className="block text-sm font-medium mb-2 text-foreground">
                     Mobile number
                   </label>
-                  <div className="flex gap-2">
+                  <div className="flex">
                     <MobilePrefixSelector
                       value={locationData.phonePrefix}
                       onValueChange={(prefix) => 
                         setLocationData(prev => ({ ...prev, phonePrefix: prefix }))
                       }
+                      className="rounded-r-none border-r-0 h-12"
                     />
                     <Input
                       id="mobile"
@@ -485,17 +485,12 @@ const Auth = () => {
                       placeholder="Enter your mobile number"
                       value={phoneNumber}
                       onChange={(e) => setPhoneNumber(e.target.value)}
-                      className="flex-1 h-11"
+                      className="flex-1 rounded-l-none h-12"
                     />
                   </div>
-                  {phoneNumber && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Mobile number is required
-                    </p>
-                  )}
                 </div>
 
-                {/* 4. Location Detection Banner - positioned after mobile number */}
+                {/* 4. Location Detection Banner */}
                 <LocationDetectionBanner
                   detectedCountry={locationData.country}
                   isDetected={detectedLocation.isDetected}
@@ -526,11 +521,11 @@ const Auth = () => {
                   </label>
                 </div>
 
-                {/* 7. Create account button - darker styling to match reference */}
+                {/* 7. Create account button */}
                 <Button 
                   type="submit" 
                   disabled={isLoading || !agreedToTerms} 
-                  className="w-full h-11 bg-navy text-white hover:bg-navy/90 font-medium"
+                  className="w-full h-12 bg-navy text-white hover:bg-navy/90 font-medium"
                 >
                   {isLoading ? (
                     <>
