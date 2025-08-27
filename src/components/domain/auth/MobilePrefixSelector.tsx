@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
@@ -77,21 +78,17 @@ export const MobilePrefixSelector: React.FC<MobilePrefixSelectorProps> = ({
         <div className="max-h-60 overflow-auto">
           {filteredOptions.map((option) => (
             <SelectItem key={option.phone} value={option.phone} className="flex items-center py-2">
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center">
-                  <span className="text-lg mr-3">{option.country.flag}</span>
-                  <div>
-                    <div className="font-medium">{option.country.name}</div>
-                    {option.additionalCountries.length > 0 && (
-                      <div className="text-xs text-muted-foreground">
-                        +{option.additionalCountries.map(c => c.name).join(', ')}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="font-mono text-sm font-medium text-primary">
+              <div className="flex items-center">
+                <span className="text-lg mr-2">{option.country.flag}</span>
+                <span className="font-mono text-sm font-medium text-primary mr-2">
                   {option.phone}
-                </div>
+                </span>
+                <span className="font-medium">{option.country.name}</span>
+                {option.additionalCountries.length > 0 && (
+                  <span className="text-xs text-muted-foreground ml-2">
+                    (+{option.additionalCountries.map(c => c.name).join(', ')})
+                  </span>
+                )}
               </div>
             </SelectItem>
           ))}
