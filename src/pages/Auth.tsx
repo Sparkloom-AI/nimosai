@@ -402,27 +402,11 @@ const Auth = () => {
           {/* Register Step */}
           {step === 'register' && (
             <div className="space-y-6">
-              {/* Location Detection Banner */}
-              <LocationDetectionBanner
-                detectedCountry={locationData.country}
-                isDetected={detectedLocation.isDetected}
-                isLoading={detectedLocation.isLoading}
-                onEditLocation={handleEditLocation}
-              />
-
-              {/* Expandable Location Settings */}
-              {showLocationSettings && (
-                <ExpandableLocationSettings
-                  locationData={locationData}
-                  onLocationDataChange={setLocationData}
-                />
-              )}
-
-              <form onSubmit={handleRegister} className="space-y-4">
-                {/* 1. First name / Last name (at the top) */}
+              <form onSubmit={handleRegister} className="space-y-5">
+                {/* 1. First name / Last name */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="firstName" className="block text-sm font-medium mb-2">
+                    <label htmlFor="firstName" className="block text-sm font-medium mb-2 text-foreground">
                       First name
                     </label>
                     <Input
@@ -431,12 +415,12 @@ const Auth = () => {
                       placeholder="Enter your first name"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      className="h-12"
+                      className="h-11"
                       required
                     />
                   </div>
                   <div>
-                    <label htmlFor="lastName" className="block text-sm font-medium mb-2">
+                    <label htmlFor="lastName" className="block text-sm font-medium mb-2 text-foreground">
                       Last name
                     </label>
                     <Input
@@ -445,15 +429,15 @@ const Auth = () => {
                       placeholder="Enter your last name"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      className="h-12"
+                      className="h-11"
                       required
                     />
                   </div>
                 </div>
 
-                {/* 2. Password (after names) */}
+                {/* 2. Password */}
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium mb-2">
+                  <label htmlFor="password" className="block text-sm font-medium mb-2 text-foreground">
                     Password
                   </label>
                   <div className="relative">
@@ -463,7 +447,7 @@ const Auth = () => {
                       placeholder="Enter a password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pr-10 h-12"
+                      className="pr-10 h-11"
                       required
                       minLength={6}
                     />
@@ -471,7 +455,7 @@ const Auth = () => {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute right-0 top-0 h-12 px-3"
+                      className="absolute right-0 top-0 h-11 px-3"
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? (
@@ -483,9 +467,9 @@ const Auth = () => {
                   </div>
                 </div>
 
-                {/* 3. Mobile number field (after password) */}
+                {/* 3. Mobile number */}
                 <div>
-                  <label htmlFor="mobile" className="block text-sm font-medium mb-2">
+                  <label htmlFor="mobile" className="block text-sm font-medium mb-2 text-foreground">
                     Mobile number
                   </label>
                   <div className="flex gap-2">
@@ -501,7 +485,7 @@ const Auth = () => {
                       placeholder="Enter your mobile number"
                       value={phoneNumber}
                       onChange={(e) => setPhoneNumber(e.target.value)}
-                      className="flex-1 h-12"
+                      className="flex-1 h-11"
                     />
                   </div>
                   {phoneNumber && (
@@ -511,7 +495,24 @@ const Auth = () => {
                   )}
                 </div>
 
-                <div className="flex items-center space-x-2 py-4">
+                {/* 4. Location Detection Banner - positioned after mobile number */}
+                <LocationDetectionBanner
+                  detectedCountry={locationData.country}
+                  isDetected={detectedLocation.isDetected}
+                  isLoading={detectedLocation.isLoading}
+                  onEditLocation={handleEditLocation}
+                />
+
+                {/* 5. Expandable Location Settings */}
+                {showLocationSettings && (
+                  <ExpandableLocationSettings
+                    locationData={locationData}
+                    onLocationDataChange={setLocationData}
+                  />
+                )}
+
+                {/* 6. Terms and conditions */}
+                <div className="flex items-center space-x-2 py-2">
                   <Checkbox
                     id="terms"
                     checked={agreedToTerms}
@@ -525,10 +526,11 @@ const Auth = () => {
                   </label>
                 </div>
 
+                {/* 7. Create account button - darker styling to match reference */}
                 <Button 
                   type="submit" 
                   disabled={isLoading || !agreedToTerms} 
-                  className="w-full h-12 bg-foreground text-background hover:bg-foreground/90"
+                  className="w-full h-11 bg-navy text-white hover:bg-navy/90 font-medium"
                 >
                   {isLoading ? (
                     <>
