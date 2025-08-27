@@ -1,143 +1,209 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { useRole } from '@/contexts/RoleContext';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, Loader2, Phone } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { ArrowLeft, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
-import AccountSetupWizard from '@/components/domain/auth/AccountSetupWizard';
+import { useNavigate } from 'react-router-dom';
 import { authApi } from '@/api/auth';
+import AccountSetupWizard from '@/components/domain/auth/AccountSetupWizard';
+import { useLocationDetection } from '@/hooks/useLocationDetection';
+import { LocationDetectionBanner } from '@/components/domain/auth/LocationDetectionBanner';
+import { LocationSettings } from '@/components/domain/auth/LocationSettings';
 
-type AuthStep = 'email' | 'login' | 'register' | 'email-confirmation' | 'setup';
+const emailSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+});
 
-const Auth = () => {
-  const navigate = useNavigate();
-  const { user, signIn, signUp, signInWithGoogle, loading: authLoading } = useAuth();
-  const { userRoles, loading: rolesLoading } = useRole();
-  
-  const [step, setStep] = useState<AuthStep>('email');
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1, 'Password is required'),
+});
+
+const registrationSchema = z.object({
+  email: z.string().email(),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Password must contain at least one uppercase letter, one lowercase letter, and one number'),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  phone: z.string().min(1, 'Phone number is required'),
+  country: z.string().min(1, 'Country is required'),
+  acceptTerms: z.boolean().refine(val => val === true, 'You must accept the terms and conditions'),
+});
+
+type EmailFormData = z.infer<typeof emailSchema>;
+type LoginFormData = z.infer<typeof loginSchema>;
+type RegistrationFormData = z.infer<typeof registrationSchema>;
+
+const Auth: React.FC = () => {
+  const [step, setStep] = useState<'email' | 'login' | 'register' | 'email-confirmation' | 'setup'>('email');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [country, setCountry] = useState('Indonesia');
-  const [countryCode, setCountryCode] = useState('+62');
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [emailCheckLoading, setEmailCheckLoading] = useState(false);
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showLocationSettings, setShowLocationSettings] = useState(false);
+  const { signIn, signUp, signInWithGoogle } = useAuth();
+  const navigate = useNavigate();
+  
+  // Location detection hook
+  const { locationData, isDetecting, detectionError, updateLocationData } = useLocationDetection();
 
-  // Country codes mapping
-  const countryCodes = [
-    { country: 'Indonesia', code: '+62' },
-    { country: 'United States', code: '+1' },
-    { country: 'United Kingdom', code: '+44' },
-    { country: 'Germany', code: '+49' },
-    { country: 'France', code: '+33' },
-    { country: 'Australia', code: '+61' },
-    { country: 'Canada', code: '+1' },
-    { country: 'Singapore', code: '+65' },
-    { country: 'Malaysia', code: '+60' },
+  const emailForm = useForm<EmailFormData>({
+    resolver: zodResolver(emailSchema),
+    defaultValues: { email: '' },
+  });
+
+  const loginForm = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '' },
+  });
+
+  const registrationForm = useForm<RegistrationFormData>({
+    resolver: zodResolver(registrationSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      firstName: '',
+      lastName: '',
+      phone: '',
+      country: '',
+      acceptTerms: false,
+    },
+  });
+
+  // Update registration form when location is detected
+  useEffect(() => {
+    if (locationData && locationData.country) {
+      registrationForm.setValue('country', locationData.country);
+      
+      // Pre-fill phone with country prefix if available
+      if (locationData.phonePrefix && !registrationForm.getValues('phone')) {
+        registrationForm.setValue('phone', locationData.phonePrefix + ' ');
+      }
+    }
+  }, [locationData, registrationForm]);
+
+  const countries = [
+    { code: 'ID', name: 'Indonesia', phone: '+62', flag: '🇮🇩' },
+    { code: 'US', name: 'United States', phone: '+1', flag: '🇺🇸' },
+    { code: 'GB', name: 'United Kingdom', phone: '+44', flag: '🇬🇧' },
+    { code: 'AU', name: 'Australia', phone: '+61', flag: '🇦🇺' },
+    { code: 'DE', name: 'Germany', phone: '+49', flag: '🇩🇪' },
+    { code: 'FR', name: 'France', phone: '+33', flag: '🇫🇷' },
+    { code: 'IT', name: 'Italy', phone: '+39', flag: '🇮🇹' },
+    { code: 'ES', name: 'Spain', phone: '+34', flag: '🇪🇸' },
+    { code: 'NL', name: 'Netherlands', phone: '+31', flag: '🇳🇱' },
+    { code: 'JP', name: 'Japan', phone: '+81', flag: '🇯🇵' },
+    { code: 'KR', name: 'South Korea', phone: '+82', flag: '🇰🇷' },
+    { code: 'CN', name: 'China', phone: '+86', flag: '🇨🇳' },
+    { code: 'IN', name: 'India', phone: '+91', flag: '🇮🇳' },
+    { code: 'SG', name: 'Singapore', phone: '+65', flag: '🇸🇬' },
+    { code: 'MY', name: 'Malaysia', phone: '+60', flag: '🇲🇾' },
+    { code: 'TH', name: 'Thailand', phone: '+66', flag: '🇹🇭' },
+    { code: 'VN', name: 'Vietnam', phone: '+84', flag: '🇻🇳' },
+    { code: 'PH', name: 'Philippines', phone: '+63', flag: '🇵🇭' },
+    { code: 'BR', name: 'Brazil', phone: '+55', flag: '🇧🇷' },
+    { code: 'MX', name: 'Mexico', phone: '+52', flag: '🇲🇽' },
+    { code: 'CA', name: 'Canada', phone: '+1', flag: '🇨🇦' },
+    { code: 'RU', name: 'Russia', phone: '+7', flag: '🇷🇺' },
+    { code: 'AR', name: 'Argentina', phone: '+54', flag: '🇦🇷' },
+    { code: 'CL', name: 'Chile', phone: '+56', flag: '🇨🇱' },
+    { code: 'CO', name: 'Colombia', phone: '+57', flag: '🇨🇴' },
+    { code: 'PE', name: 'Peru', phone: '+51', flag: '🇵🇪' },
+    { code: 'ZA', name: 'South Africa', phone: '+27', flag: '🇿🇦' },
+    { code: 'EG', name: 'Egypt', phone: '+20', flag: '🇪🇬' },
+    { code: 'NG', name: 'Nigeria', phone: '+234', flag: '🇳🇬' },
+    { code: 'KE', name: 'Kenya', phone: '+254', flag: '🇰🇪' },
+    { code: 'MA', name: 'Morocco', phone: '+212', flag: '🇲🇦' },
+    { code: 'TR', name: 'Turkey', phone: '+90', flag: '🇹🇷' },
+    { code: 'SA', name: 'Saudi Arabia', phone: '+966', flag: '🇸🇦' },
+    { code: 'AE', name: 'United Arab Emirates', phone: '+971', flag: '🇦🇪' },
+    { code: 'IL', name: 'Israel', phone: '+972', flag: '🇮🇱' },
   ];
 
-  // Check if user needs setup after authentication
-  useEffect(() => {
-    if (user && !authLoading && !rolesLoading) {
-      // Check if user has any roles assigned
-      if (userRoles.length === 0) {
-        // New user without roles - show setup wizard
-        setStep('setup');
-      } else {
-        // Existing user with roles - redirect to dashboard
-        navigate('/dashboard');
-      }
-    }
-  }, [user, userRoles, authLoading, rolesLoading, navigate]);
-
-  // Redirect authenticated users who already have roles
-  useEffect(() => {
-    if (user && userRoles.length > 0) {
-      navigate('/dashboard');
-    }
-  }, [user, userRoles, navigate]);
-
-  const handleEmailSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-
-    setEmailCheckLoading(true);
-    try {
-      // Check if email exists in the database
-      const emailExists = await authApi.checkEmailExists(email);
-      
-      if (emailExists) {
-        // Existing user - go to login
-        setStep('login');
-        toast.success('Welcome back! Please enter your password to continue.');
-      } else {
-        // New user - go to registration
-        setStep('register');
-        toast.success('Let\'s get you started! Please complete your account setup.');
-      }
-    } catch (error: any) {
-      console.error('Error checking email:', error);
-      toast.error('Unable to verify email. Please try again.');
-    } finally {
-      setEmailCheckLoading(false);
-    }
-  };
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !password) return;
-
+  const onEmailSubmit = async (data: EmailFormData) => {
     setIsLoading(true);
     try {
-      const { error } = await signIn(email, password);
-      if (error) {
-        if (error.message.includes('Invalid login credentials')) {
-          toast.error('Invalid email or password. Please try again.');
-        } else {
-          toast.error(error.message || 'Failed to sign in');
-        }
+      const emailExists = await authApi.checkEmailExists(data.email);
+      setEmail(data.email);
+      
+      if (emailExists) {
+        loginForm.setValue('email', data.email);
+        setStep('login');
+      } else {
+        registrationForm.setValue('email', data.email);
+        setStep('register');
       }
-    } catch (error: any) {
-      toast.error('An unexpected error occurred');
-      console.error('Login error:', error);
+    } catch (error) {
+      toast.error('Failed to check email. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !password || !firstName || !lastName || !agreedToTerms) {
-      toast.error('Please fill in all required fields and agree to the terms.');
-      return;
-    }
-
+  const onLoginSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     try {
-      const fullName = `${firstName} ${lastName}`;
-      const { error } = await signUp(email, password, fullName);
+      const { error } = await signIn(data.email, data.password);
       if (error) {
-        if (error.message.includes('User already registered')) {
-          toast.error('An account with this email already exists. Please sign in instead.');
-          setStep('login');
-        } else {
-          toast.error(error.message || 'Failed to create account');
-        }
+        toast.error(error.message || 'Login failed. Please check your credentials.');
       } else {
-        setStep('email-confirmation');
+        toast.success('Welcome back!');
+        navigate('/');
       }
-    } catch (error: any) {
-      toast.error('An unexpected error occurred');
-      console.error('Registration error:', error);
+    } catch (error) {
+      toast.error('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const onRegisterSubmit = async (data: RegistrationFormData) => {
+    setIsLoading(true);
+    try {
+      // Include location data in user metadata
+      const fullName = `${data.firstName} ${data.lastName}`;
+      const { error } = await signUp(data.email, data.password, fullName);
+      
+      if (error) {
+        toast.error(error.message || 'Registration failed. Please try again.');
+      } else {
+        // Store additional profile data including location
+        try {
+          const { supabase } = await import('@/integrations/supabase/client');
+          const { data: { user } } = await supabase.auth.getUser();
+          
+          if (user && locationData) {
+            await supabase
+              .from('profiles')
+              .upsert({
+                id: user.id,
+                full_name: fullName,
+                email: data.email,
+                country: locationData.country,
+                country_code: locationData.countryCode,
+                phone_prefix: locationData.phonePrefix,
+                timezone: locationData.timezone,
+                currency: locationData.currency,
+                language: locationData.language,
+              });
+          }
+        } catch (profileError) {
+          console.error('Failed to save profile data:', profileError);
+          // Don't block the flow if profile update fails
+        }
+
+        setStep('email-confirmation');
+        toast.success('Please check your email to confirm your account.');
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -148,378 +214,385 @@ const Auth = () => {
     try {
       const { error } = await signInWithGoogle();
       if (error) {
-        toast.error(error.message || 'Failed to sign in with Google');
+        toast.error(error.message || 'Google sign-in failed. Please try again.');
       }
-    } catch (error: any) {
-      toast.error('An unexpected error occurred');
-      console.error('Google sign in error:', error);
+    } catch (error) {
+      toast.error('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSetupComplete = () => {
-    navigate('/dashboard');
-  };
-
-  const handleBackToEmail = () => {
-    setStep('email');
-    setPassword('');
-    setFirstName('');
-    setLastName('');
-    setPhoneNumber('');
-    setShowPassword(false);
-    setAgreedToTerms(false);
-  };
-
-  const handleCountryChange = (newCountry: string) => {
-    setCountry(newCountry);
-    const countryData = countryCodes.find(c => c.country === newCountry);
-    if (countryData) {
-      setCountryCode(countryData.code);
+  const handleBack = () => {
+    if (step === 'login' || step === 'register') {
+      setStep('email');
+    } else if (step === 'email-confirmation') {
+      setStep('register');
     }
   };
 
-  // Show loading spinner while checking auth state
-  if (authLoading || rolesLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
-    );
-  }
+  const handleLocationChange = (newLocationData: any) => {
+    updateLocationData(newLocationData);
+    registrationForm.setValue('country', newLocationData.country);
+    
+    // Update phone prefix if changed
+    const currentPhone = registrationForm.getValues('phone');
+    const currentPrefix = locationData?.phonePrefix || '';
+    
+    if (currentPhone.startsWith(currentPrefix)) {
+      const numberWithoutPrefix = currentPhone.slice(currentPrefix.length).trim();
+      registrationForm.setValue('phone', newLocationData.phonePrefix + ' ' + numberWithoutPrefix);
+    }
+    
+    setShowLocationSettings(false);
+  };
 
-  // Show setup wizard for new users
   if (step === 'setup') {
-    return <AccountSetupWizard onComplete={handleSetupComplete} />;
-  }
-
-  if (step === 'email-confirmation') {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-8 text-center">
-            <Mail className="w-16 h-16 mx-auto mb-6 text-primary" />
-            <h1 className="text-2xl font-bold mb-4">Check your email</h1>
-            <p className="text-muted-foreground mb-6">
-              We've sent you a confirmation link at <strong>{email}</strong>. 
-              Click the link to verify your account and complete setup.
-            </p>
-            <Button 
-              variant="outline" 
-              onClick={handleBackToEmail}
-              className="w-full"
-            >
-              Back to sign in
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <AccountSetupWizard onComplete={() => navigate('/')} />;
   }
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Left side - Auth Form */}
+      {/* Left side - Form */}
       <div className="flex-1 flex items-center justify-center p-8">
-        <div className="w-full max-w-md">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2">
-              {step === 'register' ? 'Create a professional account' : 'Welcome to Nimos'}
-            </h1>
-            <p className="text-muted-foreground">
-              {step === 'email' && 'Enter your email to get started'}
-              {step === 'login' && 'Welcome back! Sign in to your account'}
-              {step === 'register' && (
-                <>
-                  You're almost there! Create your new account for{' '}
-                  <span className="font-medium text-foreground">{email}</span>{' '}
-                  by completing these details.
-                </>
-              )}
-            </p>
-          </div>
-
-          {/* Back button for non-email steps */}
-          {step !== 'email' && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleBackToEmail}
-              className="mb-6 p-0 h-auto text-muted-foreground hover:text-foreground"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-          )}
-
-          {/* Email Step */}
+        <div className="w-full max-w-lg">
           {step === 'email' && (
-            <div className="space-y-6">
-              <form onSubmit={handleEmailSubmit} className="space-y-4">
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 h-12"
-                    required
-                    disabled={emailCheckLoading}
+            <>
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold mb-4">Welcome to Nimos</h1>
+                <p className="text-muted-foreground text-lg">
+                  Your all-in-one WhatsApp solution for wellness studios
+                </p>
+              </div>
+
+              <Form {...emailForm}>
+                <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-6">
+                  <FormField
+                    control={emailForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Email address</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter your email"
+                            className="h-12 text-base"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-                <Button 
-                  type="submit" 
-                  className="w-full h-12" 
-                  disabled={emailCheckLoading}
-                >
-                  {emailCheckLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Checking...
-                    </>
-                  ) : (
-                    'Continue'
-                  )}
-                </Button>
-              </form>
 
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Or continue with
-                  </span>
-                </div>
-              </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 text-base bg-foreground text-background hover:bg-foreground/90"
+                    disabled={isLoading}
+                  >
+                    Continue
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </form>
+              </Form>
 
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleGoogleSignIn}
-                disabled={isLoading || emailCheckLoading}
-                className="w-full h-12"
-              >
-                {isLoading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                  </svg>
-                )}
-                Continue with Google
-              </Button>
-            </div>
-          )}
+              <div className="mt-6">
+                <div className="relative mb-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-muted-foreground/20" />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-4 bg-background text-muted-foreground">Or continue with</span>
+                  </div>
+                </div>
 
-          {/* Login Step */}
-          {step === 'login' && (
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 h-12"
-                  required
-                />
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10 h-12"
-                  required
-                />
                 <Button
                   type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-12 px-3"
-                  onClick={() => setShowPassword(!showPassword)}
+                  variant="outline"
+                  className="w-full h-12 text-base"
+                  onClick={handleGoogleSignIn}
+                  disabled={isLoading}
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  )}
+                  <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4 mr-2" />
+                  Google
                 </Button>
               </div>
-              <Button type="submit" disabled={isLoading} className="w-full h-12">
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Signing in...
-                  </>
-                ) : (
-                  'Sign in'
-                )}
-              </Button>
-            </form>
+            </>
           )}
 
-          {/* Enhanced Register Step */}
-          {step === 'register' && (
-            <form onSubmit={handleRegister} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium mb-2">
-                    First name
-                  </label>
-                  <Input
-                    id="firstName"
-                    type="text"
-                    placeholder="Enter your first name"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    className="h-12"
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium mb-2">
-                    Last name
-                  </label>
-                  <Input
-                    id="lastName"
-                    type="text"
-                    placeholder="Enter your last name"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    className="h-12"
-                    required
-                  />
-                </div>
+          {step === 'login' && (
+            <>
+              <div className="mb-8">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBack}
+                  className="mb-6 p-0 h-auto text-muted-foreground hover:text-foreground"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back
+                </Button>
+                
+                <h1 className="text-3xl font-bold mb-4">Welcome back</h1>
+                <p className="text-muted-foreground">
+                  Sign in to your account: <strong>{email}</strong>
+                </p>
               </div>
 
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter a password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pr-10 h-12"
-                    required
-                    minLength={6}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-12 px-3"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
+              <Form {...loginForm}>
+                <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-6">
+                  <FormField
+                    control={loginForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Password</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Enter your password"
+                              className="h-12 text-base pr-10"
+                              {...field}
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="absolute right-0 top-0 h-12 px-3 hover:bg-transparent"
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? (
+                                <EyeOff className="w-4 h-4 text-muted-foreground" />
+                              ) : (
+                                <Eye className="w-4 h-4 text-muted-foreground" />
+                              )}
+                            </Button>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </Button>
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="mobile" className="block text-sm font-medium mb-2">
-                  Mobile number
-                </label>
-                <div className="flex gap-2">
-                  <Select value={countryCode} onValueChange={(value) => setCountryCode(value)}>
-                    <SelectTrigger className="w-20 h-12">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {countryCodes.map((item) => (
-                        <SelectItem key={item.code} value={item.code}>
-                          {item.code}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Input
-                    id="mobile"
-                    type="tel"
-                    placeholder="Enter your mobile number"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    className="flex-1 h-12"
                   />
-                </div>
-              </div>
 
-              <div>
-                <label htmlFor="country" className="block text-sm font-medium mb-2">
-                  Country
-                </label>
-                <div className="flex items-center justify-between">
-                  <Select value={country} onValueChange={handleCountryChange}>
-                    <SelectTrigger className="w-full h-12">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {countryCodes.map((item) => (
-                        <SelectItem key={item.country} value={item.country}>
-                          {item.country}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button variant="link" className="text-primary ml-2">
-                    Edit
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 text-base bg-foreground text-background hover:bg-foreground/90"
+                    disabled={isLoading}
+                  >
+                    Sign in
+                    <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
-                </div>
-              </div>
+                </form>
+              </Form>
+            </>
+          )}
 
-              <div className="flex items-center space-x-2 py-4">
-                <Checkbox
-                  id="terms"
-                  checked={agreedToTerms}
-                  onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+          {step === 'register' && (
+            <>
+              <div className="mb-8">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBack}
+                  className="mb-6 p-0 h-auto text-muted-foreground hover:text-foreground"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back
+                </Button>
+                
+                <h1 className="text-3xl font-bold mb-4">Create your account</h1>
+                <p className="text-muted-foreground mb-6">
+                  Join thousands of wellness professionals using Nimos
+                </p>
+
+                {/* Location Detection Banner */}
+                <LocationDetectionBanner
+                  detectedCountry={locationData?.country || ''}
+                  isDetecting={isDetecting}
+                  detectionError={detectionError}
+                  onChangeLocation={() => setShowLocationSettings(true)}
                 />
-                <label htmlFor="terms" className="text-sm text-muted-foreground">
-                  I agree to the{' '}
-                  <a href="#" className="text-primary hover:underline">Privacy Policy</a>,{' '}
-                  <a href="#" className="text-primary hover:underline">Terms of Service</a> and{' '}
-                  <a href="#" className="text-primary hover:underline">Terms of Business</a>.
-                </label>
               </div>
 
-              <Button 
-                type="submit" 
-                disabled={isLoading || !agreedToTerms} 
-                className="w-full h-12 bg-foreground text-background hover:bg-foreground/90"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Creating account...
-                  </>
-                ) : (
-                  'Create account'
-                )}
-              </Button>
+              <Form {...registrationForm}>
+                <form onSubmit={registrationForm.handleSubmit(onRegisterSubmit)} className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={registrationForm.control}
+                      name="firstName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium">First name</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="First name"
+                              className="h-12 text-base"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-              <p className="text-xs text-muted-foreground text-center mt-4">
-                This site is protected by reCAPTCHA<br />
-                Google Privacy Policy and Terms of Service apply
+                    <FormField
+                      control={registrationForm.control}
+                      name="lastName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium">Last name</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Last name"
+                              className="h-12 text-base"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={registrationForm.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Phone number</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder={locationData?.phonePrefix ? `${locationData.phonePrefix} 123456789` : "Phone number"}
+                            className="h-12 text-base"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={registrationForm.control}
+                    name="country"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Country</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="h-12 text-base">
+                              <SelectValue placeholder="Select your country" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {countries.map((country) => (
+                              <SelectItem key={country.code} value={country.name}>
+                                {country.flag} {country.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={registrationForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">Password</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Create a strong password"
+                              className="h-12 text-base pr-10"
+                              {...field}
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="absolute right-0 top-0 h-12 px-3 hover:bg-transparent"
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? (
+                                <EyeOff className="w-4 h-4 text-muted-foreground" />
+                              ) : (
+                                <Eye className="w-4 h-4 text-muted-foreground" />
+                              )}
+                            </Button>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={registrationForm.control}
+                    name="acceptTerms"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel className="text-sm">
+                            I agree to the{' '}
+                            <a href="/terms" className="text-primary underline hover:no-underline">
+                              Terms and Conditions
+                            </a>{' '}
+                            and{' '}
+                            <a href="/privacy" className="text-primary underline hover:no-underline">
+                              Privacy Policy
+                            </a>
+                          </FormLabel>
+                          <FormMessage />
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 text-base bg-foreground text-background hover:bg-foreground/90"
+                    disabled={isLoading}
+                  >
+                    Create account
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </form>
+              </Form>
+            </>
+          )}
+
+          {step === 'email-confirmation' && (
+            <div className="text-center">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <ArrowRight className="w-8 h-8 text-primary" />
+              </div>
+              <h1 className="text-3xl font-bold mb-4">Check your email</h1>
+              <p className="text-muted-foreground mb-6">
+                We've sent a confirmation link to <strong>{email}</strong>
               </p>
-            </form>
+              <p className="text-sm text-muted-foreground">
+                Didn't receive the email? Check your spam folder or{' '}
+                <Button
+                  variant="link"
+                  className="p-0 h-auto text-primary"
+                  onClick={handleBack}
+                >
+                  try a different email address
+                </Button>
+              </p>
+            </div>
           )}
         </div>
       </div>
@@ -535,12 +608,25 @@ const Auth = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
         
         <div className="absolute bottom-8 left-8 right-8 text-white">
-          <h2 className="text-2xl font-bold mb-2">WhatsApp-First Studio Management</h2>
+          <h2 className="text-2xl font-bold mb-2">WhatsApp-First Business Management</h2>
           <p className="text-white/90 text-lg">
-            Manage your salon or wellness studio with the power of WhatsApp. Book appointments, manage staff, and grow your business.
+            Manage your wellness studio seamlessly through the platform your clients already use
           </p>
         </div>
       </div>
+
+      {/* Location Settings Modal */}
+      {showLocationSettings && locationData && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-background rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4">Update Location Settings</h3>
+            <LocationSettings
+              value={locationData}
+              onChange={handleLocationChange}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
