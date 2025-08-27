@@ -13,6 +13,8 @@ import {
   CreditCard,
   Clock
 } from 'lucide-react';
+import { useSidebar } from '@/contexts/SidebarContext';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
@@ -28,32 +30,67 @@ const navigation = [
 
 export const Sidebar = () => {
   const location = useLocation();
+  const { isCollapsed } = useSidebar();
 
   return (
-    <div className="flex flex-col w-64 bg-background border-r border-border">
+    <div className={cn(
+      "flex flex-col bg-background border-r border-border transition-all duration-300 ease-in-out",
+      isCollapsed ? "w-16" : "w-64"
+    )}>
       <div className="flex items-center justify-center h-16 border-b border-border">
-        <span className="text-xl font-bold text-primary">Nimos</span>
+        <span className={cn(
+          "text-xl font-bold text-primary transition-opacity duration-300",
+          isCollapsed ? "opacity-0" : "opacity-100"
+        )}>
+          {isCollapsed ? "N" : "Nimos"}
+        </span>
       </div>
-      <nav className="flex-1 px-4 py-6 space-y-2">
+      <nav className={cn(
+        "flex-1 py-6 space-y-2 transition-all duration-300",
+        isCollapsed ? "px-2" : "px-4"
+      )}>
         {navigation.map((item) => {
           const IconComponent = item.icon;
           const isActive = location.pathname === item.href;
           
-          return (
+          const linkContent = (
             <Link
               key={item.name}
               to={item.href}
               className={cn(
-                'flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                'flex items-center text-sm font-medium rounded-lg transition-colors',
+                isCollapsed ? 'px-2 py-3 justify-center' : 'px-3 py-2',
                 isActive
                   ? 'bg-primary text-primary-foreground'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
             >
-              <IconComponent className="w-5 h-5 mr-3" />
-              {item.name}
+              <IconComponent className={cn(
+                "w-5 h-5",
+                isCollapsed ? "" : "mr-3"
+              )} />
+              {!isCollapsed && (
+                <span className="transition-opacity duration-300">
+                  {item.name}
+                </span>
+              )}
             </Link>
           );
+
+          if (isCollapsed) {
+            return (
+              <Tooltip key={item.name}>
+                <TooltipTrigger asChild>
+                  {linkContent}
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>{item.name}</p>
+                </TooltipContent>
+              </Tooltip>
+            );
+          }
+
+          return linkContent;
         })}
       </nav>
     </div>
