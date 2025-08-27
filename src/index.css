@@ -3,111 +3,126 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Nimos Design System - Salon Management SaaS */
+/* Import Google Fonts for Typography System */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+/* Nimos Design System - Wellness Studio Management Platform */
 
 @layer base {
   :root {
-    /* Core Brand Colors */
+    /* Core Brand Colors - Wellness & Trust */
     --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --foreground: 0 0% 22.7%; /* Charcoal Gray #3A3A3A */
     
-    /* Brand Primary - Salon Purple */
-    --primary: 260 84% 60%;
-    --primary-foreground: 0 0% 98%;
+    /* Brand Primary - Emerald Green (Energy & Trust) */
+    --primary: 145 63% 49%; /* #2ECC71 */
+    --primary-foreground: 0 0% 100%;
     
-    /* Brand Secondary - WhatsApp Green */
+    /* Brand Secondary - WhatsApp Green (Familiar & Accessible) */
     --secondary: 142 76% 36%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary-foreground: 0 0% 100%;
     
-    /* Accent - Warm Coral */
-    --accent: 25 95% 53%;
-    --accent-foreground: 0 0% 98%;
+    /* Accent - Coral (Critical CTAs & Alerts) */
+    --accent: 4 90% 67%; /* #FF6B6B */
+    --accent-foreground: 0 0% 100%;
     
-    /* Muted */
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
+    /* Wellness Highlight - Soft Lavender */
+    --wellness: 249 32% 78%; /* #B5AEE4 */
+    --wellness-foreground: 249 20% 25%;
     
-    /* Card & Surfaces */
+    /* Neutral Base - Clean & Calm */
+    --muted: 220 13% 96%; /* #F5F6F7 */
+    --muted-foreground: 0 0% 45%;
+    
+    /* Card & Surfaces - Clean Background */
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 0 0% 22.7%;
     
-    /* Borders & Inputs */
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 260 84% 60%;
+    /* Borders & Inputs - Subtle Definition */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 145 63% 49%;
     
-    /* Destructive */
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    /* Professional Navy - Deep Backgrounds */
+    --navy: 240 15% 11%; /* #1C1C28 */
+    --navy-foreground: 0 0% 100%;
+    
+    /* System States */
+    --destructive: 4 90% 67%; /* Use coral for destructive actions */
+    --destructive-foreground: 0 0% 100%;
+    
+    --success: 145 63% 49%; /* Use emerald for success */
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
     
     /* Popover */
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover-foreground: 0 0% 22.7%;
     
-    /* Success - Enhanced Green */
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 98%;
-    
-    /* Warning */
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 98%;
-    
-    /* Sidebar */
-    --sidebar-background: 240 5.9% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 260 84% 60%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 240 5.9% 90%;
-    --sidebar-ring: 260 84% 60%;
+    /* Sidebar - Calm Professional Space */
+    --sidebar-background: 220 13% 98%;
+    --sidebar-foreground: 0 0% 32%;
+    --sidebar-primary: 145 63% 49%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 13% 96%;
+    --sidebar-accent-foreground: 0 0% 22.7%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 145 63% 49%;
 
     --radius: 0.75rem;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
+    --background: 240 15% 11%; /* Navy background */
     --foreground: 0 0% 98%;
     
-    --primary: 260 84% 65%;
-    --primary-foreground: 240 10% 3.9%;
+    --primary: 145 63% 55%; /* Slightly brighter emerald for dark mode */
+    --primary-foreground: 240 15% 11%;
     
-    --secondary: 142 76% 41%;
-    --secondary-foreground: 240 10% 3.9%;
+    --secondary: 142 76% 45%;
+    --secondary-foreground: 240 15% 11%;
     
-    --accent: 25 95% 58%;
-    --accent-foreground: 240 10% 3.9%;
+    --accent: 4 90% 72%;
+    --accent-foreground: 240 15% 11%;
     
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --wellness: 249 32% 65%;
+    --wellness-foreground: 0 0% 98%;
     
-    --card: 240 10% 3.9%;
+    --muted: 240 8% 15%;
+    --muted-foreground: 0 0% 65%;
+    
+    --card: 240 12% 8%;
     --card-foreground: 0 0% 98%;
     
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 260 84% 65%;
+    --border: 240 8% 20%;
+    --input: 240 8% 20%;
+    --ring: 145 63% 55%;
     
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --navy: 240 15% 6%;
+    --navy-foreground: 0 0% 98%;
     
-    --popover: 240 10% 3.9%;
+    --destructive: 4 90% 72%;
+    --destructive-foreground: 240 15% 11%;
+    
+    --success: 145 63% 55%;
+    --success-foreground: 240 15% 11%;
+    
+    --warning: 38 92% 55%;
+    --warning-foreground: 240 15% 11%;
+    
+    --popover: 240 12% 8%;
     --popover-foreground: 0 0% 98%;
     
-    --success: 142 76% 41%;
-    --success-foreground: 240 10% 3.9%;
-    
-    --warning: 38 92% 50%;
-    --warning-foreground: 240 10% 3.9%;
-    
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 260 84% 65%;
+    --sidebar-background: 240 15% 6%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 145 63% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 260 84% 65%;
+    --sidebar-accent: 240 8% 15%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 240 8% 20%;
+    --sidebar-ring: 145 63% 55%;
   }
 }
 
@@ -119,47 +134,79 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: 'Inter', sans-serif; /* Default to Inter for UI */
   }
   
-  /* Custom gradient backgrounds */
+  /* Typography System */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+  }
+  
+  .font-display {
+    font-family: 'Playfair Display', serif;
+  }
+  
+  .font-heading {
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .font-body {
+    font-family: 'Inter', sans-serif;
+  }
+  
+  /* Wellness-focused gradient backgrounds */
   .gradient-primary {
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--wellness)) 100%);
   }
   
   .gradient-secondary {
     background: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--primary)) 100%);
   }
   
-  .gradient-muted {
+  .gradient-wellness {
+    background: linear-gradient(135deg, hsl(var(--wellness)) 0%, hsl(var(--primary)) 100%);
+  }
+  
+  .gradient-calm {
     background: linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--background)) 100%);
   }
 }
 
 @layer components {
-  /* Glass morphism effect */
+  /* Glass morphism effect for wellness aesthetics */
   .glass {
     @apply backdrop-blur-sm bg-white/10 border border-white/20;
   }
   
-  /* Animated gradient text */
+  /* Wellness-focused gradient text */
   .gradient-text {
-    @apply bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary via-wellness to-secondary bg-clip-text text-transparent;
   }
   
-  /* Custom animations */
+  /* Calm, smooth animations */
   .animate-fade-in {
-    animation: fadeIn 0.5s ease-in-out;
+    animation: fadeIn 0.6s ease-in-out;
   }
   
   .animate-slide-up {
-    animation: slideUp 0.3s ease-out;
+    animation: slideUp 0.4s ease-out;
+  }
+  
+  /* Wellness button variants */
+  .btn-wellness {
+    @apply bg-wellness text-wellness-foreground hover:bg-wellness/90 transition-colors duration-200;
+  }
+  
+  .btn-calm {
+    @apply bg-muted text-muted-foreground hover:bg-muted/80 transition-colors duration-200;
   }
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -170,10 +217,22 @@
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Calm focus states for accessibility */
+*:focus-visible {
+  @apply ring-2 ring-primary ring-offset-2 ring-offset-background outline-none;
+}
+
+/* Smooth transitions for wellness feel */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
 }
