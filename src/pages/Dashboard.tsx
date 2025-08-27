@@ -11,41 +11,58 @@ import TopTeamMembers from '@/components/domain/dashboard/TopTeamMembers';
 const Dashboard = () => {
   return (
     <DashboardLayout>
-      <div className="p-6 space-y-6">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back! Here's what's happening at your salon today.
+      <div className="p-6 space-y-8 animate-fade-in">
+        {/* Header - Calm & Empowering */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-heading font-bold text-foreground">Your Studio Dashboard</h1>
+          <p className="text-muted-foreground font-body mt-2 leading-relaxed">
+            Everything you need to manage your wellness studio with confidence and clarity.
           </p>
         </div>
 
-        {/* Top Stats Row */}
+        {/* Top Stats Row - Clean & Organized */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <RecentSales />
-          <UpcomingAppointments />
-          <div className="md:col-span-2">
-            {/* This space can be used for additional metrics or kept for future expansion */}
+          <div className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
+            <RecentSales />
+          </div>
+          <div className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
+            <UpcomingAppointments />
+          </div>
+          <div className="md:col-span-2 animate-slide-up" style={{ animationDelay: '0.3s' }}>
+            {/* Future expansion space for additional wellness metrics */}
+            <div className="h-full flex items-center justify-center p-8 rounded-lg bg-wellness/5 border border-wellness/20">
+              <p className="text-wellness/60 font-body text-sm text-center">
+                More wellness insights coming soon
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Activity Chart */}
+        {/* Main Content Grid - Calm Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Activity Overview */}
           <div className="lg:col-span-2 space-y-6">
-            <AppointmentsActivity />
+            <div className="animate-slide-up" style={{ animationDelay: '0.4s' }}>
+              <AppointmentsActivity />
+            </div>
           </div>
 
-          {/* Right Column - Today's Appointments */}
+          {/* Right Column - Today's Focus */}
           <div className="space-y-6">
-            <TodayAppointments />
+            <div className="animate-slide-up" style={{ animationDelay: '0.5s' }}>
+              <TodayAppointments />
+            </div>
           </div>
         </div>
 
-        {/* Bottom Row - Services and Team */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <TopServices />
-          <TopTeamMembers />
+        {/* Bottom Row - Team & Services Insights */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="animate-slide-up" style={{ animationDelay: '0.6s' }}>
+            <TopServices />
+          </div>
+          <div className="animate-slide-up" style={{ animationDelay: '0.7s' }}>
+            <TopTeamMembers />
+          </div>
         </div>
       </div>
     </DashboardLayout>

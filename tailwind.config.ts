@@ -61,6 +61,15 @@ export default {
 					DEFAULT: 'hsl(var(--warning))',
 					foreground: 'hsl(var(--warning-foreground))'
 				},
+				// New wellness-focused colors
+				wellness: {
+					DEFAULT: 'hsl(var(--wellness))',
+					foreground: 'hsl(var(--wellness-foreground))'
+				},
+				navy: {
+					DEFAULT: 'hsl(var(--navy))',
+					foreground: 'hsl(var(--navy-foreground))'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
@@ -71,6 +80,32 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				}
+			},
+			fontFamily: {
+				// Primary typography system
+				'display': ['Playfair Display', 'serif'], // For marketing headlines only
+				'heading': ['Poppins', 'sans-serif'], // For UI headings
+				'body': ['Inter', 'sans-serif'], // For UI body text
+				// Legacy support
+				'sans': ['Inter', 'sans-serif'],
+				'serif': ['Playfair Display', 'serif'],
+			},
+			fontSize: {
+				// Calm, accessible typography scale
+				'xs': ['0.75rem', { lineHeight: '1.5' }],
+				'sm': ['0.875rem', { lineHeight: '1.5' }],
+				'base': ['1rem', { lineHeight: '1.6' }],
+				'lg': ['1.125rem', { lineHeight: '1.6' }],
+				'xl': ['1.25rem', { lineHeight: '1.5' }],
+				'2xl': ['1.5rem', { lineHeight: '1.4' }],
+				'3xl': ['1.875rem', { lineHeight: '1.3' }],
+				'4xl': ['2.25rem', { lineHeight: '1.2' }],
+				'5xl': ['3rem', { lineHeight: '1.1' }],
+			},
+			spacing: {
+				// Calm, consistent spacing system
+				'18': '4.5rem',
+				'88': '22rem',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -97,7 +132,7 @@ export default {
 				'fade-in': {
 					'0%': {
 						opacity: '0',
-						transform: 'translateY(10px)'
+						transform: 'translateY(8px)'
 					},
 					'100%': {
 						opacity: '1',
@@ -107,19 +142,41 @@ export default {
 				'slide-up': {
 					'0%': {
 						opacity: '0',
-						transform: 'translateY(20px)'
+						transform: 'translateY(16px)'
 					},
 					'100%': {
 						opacity: '1',
 						transform: 'translateY(0)'
+					}
+				},
+				// Wellness-focused animations
+				'gentle-bounce': {
+					'0%, 100%': {
+						transform: 'translateY(0)',
+					},
+					'50%': {
+						transform: 'translateY(-4px)',
+					}
+				},
+				'calm-pulse': {
+					'0%, 100%': {
+						opacity: '1',
+					},
+					'50%': {
+						opacity: '0.8',
 					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-				'fade-in': 'fade-in 0.5s ease-in-out',
-				'slide-up': 'slide-up 0.3s ease-out'
+				'fade-in': 'fade-in 0.6s ease-in-out',
+				'slide-up': 'slide-up 0.4s ease-out',
+				'gentle-bounce': 'gentle-bounce 2s ease-in-out infinite',
+				'calm-pulse': 'calm-pulse 3s ease-in-out infinite',
+			},
+			backdropBlur: {
+				xs: '2px',
 			}
 		}
 	},
