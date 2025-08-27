@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -400,7 +399,7 @@ const Auth = () => {
             </form>
           )}
 
-          {/* Enhanced Register Step with Smart Location Detection */}
+          {/* Enhanced Register Step with Reordered Fields */}
           {step === 'register' && (
             <div className="space-y-6">
               {/* Location Detection Banner */}
@@ -420,6 +419,35 @@ const Auth = () => {
               )}
 
               <form onSubmit={handleRegister} className="space-y-4">
+                {/* Mobile number field - moved to appear right after location settings */}
+                <div>
+                  <label htmlFor="mobile" className="block text-sm font-medium mb-2">
+                    Mobile number
+                  </label>
+                  <div className="flex gap-2">
+                    <MobilePrefixSelector
+                      value={locationData.phonePrefix}
+                      onValueChange={(prefix) => 
+                        setLocationData(prev => ({ ...prev, phonePrefix: prefix }))
+                      }
+                    />
+                    <Input
+                      id="mobile"
+                      type="tel"
+                      placeholder="Enter your mobile number"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      className="flex-1 h-12"
+                    />
+                  </div>
+                  {phoneNumber && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Mobile number is required
+                    </p>
+                  )}
+                </div>
+
+                {/* First name and Last name fields */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="firstName" className="block text-sm font-medium mb-2">
@@ -451,6 +479,7 @@ const Auth = () => {
                   </div>
                 </div>
 
+                {/* Password field */}
                 <div>
                   <label htmlFor="password" className="block text-sm font-medium mb-2">
                     Password
@@ -478,53 +507,6 @@ const Auth = () => {
                       ) : (
                         <Eye className="h-4 w-4 text-muted-foreground" />
                       )}
-                    </Button>
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="mobile" className="block text-sm font-medium mb-2">
-                    Mobile number
-                  </label>
-                  <div className="flex gap-2">
-                    <MobilePrefixSelector
-                      value={locationData.phonePrefix}
-                      onValueChange={(prefix) => 
-                        setLocationData(prev => ({ ...prev, phonePrefix: prefix }))
-                      }
-                    />
-                    <Input
-                      id="mobile"
-                      type="tel"
-                      placeholder="Enter your mobile number"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      className="flex-1 h-12"
-                    />
-                  </div>
-                  {phoneNumber && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Mobile number is required
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label htmlFor="country" className="block text-sm font-medium mb-2">
-                    Country
-                  </label>
-                  <div className="flex items-center justify-between p-3 border rounded-md bg-muted/30">
-                    <span className="text-sm">
-                      {locationData.country || 'Select country'}
-                    </span>
-                    <Button 
-                      type="button"
-                      variant="link" 
-                      size="sm"
-                      onClick={handleEditLocation}
-                      className="text-primary p-0 h-auto"
-                    >
-                      Edit
                     </Button>
                   </div>
                 </div>
