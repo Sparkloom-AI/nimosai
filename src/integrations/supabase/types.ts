@@ -732,15 +732,6 @@ export type Database = {
         | "no_show"
       employment_type: "full_time" | "part_time" | "contractor" | "intern"
       permission_level: "low" | "medium" | "high" | "admin"
-      service_category:
-        | "haircut"
-        | "color"
-        | "styling"
-        | "treatment"
-        | "nails"
-        | "skincare"
-        | "massage"
-        | "other"
       shift_status:
         | "scheduled"
         | "confirmed"
@@ -892,16 +883,6 @@ export const Constants = {
       ],
       employment_type: ["full_time", "part_time", "contractor", "intern"],
       permission_level: ["low", "medium", "high", "admin"],
-      service_category: [
-        "haircut",
-        "color",
-        "styling",
-        "treatment",
-        "nails",
-        "skincare",
-        "massage",
-        "other",
-      ],
       shift_status: [
         "scheduled",
         "confirmed",
