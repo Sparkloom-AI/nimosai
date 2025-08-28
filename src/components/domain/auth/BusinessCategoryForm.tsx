@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,7 +8,7 @@ import { toast } from 'sonner';
 
 interface BusinessCategoryFormProps {
   onBack: () => void;
-  onComplete: (selection: { primary: string; additional: string[] }) => void;
+  onComplete: (data: { primary: string; additional: string[] }) => void;
 }
 
 // Icon mapping for different business categories
@@ -66,7 +65,8 @@ const BusinessCategoryForm: React.FC<BusinessCategoryFormProps> = ({ onBack, onC
 
   const handleContinue = () => {
     if (selectedCategories.length > 0) {
-      const [primary, ...additional] = selectedCategories;
+      const primary = selectedCategories[0]; // First selected becomes primary
+      const additional = selectedCategories.slice(1); // Rest are additional
       onComplete({ primary, additional });
     }
   };
@@ -105,17 +105,17 @@ const BusinessCategoryForm: React.FC<BusinessCategoryFormProps> = ({ onBack, onC
                 Select categories that best describe your business
               </h1>
               <p className="text-muted-foreground">
-                Choose your primary and up to 3 related service types
+                Choose your primary category and up to 3 related service types (first selected becomes primary)
               </p>
             </div>
           </div>
 
           {/* Categories Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-            {businessCategories.map((category, index) => {
+            {businessCategories.map((category) => {
               const IconComponent = getIconForCategory(category.name);
               const isSelected = selectedCategories.includes(category.id);
-              const isPrimary = selectedCategories.indexOf(category.id) === 0;
+              const isPrimary = selectedCategories[0] === category.id;
               
               return (
                 <Card
@@ -132,12 +132,8 @@ const BusinessCategoryForm: React.FC<BusinessCategoryFormProps> = ({ onBack, onC
                       </div>
                       <h3 className="font-medium text-sm">
                         {category.name}
+                        {isPrimary && <span className="ml-1 text-xs text-primary font-semibold">(Primary)</span>}
                       </h3>
-                      {isPrimary && (
-                        <div className="text-xs text-primary font-medium">
-                          Primary Category
-                        </div>
-                      )}
                     </div>
                   </CardContent>
                 </Card>

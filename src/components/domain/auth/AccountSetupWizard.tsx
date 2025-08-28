@@ -51,11 +51,11 @@ const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete }) =
     setStep('business-categories');
   };
 
-  const handleCategoriesComplete = async (selection: { primary: string; additional: string[] }) => {
+  const handleCategoriesComplete = async (data: { primary: string; additional: string[] }) => {
     const completeBusinessData = {
       ...businessData,
-      business_category_id: selection.primary,
-      additional_category_ids: selection.additional,
+      business_category_id: data.primary,
+      additional_category_ids: data.additional,
     };
     setBusinessData(completeBusinessData);
     setStep('complete');
