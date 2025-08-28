@@ -25,7 +25,7 @@ export const studiosApi = {
   async createStudio(studioData: {
     name: string;
     website?: string;
-    business_category?: string;
+    business_category_id?: string;
     description?: string;
     phone?: string;
     email?: string;
@@ -34,7 +34,7 @@ export const studiosApi = {
     const { data, error } = await supabase.rpc('create_studio_with_data', {
       studio_name: studioData.name,
       studio_website: studioData.website || null,
-      studio_business_category: studioData.business_category || 'General',
+      studio_business_category_id: studioData.business_category_id || null,
       studio_description: studioData.description || null,
       studio_phone: studioData.phone || null,
       studio_email: studioData.email || null,
@@ -48,10 +48,10 @@ export const studiosApi = {
   // Update an existing studio
   async updateStudio(
     studioId: string,
-    updates: {
+      updates: {
       name?: string;
       website?: string;
-      business_category?: string;
+      business_category_id?: string;
       description?: string;
       phone?: string;
       email?: string;
@@ -62,7 +62,7 @@ export const studiosApi = {
       studio_id: studioId,
       studio_name: updates.name || null,
       studio_website: updates.website || null,
-      studio_business_category: updates.business_category || null,
+      studio_business_category_id: updates.business_category_id || null,
       studio_description: updates.description || null,
       studio_phone: updates.phone || null,
       studio_email: updates.email || null,

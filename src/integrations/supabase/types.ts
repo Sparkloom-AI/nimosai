@@ -92,13 +92,6 @@ export type Database = {
             referencedRelation: "studios"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "locations_studio_id_fkey"
-            columns: ["studio_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
         ]
       }
       profiles: {
@@ -191,18 +184,11 @@ export type Database = {
             referencedRelation: "studios"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "services_studio_id_fkey"
-            columns: ["studio_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
         ]
       }
       studios: {
         Row: {
-          business_category: string
+          business_category_id: string
           created_at: string
           description: string | null
           email: string | null
@@ -214,7 +200,7 @@ export type Database = {
           website: string | null
         }
         Insert: {
-          business_category?: string
+          business_category_id: string
           created_at?: string
           description?: string | null
           email?: string | null
@@ -226,7 +212,7 @@ export type Database = {
           website?: string | null
         }
         Update: {
-          business_category?: string
+          business_category_id?: string
           created_at?: string
           description?: string | null
           email?: string | null
@@ -237,11 +223,19 @@ export type Database = {
           updated_at?: string
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_studios_business_category"
+            columns: ["business_category_id"]
+            isOneToOne: false
+            referencedRelation: "business_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       team_member_addresses: {
         Row: {
-          address_type: string
+          address_type: Database["public"]["Enums"]["address_type"]
           city: string
           country: string
           created_at: string
@@ -253,7 +247,7 @@ export type Database = {
           team_member_id: string
         }
         Insert: {
-          address_type?: string
+          address_type?: Database["public"]["Enums"]["address_type"]
           city: string
           country?: string
           created_at?: string
@@ -265,7 +259,7 @@ export type Database = {
           team_member_id: string
         }
         Update: {
-          address_type?: string
+          address_type?: Database["public"]["Enums"]["address_type"]
           city?: string
           country?: string
           created_at?: string
@@ -473,13 +467,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "fk_team_members_studio_id"
-            columns: ["studio_id"]
-            isOneToOne: false
-            referencedRelation: "studios"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "team_members_studio_id_fkey"
             columns: ["studio_id"]
