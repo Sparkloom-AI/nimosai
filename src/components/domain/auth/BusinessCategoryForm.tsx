@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, ArrowRight, Scissors, Hand, Eye, ShoppingBag, Sparkles, Zap, Bed, Droplets, Wand2, Heart, Sun, Bike, Dumbbell, Plus, Stethoscope, PawPrint, Grid3X3, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Scissors, Hand, Eye, ShoppingBag, Sparkles, Zap, Bed, Droplets, Wand2, Heart, Sun, Bike, Dumbbell, Plus, Stethoscope, PawPrint, Grid3X3, Loader2, Flower, Shield, Brush, Flame, Dog, Star } from 'lucide-react';
 import { businessCategoriesApi } from '@/api/businessCategories';
 import { BusinessCategory } from '@/types/studio';
 import { toast } from 'sonner';
@@ -14,18 +14,22 @@ interface BusinessCategoryFormProps {
 // Icon mapping for different business categories
 const getIconForCategory = (categoryName: string) => {
   const iconMap: { [key: string]: React.ComponentType<any> } = {
-    'Hair Salon': Scissors,
-    'Nail Salon': Hand,
-    'Beauty Salon': Eye,
-    'Spa': Bed,
-    'Barbershop': Zap,
-    'Massage Therapy': Bed,
-    'Fitness Studio': Dumbbell,
-    'Yoga Studio': Bike,
-    'Wellness Center': Heart,
-    'Medical Spa': Sparkles,
-    'Tattoo & Piercing': Heart,
-    'General': Grid3X3,
+    'Beauty Salon': Sparkles,
+    'Barber': Scissors,
+    'Nails': Hand,
+    'Spa & sauna': Flower,
+    'Massage': Zap,
+    'Fitness & recovery': Dumbbell,
+    'Tattooing & piercing': Shield,
+    'Medspa': Stethoscope,
+    'Hair Salon': Brush,
+    'Eyebrows & lashes': Eye,
+    'Waxing salon': Flame,
+    'Tanning studio': Sun,
+    'Physical therapy': Heart,
+    'Health practice': Stethoscope,
+    'Pet grooming': Dog,
+    'Other': Star,
   };
   
   return iconMap[categoryName] || ShoppingBag;

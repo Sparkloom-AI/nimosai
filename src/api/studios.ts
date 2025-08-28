@@ -32,14 +32,14 @@ export const studiosApi = {
     additional_category_ids?: string[];
   }): Promise<Studio> {
     const { data, error } = await supabase.rpc('create_studio_with_data', {
-      studio_name: studioData.name,
-      studio_website: studioData.website || null,
-      studio_business_category_id: studioData.business_category_id || null,
-      studio_description: studioData.description || null,
-      studio_phone: studioData.phone || null,
-      studio_email: studioData.email || null,
-      studio_timezone: studioData.timezone || 'UTC',
-      additional_category_ids: studioData.additional_category_ids || null
+      p_studio_name: studioData.name,
+      p_studio_website: studioData.website || null,
+      p_studio_business_category_id: studioData.business_category_id || null,
+      p_studio_description: studioData.description || null,
+      p_studio_phone: studioData.phone || null,
+      p_studio_email: studioData.email || null,
+      p_studio_timezone: studioData.timezone || 'UTC',
+      p_additional_category_ids: studioData.additional_category_ids || null
     });
 
     if (error) throw error;
