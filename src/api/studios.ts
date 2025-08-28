@@ -52,7 +52,6 @@ export const studiosApi = {
       updates: {
       name?: string;
       website?: string;
-      business_category_id?: string;
       description?: string;
       phone?: string;
       email?: string;
@@ -63,7 +62,6 @@ export const studiosApi = {
       studio_id: studioId,
       studio_name: updates.name || null,
       studio_website: updates.website || null,
-      studio_business_category_id: updates.business_category_id || null,
       studio_description: updates.description || null,
       studio_phone: updates.phone || null,
       studio_email: updates.email || null,

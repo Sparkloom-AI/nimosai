@@ -3,7 +3,6 @@ export interface Studio {
   id: string;
   name: string;
   description?: string;
-  business_category_id: string;
   phone?: string;
   email?: string;
   website?: string;

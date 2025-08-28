@@ -227,7 +227,6 @@ export type Database = {
       }
       studios: {
         Row: {
-          business_category_id: string
           created_at: string
           description: string | null
           email: string | null
@@ -239,7 +238,6 @@ export type Database = {
           website: string | null
         }
         Insert: {
-          business_category_id: string
           created_at?: string
           description?: string | null
           email?: string | null
@@ -251,7 +249,6 @@ export type Database = {
           website?: string | null
         }
         Update: {
-          business_category_id?: string
           created_at?: string
           description?: string | null
           email?: string | null
@@ -262,15 +259,7 @@ export type Database = {
           updated_at?: string
           website?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "fk_studios_business_category"
-            columns: ["business_category_id"]
-            isOneToOne: false
-            referencedRelation: "business_categories"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       team_member_addresses: {
         Row: {
@@ -627,7 +616,6 @@ export type Database = {
           p_studio_website?: string
         }
         Returns: {
-          business_category_id: string
           created_at: string
           description: string
           email: string
@@ -642,7 +630,6 @@ export type Database = {
       get_studio_by_id: {
         Args: { studio_id: string }
         Returns: {
-          business_category_id: string
           created_at: string
           description: string
           email: string
@@ -670,7 +657,6 @@ export type Database = {
       get_user_studios: {
         Args: Record<PropertyKey, never>
         Returns: {
-          business_category_id: string
           created_at: string
           description: string
           email: string
@@ -692,7 +678,6 @@ export type Database = {
       }
       update_studio_data: {
         Args: {
-          studio_business_category_id?: string
           studio_description?: string
           studio_email?: string
           studio_id: string
@@ -702,7 +687,6 @@ export type Database = {
           studio_website?: string
         }
         Returns: {
-          business_category_id: string
           created_at: string
           description: string
           email: string
