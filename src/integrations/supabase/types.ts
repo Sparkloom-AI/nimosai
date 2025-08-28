@@ -616,26 +616,16 @@ export type Database = {
         Returns: boolean
       }
       create_studio_with_data: {
-        Args:
-          | {
-              p_additional_category_ids?: string[]
-              p_studio_business_category_id?: string
-              p_studio_description?: string
-              p_studio_email?: string
-              p_studio_name: string
-              p_studio_phone?: string
-              p_studio_timezone?: string
-              p_studio_website?: string
-            }
-          | {
-              studio_business_category_id?: string
-              studio_description?: string
-              studio_email?: string
-              studio_name: string
-              studio_phone?: string
-              studio_timezone?: string
-              studio_website?: string
-            }
+        Args: {
+          p_additional_category_ids?: string[]
+          p_studio_business_category_id?: string
+          p_studio_description?: string
+          p_studio_email?: string
+          p_studio_name: string
+          p_studio_phone?: string
+          p_studio_timezone?: string
+          p_studio_website?: string
+        }
         Returns: {
           business_category_id: string
           created_at: string
