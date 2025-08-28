@@ -186,6 +186,45 @@ export type Database = {
           },
         ]
       }
+      studio_business_categories: {
+        Row: {
+          business_category_id: string
+          created_at: string
+          id: string
+          is_primary: boolean
+          studio_id: string
+        }
+        Insert: {
+          business_category_id: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          studio_id: string
+        }
+        Update: {
+          business_category_id?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          studio_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "studio_business_categories_business_category_id_fkey"
+            columns: ["business_category_id"]
+            isOneToOne: false
+            referencedRelation: "business_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "studio_business_categories_studio_id_fkey"
+            columns: ["studio_id"]
+            isOneToOne: false
+            referencedRelation: "studios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       studios: {
         Row: {
           business_category_id: string
@@ -577,15 +616,26 @@ export type Database = {
         Returns: boolean
       }
       create_studio_with_data: {
-        Args: {
-          studio_business_category_id?: string
-          studio_description?: string
-          studio_email?: string
-          studio_name: string
-          studio_phone?: string
-          studio_timezone?: string
-          studio_website?: string
-        }
+        Args:
+          | {
+              additional_category_ids?: string[]
+              studio_business_category_id?: string
+              studio_description?: string
+              studio_email?: string
+              studio_name: string
+              studio_phone?: string
+              studio_timezone?: string
+              studio_website?: string
+            }
+          | {
+              studio_business_category_id?: string
+              studio_description?: string
+              studio_email?: string
+              studio_name: string
+              studio_phone?: string
+              studio_timezone?: string
+              studio_website?: string
+            }
         Returns: {
           business_category_id: string
           created_at: string
@@ -612,6 +662,15 @@ export type Database = {
           timezone: string
           updated_at: string
           website: string
+        }[]
+      }
+      get_studio_categories: {
+        Args: { studio_id: string }
+        Returns: {
+          category_description: string
+          category_id: string
+          category_name: string
+          is_primary: boolean
         }[]
       }
       get_user_role: {

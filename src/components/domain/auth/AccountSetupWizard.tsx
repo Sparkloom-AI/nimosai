@@ -51,10 +51,11 @@ const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete }) =
     setStep('business-categories');
   };
 
-  const handleCategoriesComplete = async (categories: string[]) => {
+  const handleCategoriesComplete = async (selection: { primary: string; additional: string[] }) => {
     const completeBusinessData = {
       ...businessData,
-      business_category: categories.join(', '),
+      business_category_id: selection.primary,
+      additional_category_ids: selection.additional,
     };
     setBusinessData(completeBusinessData);
     setStep('complete');
@@ -69,7 +70,8 @@ const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete }) =
       const studio = await studiosApi.createStudio({
         name: businessData.businessName,
         website: businessData.website,
-        business_category_id: businessData.business_category,
+        business_category_id: businessData.business_category_id,
+        additional_category_ids: businessData.additional_category_ids,
       });
 
       // Refresh roles to get the newly assigned studio_owner role

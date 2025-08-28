@@ -30,6 +30,7 @@ export const studiosApi = {
     phone?: string;
     email?: string;
     timezone?: string;
+    additional_category_ids?: string[];
   }): Promise<Studio> {
     const { data, error } = await supabase.rpc('create_studio_with_data', {
       studio_name: studioData.name,
@@ -38,7 +39,8 @@ export const studiosApi = {
       studio_description: studioData.description || null,
       studio_phone: studioData.phone || null,
       studio_email: studioData.email || null,
-      studio_timezone: studioData.timezone || 'UTC'
+      studio_timezone: studioData.timezone || 'UTC',
+      additional_category_ids: studioData.additional_category_ids || null
     });
 
     if (error) throw error;
@@ -81,5 +83,15 @@ export const studiosApi = {
       .eq('id', studioId);
 
     if (error) throw error;
+  },
+
+  // Get all categories for a studio
+  async getStudioCategories(studioId: string) {
+    const { data, error } = await supabase.rpc('get_studio_categories', {
+      studio_id: studioId
+    });
+
+    if (error) throw error;
+    return data || [];
   },
 };

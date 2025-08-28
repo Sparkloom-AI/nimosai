@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 
 interface BusinessCategoryFormProps {
   onBack: () => void;
-  onComplete: (categories: string[]) => void;
+  onComplete: (selection: { primary: string; additional: string[] }) => void;
 }
 
 // Icon mapping for different business categories
@@ -53,12 +53,12 @@ const BusinessCategoryForm: React.FC<BusinessCategoryFormProps> = ({ onBack, onC
     fetchCategories();
   }, []);
 
-  const handleCategoryToggle = (categoryName: string) => {
+  const handleCategoryToggle = (categoryId: string) => {
     setSelectedCategories(prev => {
-      if (prev.includes(categoryName)) {
-        return prev.filter(name => name !== categoryName);
+      if (prev.includes(categoryId)) {
+        return prev.filter(id => id !== categoryId);
       } else if (prev.length < 4) { // Allow up to 4 selections (1 primary + 3 related)
-        return [...prev, categoryName];
+        return [...prev, categoryId];
       }
       return prev;
     });
@@ -66,7 +66,8 @@ const BusinessCategoryForm: React.FC<BusinessCategoryFormProps> = ({ onBack, onC
 
   const handleContinue = () => {
     if (selectedCategories.length > 0) {
-      onComplete(selectedCategories);
+      const [primary, ...additional] = selectedCategories;
+      onComplete({ primary, additional });
     }
   };
 
@@ -111,9 +112,10 @@ const BusinessCategoryForm: React.FC<BusinessCategoryFormProps> = ({ onBack, onC
 
           {/* Categories Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-            {businessCategories.map((category) => {
+            {businessCategories.map((category, index) => {
               const IconComponent = getIconForCategory(category.name);
-              const isSelected = selectedCategories.includes(category.name);
+              const isSelected = selectedCategories.includes(category.id);
+              const isPrimary = selectedCategories.indexOf(category.id) === 0;
               
               return (
                 <Card
@@ -121,7 +123,7 @@ const BusinessCategoryForm: React.FC<BusinessCategoryFormProps> = ({ onBack, onC
                   className={`cursor-pointer transition-all duration-200 hover:shadow-md hover:border-primary/20 ${
                     isSelected ? 'border-primary shadow-sm bg-primary/5' : ''
                   }`}
-                  onClick={() => handleCategoryToggle(category.name)}
+                  onClick={() => handleCategoryToggle(category.id)}
                 >
                   <CardContent className="p-6">
                     <div className="flex flex-col items-center text-center space-y-3">
@@ -131,6 +133,11 @@ const BusinessCategoryForm: React.FC<BusinessCategoryFormProps> = ({ onBack, onC
                       <h3 className="font-medium text-sm">
                         {category.name}
                       </h3>
+                      {isPrimary && (
+                        <div className="text-xs text-primary font-medium">
+                          Primary Category
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
