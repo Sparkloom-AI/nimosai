@@ -145,7 +145,7 @@ export const MobileSidebar = ({
               >
                 <X />
               </div>
-              {children}
+              {children as React.ReactNode}
             </motion.div>
           )}
         </AnimatePresence>

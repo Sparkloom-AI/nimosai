@@ -578,7 +578,7 @@ export type Database = {
       }
       create_studio_with_data: {
         Args: {
-          studio_business_category?: string
+          studio_business_category_id?: string
           studio_description?: string
           studio_email?: string
           studio_name: string
@@ -587,7 +587,7 @@ export type Database = {
           studio_website?: string
         }
         Returns: {
-          business_category: string
+          business_category_id: string
           created_at: string
           description: string
           email: string
@@ -602,7 +602,7 @@ export type Database = {
       get_studio_by_id: {
         Args: { studio_id: string }
         Returns: {
-          business_category: string
+          business_category_id: string
           created_at: string
           description: string
           email: string
@@ -621,7 +621,7 @@ export type Database = {
       get_user_studios: {
         Args: Record<PropertyKey, never>
         Returns: {
-          business_category: string
+          business_category_id: string
           created_at: string
           description: string
           email: string
@@ -643,7 +643,7 @@ export type Database = {
       }
       update_studio_data: {
         Args: {
-          studio_business_category?: string
+          studio_business_category_id?: string
           studio_description?: string
           studio_email?: string
           studio_id: string
@@ -653,7 +653,7 @@ export type Database = {
           studio_website?: string
         }
         Returns: {
-          business_category: string
+          business_category_id: string
           created_at: string
           description: string
           email: string

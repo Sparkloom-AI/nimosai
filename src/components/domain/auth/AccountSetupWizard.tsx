@@ -69,7 +69,7 @@ const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete }) =
       const studio = await studiosApi.createStudio({
         name: businessData.businessName,
         website: businessData.website,
-        business_category: businessData.business_category,
+        business_category_id: businessData.business_category,
       });
 
       // Refresh roles to get the newly assigned studio_owner role
