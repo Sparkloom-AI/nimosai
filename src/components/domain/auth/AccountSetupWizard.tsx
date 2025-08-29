@@ -66,13 +66,20 @@ const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete }) =
 
     setIsLoading(true);
     try {
-      // Create the studio in the database
+      console.log('AccountSetupWizard: Creating studio with complete business data:', businessData);
+      
+      // Create the studio in the database with all captured data
       const studio = await studiosApi.createStudio({
         name: businessData.businessName,
         website: businessData.website,
+        description: businessData.description,
+        phone: businessData.phone,
+        email: businessData.email,
         business_category_id: businessData.business_category_id,
         additional_category_ids: businessData.additional_category_ids,
       });
+
+      console.log('AccountSetupWizard: Studio created successfully:', studio);
 
       // Refresh roles to get the newly assigned studio_owner role
       await refreshRoles();
@@ -83,7 +90,7 @@ const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete }) =
       toast.success('Studio created successfully!');
       onComplete();
     } catch (error: any) {
-      console.error('Error creating studio:', error);
+      console.error('AccountSetupWizard: Error creating studio:', error);
       toast.error(error.message || 'Failed to create studio. Please try again.');
     } finally {
       setIsLoading(false);

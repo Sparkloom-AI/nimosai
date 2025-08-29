@@ -4,20 +4,83 @@ import { Studio } from '@/types/studio';
 export const studiosApi = {
   // Get all studios accessible to the current user
   async getUserStudios(): Promise<Studio[]> {
+    console.log('getUserStudios: Fetching user studios');
     const { data, error } = await supabase.rpc('get_user_studios');
     
-    if (error) throw error;
-    return (data || []) as Studio[];
+    if (error) {
+      console.error('getUserStudios: Error:', error);
+      throw error;
+    }
+    
+    console.log('getUserStudios: Raw data:', data);
+    const studios = (data || []).map((studioRecord: any) => ({
+      id: studioRecord.id,
+      name: studioRecord.name,
+      description: studioRecord.description || '',
+      phone: studioRecord.phone || '',
+      email: studioRecord.email || '',
+      website: studioRecord.website || '',
+      timezone: studioRecord.timezone || 'UTC',
+      country: studioRecord.country || 'US',
+      currency: studioRecord.currency || 'USD',
+      tax_included: studioRecord.tax_included ?? true,
+      default_team_language: studioRecord.default_team_language || 'en',
+      default_client_language: studioRecord.default_client_language || 'en',
+      facebook_url: studioRecord.facebook_url || '',
+      instagram_url: studioRecord.instagram_url || '',
+      twitter_url: studioRecord.twitter_url || '',
+      linkedin_url: studioRecord.linkedin_url || '',
+      created_at: studioRecord.created_at,
+      updated_at: studioRecord.updated_at,
+    })) as Studio[];
+    
+    console.log('getUserStudios: Processed studios:', studios);
+    return studios;
   },
 
   // Get a specific studio by ID
   async getStudioById(studioId: string): Promise<Studio | null> {
+    console.log('getStudioById: Fetching studio with ID:', studioId);
     const { data, error } = await supabase.rpc('get_studio_by_id', { 
       studio_id: studioId 
     });
     
-    if (error) throw error;
-    return data && Array.isArray(data) && data.length > 0 ? data[0] as Studio : null;
+    if (error) {
+      console.error('getStudioById: Error:', error);
+      throw error;
+    }
+    
+    console.log('getStudioById: Raw data:', data);
+    
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      console.log('getStudioById: No studio found');
+      return null;
+    }
+    
+    const studioRecord = data[0];
+    const studio: Studio = {
+      id: studioRecord.id,
+      name: studioRecord.name,
+      description: studioRecord.description || '',
+      phone: studioRecord.phone || '',
+      email: studioRecord.email || '',
+      website: studioRecord.website || '',
+      timezone: studioRecord.timezone || 'UTC',
+      country: studioRecord.country || 'US',
+      currency: studioRecord.currency || 'USD',
+      tax_included: studioRecord.tax_included ?? true,
+      default_team_language: studioRecord.default_team_language || 'en',
+      default_client_language: studioRecord.default_client_language || 'en',
+      facebook_url: studioRecord.facebook_url || '',
+      instagram_url: studioRecord.instagram_url || '',
+      twitter_url: studioRecord.twitter_url || '',
+      linkedin_url: studioRecord.linkedin_url || '',
+      created_at: studioRecord.created_at,
+      updated_at: studioRecord.updated_at,
+    };
+    
+    console.log('getStudioById: Processed studio:', studio);
+    return studio;
   },
 
   // Create a new studio
@@ -31,6 +94,8 @@ export const studiosApi = {
     timezone?: string;
     additional_category_ids?: string[];
   }): Promise<Studio> {
+    console.log('createStudio: Creating studio with data:', studioData);
+    
     const { data, error } = await supabase.rpc('create_studio_with_data', {
       p_studio_name: studioData.name,
       p_studio_website: studioData.website || null,
@@ -42,14 +107,39 @@ export const studiosApi = {
       p_additional_category_ids: studioData.additional_category_ids || null
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error('createStudio: Error:', error);
+      throw error;
+    }
     
-    // The RPC function should return a studio with all fields
-    // Cast to Studio type as the function returns all required fields
-    const studio = data && Array.isArray(data) && data.length > 0 ? data[0] : null;
-    if (!studio) throw new Error('Failed to create studio');
+    console.log('createStudio: Raw data:', data);
     
-    return studio as Studio;
+    const studioRecord = data && Array.isArray(data) && data.length > 0 ? data[0] : null;
+    if (!studioRecord) throw new Error('Failed to create studio');
+    
+    const studio: Studio = {
+      id: studioRecord.id,
+      name: studioRecord.name,
+      description: studioRecord.description || '',
+      phone: studioRecord.phone || '',
+      email: studioRecord.email || '',
+      website: studioRecord.website || '',
+      timezone: studioRecord.timezone || 'UTC',
+      country: studioRecord.country || 'US',
+      currency: studioRecord.currency || 'USD',
+      tax_included: studioRecord.tax_included ?? true,
+      default_team_language: studioRecord.default_team_language || 'en',
+      default_client_language: studioRecord.default_client_language || 'en',
+      facebook_url: studioRecord.facebook_url || '',
+      instagram_url: studioRecord.instagram_url || '',
+      twitter_url: studioRecord.twitter_url || '',
+      linkedin_url: studioRecord.linkedin_url || '',
+      created_at: studioRecord.created_at,
+      updated_at: studioRecord.updated_at,
+    };
+    
+    console.log('createStudio: Created studio:', studio);
+    return studio;
   },
 
   // Update an existing studio

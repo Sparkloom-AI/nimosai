@@ -56,14 +56,19 @@ export const BusinessDetailsForm = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
+        console.log('BusinessDetailsForm: Loading data, currentStudio:', currentStudio);
+        
         // Load business categories
         const categories = await businessCategoriesApi.getBusinessCategories();
         setBusinessCategories(categories);
+        console.log('BusinessDetailsForm: Loaded categories:', categories);
 
         if (currentStudio) {
+          console.log('BusinessDetailsForm: Current studio data:', currentStudio);
+          
           // Load current studio data
-          form.reset({
-            name: currentStudio.name,
+          const formData = {
+            name: currentStudio.name || '',
             description: currentStudio.description || '',
             phone: currentStudio.phone || '',
             email: currentStudio.email || '',
@@ -72,18 +77,28 @@ export const BusinessDetailsForm = () => {
             instagram_url: currentStudio.instagram_url || '',
             twitter_url: currentStudio.twitter_url || '',
             linkedin_url: currentStudio.linkedin_url || '',
-          });
+          };
+          
+          console.log('BusinessDetailsForm: Setting form data:', formData);
+          form.reset(formData);
 
           // Load studio categories
           const studioCategories = await studiosApi.getStudioCategories(currentStudio.id);
+          console.log('BusinessDetailsForm: Studio categories:', studioCategories);
+          
           const primary = studioCategories.find(cat => cat.is_primary);
           const additional = studioCategories.filter(cat => !cat.is_primary);
           
           setPrimaryCategory(primary?.category_id || '');
           setSelectedCategories(additional.map(cat => cat.category_id));
+          
+          console.log('BusinessDetailsForm: Primary category:', primary?.category_id);
+          console.log('BusinessDetailsForm: Additional categories:', additional.map(cat => cat.category_id));
+        } else {
+          console.log('BusinessDetailsForm: No current studio found');
         }
       } catch (error) {
-        console.error('Error loading data:', error);
+        console.error('BusinessDetailsForm: Error loading data:', error);
         toast({
           title: 'Error',
           description: 'Failed to load business data',
