@@ -227,35 +227,62 @@ export type Database = {
       }
       studios: {
         Row: {
+          country: string | null
           created_at: string
+          currency: string | null
+          default_client_language: string | null
+          default_team_language: string | null
           description: string | null
           email: string | null
+          facebook_url: string | null
           id: string
+          instagram_url: string | null
+          linkedin_url: string | null
           name: string
           phone: string | null
+          tax_included: boolean | null
           timezone: string
+          twitter_url: string | null
           updated_at: string
           website: string | null
         }
         Insert: {
+          country?: string | null
           created_at?: string
+          currency?: string | null
+          default_client_language?: string | null
+          default_team_language?: string | null
           description?: string | null
           email?: string | null
+          facebook_url?: string | null
           id?: string
+          instagram_url?: string | null
+          linkedin_url?: string | null
           name: string
           phone?: string | null
+          tax_included?: boolean | null
           timezone?: string
+          twitter_url?: string | null
           updated_at?: string
           website?: string | null
         }
         Update: {
+          country?: string | null
           created_at?: string
+          currency?: string | null
+          default_client_language?: string | null
+          default_team_language?: string | null
           description?: string | null
           email?: string | null
+          facebook_url?: string | null
           id?: string
+          instagram_url?: string | null
+          linkedin_url?: string | null
           name?: string
           phone?: string | null
+          tax_included?: boolean | null
           timezone?: string
+          twitter_url?: string | null
           updated_at?: string
           website?: string | null
         }

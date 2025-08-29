@@ -49,13 +49,22 @@ export const studiosApi = {
   // Update an existing studio
   async updateStudio(
     studioId: string,
-      updates: {
+    updates: {
       name?: string;
       website?: string;
       description?: string;
       phone?: string;
       email?: string;
       timezone?: string;
+      country?: string;
+      currency?: string;
+      tax_included?: boolean;
+      default_team_language?: string;
+      default_client_language?: string;
+      facebook_url?: string;
+      instagram_url?: string;
+      twitter_url?: string;
+      linkedin_url?: string;
     }
   ): Promise<Studio> {
     const { data, error } = await supabase.rpc('update_studio_data', {
