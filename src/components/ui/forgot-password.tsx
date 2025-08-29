@@ -6,26 +6,51 @@ import { Label } from '@/components/ui/label';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useRateLimiter } from '@/hooks/useRateLimiter';
 
 export default function ForgotPasswordForm() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Rate limiting for password reset requests
+  const resetLimiter = useRateLimiter({
+    maxAttempts: 3,
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    blockDurationMs: 60 * 60 * 1000 // 1 hour
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check rate limit
+    if (!resetLimiter.checkRateLimit('password reset')) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
+      console.log('Password reset requested for:', email);
+      
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth?mode=reset`,
       });
 
       if (error) {
-        toast.error(error.message);
+        console.log('Password reset failed for:', email, error.message);
+        
+        // Enhanced error handling
+        if (error.message.includes('Email rate limit exceeded')) {
+          toast.error('Too many reset requests. Please wait before trying again.');
+        } else {
+          toast.error('Unable to send reset email. Please try again.');
+        }
       } else {
+        console.log('Password reset email sent for:', email);
         toast.success('Password reset link sent to your email');
       }
     } catch (error) {
+      console.error('Password reset error:', error);
       toast.error('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);

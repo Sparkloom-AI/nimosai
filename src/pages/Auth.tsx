@@ -15,6 +15,8 @@ import { LocationDetectionBanner } from '@/components/domain/auth/LocationDetect
 import { MobilePrefixSelector } from '@/components/domain/auth/MobilePrefixSelector';
 import { ExpandableLocationSettings } from '@/components/domain/auth/ExpandableLocationSettings';
 import { supabase } from '@/integrations/supabase/client';
+import { useRateLimiter } from '@/hooks/useRateLimiter';
+import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 
 type AuthStep = 'email' | 'login' | 'register' | 'email-confirmation' | 'setup' | 'reset-password';
 
@@ -36,6 +38,20 @@ const Auth = () => {
   const [emailCheckLoading, setEmailCheckLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showLocationSettings, setShowLocationSettings] = useState(false);
+
+  // Security features
+  const loginLimiter = useRateLimiter({
+    maxAttempts: 5,
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    blockDurationMs: 30 * 60 * 1000 // 30 minutes
+  });
+
+  // Enable session timeout for authenticated users
+  useSessionTimeout({
+    timeoutMinutes: 60,
+    warningMinutes: 5,
+    enabled: !!user
+  });
 
   // Location detection
   const detectedLocation = useIPLocationDetection();
@@ -108,15 +124,19 @@ const Auth = () => {
     e.preventDefault();
     if (!email || !password) return;
 
+    // Check rate limit
+    if (!loginLimiter.checkRateLimit('login')) {
+      return;
+    }
+
     setIsLoading(true);
     try {
       const { error } = await signIn(email, password);
       if (error) {
-        if (error.message.includes('Invalid login credentials')) {
-          toast.error('Invalid email or password. Please try again.');
-        } else {
-          toast.error(error.message || 'Failed to sign in');
-        }
+        toast.error(error.message || 'Failed to sign in');
+      } else {
+        // Reset rate limiter on successful login
+        loginLimiter.reset();
       }
     } catch (error: any) {
       toast.error('An unexpected error occurred');

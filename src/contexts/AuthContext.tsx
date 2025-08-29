@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
@@ -64,6 +65,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string) => {
     try {
+      // Log security event
+      console.log('Login attempt for:', email);
+      
       cleanupAuthState();
       try {
         await supabase.auth.signOut({ scope: 'global' });
@@ -76,14 +80,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         password,
       });
 
+      if (error) {
+        console.log('Login failed for:', email, error.message);
+        
+        // Enhanced error handling
+        if (error.message.includes('Invalid login credentials')) {
+          // Don't reveal whether email exists or not
+          return { error: { message: 'Invalid email or password' } };
+        } else if (error.message.includes('Email not confirmed')) {
+          return { error: { message: 'Please check your email and click the confirmation link' } };
+        } else if (error.message.includes('Too many requests')) {
+          return { error: { message: 'Too many login attempts. Please try again later' } };
+        }
+      } else {
+        console.log('Login successful for:', email);
+      }
+
       return { error };
     } catch (error) {
-      return { error };
+      console.error('Login error:', error);
+      return { error: { message: 'An unexpected error occurred' } };
     }
   };
 
   const signUp = async (email: string, password: string, fullName?: string) => {
     try {
+      console.log('Account creation attempt for:', email);
+      
       cleanupAuthState();
       
       const redirectUrl = `${window.location.origin}/`;
@@ -97,9 +120,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       });
 
+      if (error) {
+        console.log('Account creation failed for:', email, error.message);
+        
+        // Enhanced error handling
+        if (error.message.includes('User already registered')) {
+          return { error: { message: 'An account with this email already exists' } };
+        } else if (error.message.includes('Password should be at least')) {
+          return { error: { message: 'Password must be at least 6 characters long' } };
+        } else if (error.message.includes('Invalid email')) {
+          return { error: { message: 'Please enter a valid email address' } };
+        }
+      } else {
+        console.log('Account creation successful for:', email);
+      }
+
       return { error };
     } catch (error) {
-      return { error };
+      console.error('Signup error:', error);
+      return { error: { message: 'An unexpected error occurred' } };
     }
   };
 

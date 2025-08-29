@@ -4,6 +4,8 @@ import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -11,6 +13,14 @@ interface DashboardLayoutProps {
 
 export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { isCollapsed } = useSidebar();
+  const { user } = useAuth();
+
+  // Enable session timeout for authenticated users
+  useSessionTimeout({
+    timeoutMinutes: 60,
+    warningMinutes: 5,
+    enabled: !!user
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted">
