@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Settings, Building2, Globe2, Megaphone, MoreHorizontal, Users, Calendar, CreditCard, FileText, Wallet, MapPin } from 'lucide-react';
+import { Settings as SettingsIcon, Building2, Globe2, Megaphone, MoreHorizontal, Users, Calendar, CreditCard, FileText, Wallet, MapPin } from 'lucide-react';
 import { BusinessDetailsForm } from '@/components/domain/settings/BusinessDetailsForm';
 import { BasicInfoForm } from '@/components/domain/settings/BasicInfoForm';
 
@@ -114,7 +114,7 @@ const Settings = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
+              <SettingsIcon className="h-4 w-4" />
               Settings
             </TabsTrigger>
             <TabsTrigger value="online" className="flex items-center gap-2">

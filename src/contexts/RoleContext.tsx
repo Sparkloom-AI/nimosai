@@ -7,6 +7,7 @@ import { AppRole, UserRole, RolePermissions, ROLE_PERMISSIONS, canUserPerformAct
 interface RoleContextType {
   userRoles: UserRole[];
   currentStudioId: string | null;
+  currentStudio: Studio | null;
   currentRole: AppRole | null;
   permissions: RolePermissions | null;
   loading: boolean;

@@ -657,13 +657,22 @@ export type Database = {
       get_studio_by_id: {
         Args: { studio_id: string }
         Returns: {
+          country: string
           created_at: string
+          currency: string
+          default_client_language: string
+          default_team_language: string
           description: string
           email: string
+          facebook_url: string
           id: string
+          instagram_url: string
+          linkedin_url: string
           name: string
           phone: string
+          tax_included: boolean
           timezone: string
+          twitter_url: string
           updated_at: string
           website: string
         }[]
@@ -684,13 +693,22 @@ export type Database = {
       get_user_studios: {
         Args: Record<PropertyKey, never>
         Returns: {
+          country: string
           created_at: string
+          currency: string
+          default_client_language: string
+          default_team_language: string
           description: string
           email: string
+          facebook_url: string
           id: string
+          instagram_url: string
+          linkedin_url: string
           name: string
           phone: string
+          tax_included: boolean
           timezone: string
+          twitter_url: string
           updated_at: string
           website: string
         }[]
@@ -702,28 +720,6 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
-      }
-      update_studio_data: {
-        Args: {
-          studio_description?: string
-          studio_email?: string
-          studio_id: string
-          studio_name?: string
-          studio_phone?: string
-          studio_timezone?: string
-          studio_website?: string
-        }
-        Returns: {
-          created_at: string
-          description: string
-          email: string
-          id: string
-          name: string
-          phone: string
-          timezone: string
-          updated_at: string
-          website: string
-        }[]
       }
     }
     Enums: {

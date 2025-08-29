@@ -74,7 +74,16 @@ export const studiosApi = {
       studio_description: updates.description || null,
       studio_phone: updates.phone || null,
       studio_email: updates.email || null,
-      studio_timezone: updates.timezone || null
+      studio_timezone: updates.timezone || null,
+      studio_country: updates.country || null,
+      studio_currency: updates.currency || null,
+      studio_tax_included: updates.tax_included !== undefined ? updates.tax_included : null,
+      studio_default_team_language: updates.default_team_language || null,
+      studio_default_client_language: updates.default_client_language || null,
+      studio_facebook_url: updates.facebook_url || null,
+      studio_instagram_url: updates.instagram_url || null,
+      studio_twitter_url: updates.twitter_url || null,
+      studio_linkedin_url: updates.linkedin_url || null
     });
 
     if (error) throw error;

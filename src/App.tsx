@@ -42,7 +42,15 @@ function App() {
                     <Route path="/" element={<Index />} />
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/forgot-password" element={<ForgotPasswordForm />} />
-                    <Route path="/terms" element={<TermsLayout />}>
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/terms" element={<TermsLayout />}>
                       <Route index element={<TermsOverview />} />
                       <Route path="terms-of-use" element={<TermsOfUse />} />
                       <Route path="privacy-policy" element={<PrivacyPolicy />} />
