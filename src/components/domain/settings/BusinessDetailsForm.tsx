@@ -34,6 +34,7 @@ export const BusinessDetailsForm = () => {
   const { toast } = useToast();
   const { currentStudio, refreshRoles } = useRole();
   const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
   const [businessCategories, setBusinessCategories] = useState<BusinessCategory[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [primaryCategory, setPrimaryCategory] = useState<string>('');
@@ -55,6 +56,7 @@ export const BusinessDetailsForm = () => {
 
   useEffect(() => {
     const loadData = async () => {
+      setLoadingData(true);
       try {
         console.log('BusinessDetailsForm: Loading data, currentStudio:', currentStudio);
         
@@ -104,6 +106,8 @@ export const BusinessDetailsForm = () => {
           description: 'Failed to load business data',
           variant: 'destructive',
         });
+      } finally {
+        setLoadingData(false);
       }
     };
 
@@ -152,6 +156,27 @@ export const BusinessDetailsForm = () => {
         : [...prev, categoryId].slice(0, 3) // Max 3 additional categories
     );
   };
+
+  if (loadingData) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Business Details</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Loading business details...
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="animate-pulse space-y-4">
+              <div className="h-4 bg-muted rounded"></div>
+              <div className="h-4 bg-muted rounded w-3/4"></div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -241,95 +266,84 @@ export const BusinessDetailsForm = () => {
                 )}
               />
 
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save Changes
-              </Button>
+              <div className="space-y-6">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="facebook_url"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <Facebook className="h-4 w-4 text-blue-600" />
+                          Facebook
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="https://facebook.com/yourbusiness" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="instagram_url"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <Instagram className="h-4 w-4 text-pink-600" />
+                          Instagram
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="https://instagram.com/yourbusiness" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="twitter_url"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <Twitter className="h-4 w-4 text-blue-400" />
+                          Twitter/X
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="https://twitter.com/yourbusiness" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="linkedin_url"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <Linkedin className="h-4 w-4 text-blue-700" />
+                          LinkedIn
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="https://linkedin.com/company/yourbusiness" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <Button type="submit" disabled={loading}>
+                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Save Changes
+                </Button>
+              </div>
             </form>
           </Form>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Globe className="h-5 w-5" />
-            External Links
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Add links to your social media profiles and website
-          </p>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
-            <FormField
-              control={form.control}
-              name="facebook_url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <Facebook className="h-4 w-4 text-blue-600" />
-                    Facebook
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://facebook.com/yourbusiness" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="instagram_url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <Instagram className="h-4 w-4 text-pink-600" />
-                    Instagram
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://instagram.com/yourbusiness" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="twitter_url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <Twitter className="h-4 w-4 text-blue-400" />
-                    Twitter/X
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://twitter.com/yourbusiness" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="linkedin_url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <Linkedin className="h-4 w-4 text-blue-700" />
-                    LinkedIn
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://linkedin.com/company/yourbusiness" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
         </CardContent>
       </Card>
 

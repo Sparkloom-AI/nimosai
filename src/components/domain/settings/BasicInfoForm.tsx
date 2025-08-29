@@ -120,6 +120,25 @@ export const BasicInfoForm = () => {
     }
   };
 
+  if (!currentStudio) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Basic Info</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Loading basic information...
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-muted rounded"></div>
+            <div className="h-4 bg-muted rounded w-3/4"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
