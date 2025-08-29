@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRole } from '@/contexts/RoleContext';
@@ -15,6 +15,7 @@ import { LocationDetectionBanner } from '@/components/domain/auth/LocationDetect
 import { MobilePrefixSelector } from '@/components/domain/auth/MobilePrefixSelector';
 import { ExpandableLocationSettings } from '@/components/domain/auth/ExpandableLocationSettings';
 import { supabase } from '@/integrations/supabase/client';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 type AuthStep = 'email' | 'login' | 'register' | 'email-confirmation' | 'setup' | 'reset-password';
 
@@ -36,6 +37,8 @@ const Auth = () => {
   const [emailCheckLoading, setEmailCheckLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showLocationSettings, setShowLocationSettings] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   // Location detection
   const detectedLocation = useIPLocationDetection();
@@ -143,7 +146,7 @@ const Auth = () => {
     setIsLoading(true);
     try {
       const fullName = `${firstName} ${lastName}`;
-      const { error } = await signUp(email, password, fullName);
+      const { error } = await signUp(email, password, fullName, captchaToken);
       if (error) {
         if (error.message.includes('User already registered')) {
           toast.error('An account with this email already exists. Please sign in instead.');
@@ -598,7 +601,16 @@ const Auth = () => {
                   />
                 )}
 
-                {/* 6. Terms and conditions */}
+                {/* 6. reCAPTCHA */}
+                <div className="flex justify-center">
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" // Test key - replace with your actual site key
+                    onChange={setCaptchaToken}
+                  />
+                </div>
+
+                {/* 7. Terms and conditions */}
                 <div className="flex items-center space-x-2 py-2">
                   <Checkbox
                     id="terms"
@@ -613,10 +625,10 @@ const Auth = () => {
                   </label>
                 </div>
 
-                {/* 7. Create account button */}
+                {/* 8. Create account button */}
                 <Button 
                   type="submit" 
-                  disabled={isLoading || !agreedToTerms} 
+                  disabled={isLoading || !agreedToTerms || !captchaToken} 
                   className="w-full h-12 bg-navy text-white hover:bg-navy/90 font-medium"
                 >
                   {isLoading ? (
