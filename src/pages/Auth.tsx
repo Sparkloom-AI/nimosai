@@ -605,7 +605,7 @@ const Auth = () => {
                 <div className="flex justify-center">
                   <ReCAPTCHA
                     ref={recaptchaRef}
-                    sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" // Test key - replace with your actual site key
+                    sitekey="6Lf64LYrAAAAAAR5YO3nPFygV9pWgsvD_PNBjr-k"
                     onChange={setCaptchaToken}
                   />
                 </div>
