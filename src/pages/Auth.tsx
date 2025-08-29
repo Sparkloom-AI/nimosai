@@ -81,13 +81,6 @@ const Auth = () => {
     }
   }, [user, userRoles, authLoading, rolesLoading, navigate]);
 
-  // Redirect authenticated users who already have roles
-  useEffect(() => {
-    if (user && userRoles.length > 0) {
-      navigate('/dashboard');
-    }
-  }, [user, userRoles, navigate]);
-
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
@@ -152,29 +145,6 @@ const Auth = () => {
           toast.error(error.message || 'Failed to create account');
         }
       } else {
-        // Store location data in profile after successful signup
-        try {
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .insert({
-              id: user?.id,
-              email: email,
-              full_name: fullName,
-              country: locationData.country,
-              country_code: locationData.countryCode,
-              phone_prefix: locationData.phonePrefix,
-              timezone: locationData.timezone,
-              currency: locationData.currency,
-              language: locationData.language
-            });
-          
-          if (profileError) {
-            console.error('Error saving location data:', profileError);
-          }
-        } catch (locationError) {
-          console.error('Failed to save location data:', locationError);
-        }
-        
         setStep('email-confirmation');
       }
     } catch (error: any) {
