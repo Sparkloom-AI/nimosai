@@ -92,38 +92,49 @@ export type Database = {
             referencedRelation: "studios"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "locations_studio_id_fkey"
-            columns: ["studio_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
         ]
       }
       profiles: {
         Row: {
           avatar_url: string | null
+          country: string | null
+          country_code: string | null
           created_at: string
+          currency: string | null
           email: string
           full_name: string | null
           id: string
+          language: string | null
+          phone_prefix: string | null
+          timezone: string | null
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
+          country?: string | null
+          country_code?: string | null
           created_at?: string
+          currency?: string | null
           email: string
           full_name?: string | null
           id: string
+          language?: string | null
+          phone_prefix?: string | null
+          timezone?: string | null
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
+          country?: string | null
+          country_code?: string | null
           created_at?: string
+          currency?: string | null
           email?: string
           full_name?: string | null
           id?: string
+          language?: string | null
+          phone_prefix?: string | null
+          timezone?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -173,49 +184,105 @@ export type Database = {
             referencedRelation: "studios"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      studio_business_categories: {
+        Row: {
+          business_category_id: string
+          created_at: string
+          id: string
+          is_primary: boolean
+          studio_id: string
+        }
+        Insert: {
+          business_category_id: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          studio_id: string
+        }
+        Update: {
+          business_category_id?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          studio_id?: string
+        }
+        Relationships: [
           {
-            foreignKeyName: "services_studio_id_fkey"
+            foreignKeyName: "studio_business_categories_business_category_id_fkey"
+            columns: ["business_category_id"]
+            isOneToOne: false
+            referencedRelation: "business_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "studio_business_categories_studio_id_fkey"
             columns: ["studio_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "studios"
             referencedColumns: ["id"]
           },
         ]
       }
       studios: {
         Row: {
-          business_category: string
+          country: string | null
           created_at: string
+          currency: string | null
+          default_client_language: string | null
+          default_team_language: string | null
           description: string | null
           email: string | null
+          facebook_url: string | null
           id: string
+          instagram_url: string | null
+          linkedin_url: string | null
           name: string
           phone: string | null
+          tax_included: boolean | null
           timezone: string
+          twitter_url: string | null
           updated_at: string
           website: string | null
         }
         Insert: {
-          business_category?: string
+          country?: string | null
           created_at?: string
+          currency?: string | null
+          default_client_language?: string | null
+          default_team_language?: string | null
           description?: string | null
           email?: string | null
+          facebook_url?: string | null
           id?: string
+          instagram_url?: string | null
+          linkedin_url?: string | null
           name: string
           phone?: string | null
+          tax_included?: boolean | null
           timezone?: string
+          twitter_url?: string | null
           updated_at?: string
           website?: string | null
         }
         Update: {
-          business_category?: string
+          country?: string | null
           created_at?: string
+          currency?: string | null
+          default_client_language?: string | null
+          default_team_language?: string | null
           description?: string | null
           email?: string | null
+          facebook_url?: string | null
           id?: string
+          instagram_url?: string | null
+          linkedin_url?: string | null
           name?: string
           phone?: string | null
+          tax_included?: boolean | null
           timezone?: string
+          twitter_url?: string | null
           updated_at?: string
           website?: string | null
         }
@@ -223,7 +290,7 @@ export type Database = {
       }
       team_member_addresses: {
         Row: {
-          address_type: string
+          address_type: Database["public"]["Enums"]["address_type"]
           city: string
           country: string
           created_at: string
@@ -235,7 +302,7 @@ export type Database = {
           team_member_id: string
         }
         Insert: {
-          address_type?: string
+          address_type?: Database["public"]["Enums"]["address_type"]
           city: string
           country?: string
           created_at?: string
@@ -247,7 +314,7 @@ export type Database = {
           team_member_id: string
         }
         Update: {
-          address_type?: string
+          address_type?: Database["public"]["Enums"]["address_type"]
           city?: string
           country?: string
           created_at?: string
@@ -456,13 +523,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_team_members_studio_id"
-            columns: ["studio_id"]
-            isOneToOne: false
-            referencedRelation: "studios"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "team_members_studio_id_fkey"
             columns: ["studio_id"]
             isOneToOne: false
@@ -567,25 +627,38 @@ export type Database = {
         Args: { _studio_id: string; _user_id: string }
         Returns: boolean
       }
+      check_email_exists: {
+        Args: { email_address: string }
+        Returns: boolean
+      }
       create_studio_with_data: {
         Args: {
-          studio_business_category?: string
-          studio_description?: string
-          studio_email?: string
-          studio_name: string
-          studio_phone?: string
-          studio_timezone?: string
-          studio_website?: string
+          p_additional_category_ids?: string[]
+          p_studio_business_category_id?: string
+          p_studio_description?: string
+          p_studio_email?: string
+          p_studio_name: string
+          p_studio_phone?: string
+          p_studio_timezone?: string
+          p_studio_website?: string
         }
         Returns: {
-          business_category: string
+          country: string
           created_at: string
+          currency: string
+          default_client_language: string
+          default_team_language: string
           description: string
           email: string
+          facebook_url: string
           id: string
+          instagram_url: string
+          linkedin_url: string
           name: string
           phone: string
+          tax_included: boolean
           timezone: string
+          twitter_url: string
           updated_at: string
           website: string
         }[]
@@ -593,16 +666,33 @@ export type Database = {
       get_studio_by_id: {
         Args: { studio_id: string }
         Returns: {
-          business_category: string
+          country: string
           created_at: string
+          currency: string
+          default_client_language: string
+          default_team_language: string
           description: string
           email: string
+          facebook_url: string
           id: string
+          instagram_url: string
+          linkedin_url: string
           name: string
           phone: string
+          tax_included: boolean
           timezone: string
+          twitter_url: string
           updated_at: string
           website: string
+        }[]
+      }
+      get_studio_categories: {
+        Args: { studio_id: string }
+        Returns: {
+          category_description: string
+          category_id: string
+          category_name: string
+          is_primary: boolean
         }[]
       }
       get_user_role: {
@@ -612,14 +702,22 @@ export type Database = {
       get_user_studios: {
         Args: Record<PropertyKey, never>
         Returns: {
-          business_category: string
+          country: string
           created_at: string
+          currency: string
+          default_client_language: string
+          default_team_language: string
           description: string
           email: string
+          facebook_url: string
           id: string
+          instagram_url: string
+          linkedin_url: string
           name: string
           phone: string
+          tax_included: boolean
           timezone: string
+          twitter_url: string
           updated_at: string
           website: string
         }[]
@@ -634,24 +732,40 @@ export type Database = {
       }
       update_studio_data: {
         Args: {
-          studio_business_category?: string
+          studio_country?: string
+          studio_currency?: string
+          studio_default_client_language?: string
+          studio_default_team_language?: string
           studio_description?: string
           studio_email?: string
+          studio_facebook_url?: string
           studio_id: string
+          studio_instagram_url?: string
+          studio_linkedin_url?: string
           studio_name?: string
           studio_phone?: string
+          studio_tax_included?: boolean
           studio_timezone?: string
+          studio_twitter_url?: string
           studio_website?: string
         }
         Returns: {
-          business_category: string
+          country: string
           created_at: string
+          currency: string
+          default_client_language: string
+          default_team_language: string
           description: string
           email: string
+          facebook_url: string
           id: string
+          instagram_url: string
+          linkedin_url: string
           name: string
           phone: string
+          tax_included: boolean
           timezone: string
+          twitter_url: string
           updated_at: string
           website: string
         }[]
@@ -673,16 +787,7 @@ export type Database = {
         | "cancelled"
         | "no_show"
       employment_type: "full_time" | "part_time" | "contractor" | "intern"
-      permission_level: "low" | "medium" | "high"
-      service_category:
-        | "haircut"
-        | "color"
-        | "styling"
-        | "treatment"
-        | "nails"
-        | "skincare"
-        | "massage"
-        | "other"
+      permission_level: "low" | "medium" | "high" | "admin"
       shift_status:
         | "scheduled"
         | "confirmed"
@@ -833,17 +938,7 @@ export const Constants = {
         "no_show",
       ],
       employment_type: ["full_time", "part_time", "contractor", "intern"],
-      permission_level: ["low", "medium", "high"],
-      service_category: [
-        "haircut",
-        "color",
-        "styling",
-        "treatment",
-        "nails",
-        "skincare",
-        "massage",
-        "other",
-      ],
+      permission_level: ["low", "medium", "high", "admin"],
       shift_status: [
         "scheduled",
         "confirmed",

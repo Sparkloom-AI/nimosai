@@ -1,32 +1,35 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, ArrowRight, Scissors, Hand, Eye, ShoppingBag, Sparkles, Zap, Bed, Droplets, Wand2, Heart, Sun, Bike, Dumbbell, Plus, Stethoscope, PawPrint, Grid3X3, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Scissors, Hand, Eye, ShoppingBag, Sparkles, Zap, Bed, Droplets, Wand2, Heart, Sun, Bike, Dumbbell, Plus, Stethoscope, PawPrint, Grid3X3, Loader2, Flower, Shield, Brush, Flame, Dog, Star } from 'lucide-react';
 import { businessCategoriesApi } from '@/api/businessCategories';
 import { BusinessCategory } from '@/types/studio';
 import { toast } from 'sonner';
 
 interface BusinessCategoryFormProps {
   onBack: () => void;
-  onComplete: (categories: string[]) => void;
+  onComplete: (data: { primary: string; additional: string[] }) => void;
 }
 
 // Icon mapping for different business categories
 const getIconForCategory = (categoryName: string) => {
   const iconMap: { [key: string]: React.ComponentType<any> } = {
-    'Hair Salon': Scissors,
-    'Nail Salon': Hand,
-    'Beauty Salon': Eye,
-    'Spa': Bed,
-    'Barbershop': Zap,
-    'Massage Therapy': Bed,
-    'Fitness Studio': Dumbbell,
-    'Yoga Studio': Bike,
-    'Wellness Center': Heart,
-    'Medical Spa': Sparkles,
-    'Tattoo & Piercing': Heart,
-    'General': Grid3X3,
+    'Beauty Salon': Sparkles,
+    'Barber': Scissors,
+    'Nails': Hand,
+    'Spa & sauna': Flower,
+    'Massage': Zap,
+    'Fitness & recovery': Dumbbell,
+    'Tattooing & piercing': Shield,
+    'Medspa': Stethoscope,
+    'Hair Salon': Brush,
+    'Eyebrows & lashes': Eye,
+    'Waxing salon': Flame,
+    'Tanning studio': Sun,
+    'Physical therapy': Heart,
+    'Health practice': Stethoscope,
+    'Pet grooming': Dog,
+    'Other': Star,
   };
   
   return iconMap[categoryName] || ShoppingBag;
@@ -53,12 +56,12 @@ const BusinessCategoryForm: React.FC<BusinessCategoryFormProps> = ({ onBack, onC
     fetchCategories();
   }, []);
 
-  const handleCategoryToggle = (categoryName: string) => {
+  const handleCategoryToggle = (categoryId: string) => {
     setSelectedCategories(prev => {
-      if (prev.includes(categoryName)) {
-        return prev.filter(name => name !== categoryName);
+      if (prev.includes(categoryId)) {
+        return prev.filter(id => id !== categoryId);
       } else if (prev.length < 4) { // Allow up to 4 selections (1 primary + 3 related)
-        return [...prev, categoryName];
+        return [...prev, categoryId];
       }
       return prev;
     });
@@ -66,7 +69,9 @@ const BusinessCategoryForm: React.FC<BusinessCategoryFormProps> = ({ onBack, onC
 
   const handleContinue = () => {
     if (selectedCategories.length > 0) {
-      onComplete(selectedCategories);
+      const primary = selectedCategories[0]; // First selected becomes primary
+      const additional = selectedCategories.slice(1); // Rest are additional
+      onComplete({ primary, additional });
     }
   };
 
@@ -104,7 +109,7 @@ const BusinessCategoryForm: React.FC<BusinessCategoryFormProps> = ({ onBack, onC
                 Select categories that best describe your business
               </h1>
               <p className="text-muted-foreground">
-                Choose your primary and up to 3 related service types
+                Choose your primary category and up to 3 related service types (first selected becomes primary)
               </p>
             </div>
           </div>
@@ -113,7 +118,8 @@ const BusinessCategoryForm: React.FC<BusinessCategoryFormProps> = ({ onBack, onC
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             {businessCategories.map((category) => {
               const IconComponent = getIconForCategory(category.name);
-              const isSelected = selectedCategories.includes(category.name);
+              const isSelected = selectedCategories.includes(category.id);
+              const isPrimary = selectedCategories[0] === category.id;
               
               return (
                 <Card
@@ -121,7 +127,7 @@ const BusinessCategoryForm: React.FC<BusinessCategoryFormProps> = ({ onBack, onC
                   className={`cursor-pointer transition-all duration-200 hover:shadow-md hover:border-primary/20 ${
                     isSelected ? 'border-primary shadow-sm bg-primary/5' : ''
                   }`}
-                  onClick={() => handleCategoryToggle(category.name)}
+                  onClick={() => handleCategoryToggle(category.id)}
                 >
                   <CardContent className="p-6">
                     <div className="flex flex-col items-center text-center space-y-3">
@@ -130,6 +136,7 @@ const BusinessCategoryForm: React.FC<BusinessCategoryFormProps> = ({ onBack, onC
                       </div>
                       <h3 className="font-medium text-sm">
                         {category.name}
+                        {isPrimary && <span className="ml-1 text-xs text-primary font-semibold">(Primary)</span>}
                       </h3>
                     </div>
                   </CardContent>

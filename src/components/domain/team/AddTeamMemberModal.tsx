@@ -98,7 +98,13 @@ const AddTeamMemberModal = ({ isOpen, onOpenChange, onSuccess }: AddTeamMemberMo
         if (address.street_address) {
           await teamApi.addTeamMemberAddress({
             team_member_id: newTeamMember.id,
-            ...address
+            address_type: address.address_type as 'home' | 'work' | 'mailing' | 'emergency',
+            street_address: address.street_address,
+            city: address.city,
+            state: address.state,
+            postal_code: address.postal_code,
+            country: address.country,
+            is_primary: address.is_primary
           });
         }
       }
@@ -526,6 +532,7 @@ const AddTeamMemberModal = ({ isOpen, onOpenChange, onSuccess }: AddTeamMemberMo
                         <SelectItem value="low">Low</SelectItem>
                         <SelectItem value="medium">Medium</SelectItem>
                         <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

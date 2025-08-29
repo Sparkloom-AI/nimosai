@@ -3,11 +3,19 @@ export interface Studio {
   id: string;
   name: string;
   description?: string;
-  business_category: string;
   phone?: string;
   email?: string;
   website?: string;
   timezone: string;
+  country: string;
+  currency: string;
+  tax_included: boolean;
+  default_team_language: string;
+  default_client_language: string;
+  facebook_url?: string;
+  instagram_url?: string;
+  twitter_url?: string;
+  linkedin_url?: string;
   created_at: string;
   updated_at: string;
 }
