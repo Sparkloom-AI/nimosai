@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRole } from '@/contexts/RoleContext';
 import { Button } from '@/components/ui/button';
@@ -16,14 +16,16 @@ import { MobilePrefixSelector } from '@/components/domain/auth/MobilePrefixSelec
 import { ExpandableLocationSettings } from '@/components/domain/auth/ExpandableLocationSettings';
 import { supabase } from '@/integrations/supabase/client';
 
-type AuthStep = 'email' | 'login' | 'register' | 'email-confirmation' | 'setup';
+type AuthStep = 'email' | 'login' | 'register' | 'email-confirmation' | 'setup' | 'reset-password';
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, signIn, signUp, signInWithGoogle, loading: authLoading } = useAuth();
   const { userRoles, loading: rolesLoading } = useRole();
   
   const [step, setStep] = useState<AuthStep>('email');
+  const [newPassword, setNewPassword] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -59,6 +61,14 @@ const Auth = () => {
       });
     }
   }, [detectedLocation]);
+
+  // Check for password reset mode
+  useEffect(() => {
+    const mode = searchParams.get('mode');
+    if (mode === 'reset') {
+      setStep('reset-password');
+    }
+  }, [searchParams]);
 
   // Check if user needs setup after authentication
   useEffect(() => {
@@ -185,6 +195,30 @@ const Auth = () => {
     } catch (error: any) {
       toast.error('An unexpected error occurred');
       console.error('Google sign in error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPassword) return;
+
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) {
+        toast.error(error.message || 'Failed to update password');
+      } else {
+        toast.success('Password updated successfully');
+        navigate('/dashboard');
+      }
+    } catch (error: any) {
+      toast.error('An unexpected error occurred');
+      console.error('Password reset error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -393,6 +427,64 @@ const Auth = () => {
                   </>
                 ) : (
                   'Sign in'
+                )}
+              </Button>
+              
+              <div className="text-center">
+                <Link 
+                  to="/forgot-password" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Forgot your password?
+                </Link>
+              </div>
+            </form>
+          )}
+
+          {/* Password Reset Step */}
+          {step === 'reset-password' && (
+            <form onSubmit={handlePasswordReset} className="space-y-4">
+              <div className="text-center mb-6">
+                <h2 className="text-xl font-semibold mb-2">Reset your password</h2>
+                <p className="text-muted-foreground text-sm">
+                  Enter your new password below
+                </p>
+              </div>
+              
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter new password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="pl-10 pr-10 h-12"
+                  required
+                  minLength={6}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-12 px-3"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </Button>
+              </div>
+              
+              <Button type="submit" disabled={isLoading} className="w-full h-12">
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Updating password...
+                  </>
+                ) : (
+                  'Update password'
                 )}
               </Button>
             </form>

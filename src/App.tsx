@@ -24,6 +24,7 @@ import TermsOfService from "./pages/terms/TermsOfService";
 import TermsOfBusiness from "./pages/terms/TermsOfBusiness";
 import DataProtection from "./pages/terms/DataProtection";
 import CookiesPolicy from "./pages/terms/CookiesPolicy";
+import ForgotPasswordForm from "./components/ui/forgot-password";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ function App() {
                   <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/auth" element={<Auth />} />
+                    <Route path="/forgot-password" element={<ForgotPasswordForm />} />
                     <Route path="/terms" element={<TermsLayout />}>
                       <Route index element={<TermsOverview />} />
                       <Route path="terms-of-use" element={<TermsOfUse />} />
