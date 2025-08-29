@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -13,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Calendar from "./pages/Calendar";
 import Team from "./pages/Team";
 import ScheduledShifts from "./pages/ScheduledShifts";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import CookieConsent from "./components/CookieConsent";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -42,15 +42,7 @@ function App() {
                     <Route path="/" element={<Index />} />
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/forgot-password" element={<ForgotPasswordForm />} />
-          <Route
-            path="/settings"
-            element={
-              <ProtectedRoute>
-                <Settings />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/terms" element={<TermsLayout />}>
+                    <Route path="/terms" element={<TermsLayout />}>
                       <Route index element={<TermsOverview />} />
                       <Route path="terms-of-use" element={<TermsOfUse />} />
                       <Route path="privacy-policy" element={<PrivacyPolicy />} />
@@ -88,6 +80,14 @@ function App() {
                       element={
                         <ProtectedRoute>
                           <ScheduledShifts />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/settings"
+                      element={
+                        <ProtectedRoute>
+                          <Settings />
                         </ProtectedRoute>
                       }
                     />

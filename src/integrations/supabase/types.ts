@@ -721,6 +721,46 @@ export type Database = {
         }
         Returns: boolean
       }
+      update_studio_data: {
+        Args: {
+          studio_country?: string
+          studio_currency?: string
+          studio_default_client_language?: string
+          studio_default_team_language?: string
+          studio_description?: string
+          studio_email?: string
+          studio_facebook_url?: string
+          studio_id: string
+          studio_instagram_url?: string
+          studio_linkedin_url?: string
+          studio_name?: string
+          studio_phone?: string
+          studio_tax_included?: boolean
+          studio_timezone?: string
+          studio_twitter_url?: string
+          studio_website?: string
+        }
+        Returns: {
+          country: string
+          created_at: string
+          currency: string
+          default_client_language: string
+          default_team_language: string
+          description: string
+          email: string
+          facebook_url: string
+          id: string
+          instagram_url: string
+          linkedin_url: string
+          name: string
+          phone: string
+          tax_included: boolean
+          timezone: string
+          twitter_url: string
+          updated_at: string
+          website: string
+        }[]
+      }
     }
     Enums: {
       address_type: "home" | "work" | "mailing" | "emergency"

@@ -7,7 +7,7 @@ export const studiosApi = {
     const { data, error } = await supabase.rpc('get_user_studios');
     
     if (error) throw error;
-    return data || [];
+    return (data || []) as Studio[];
   },
 
   // Get a specific studio by ID
@@ -17,7 +17,7 @@ export const studiosApi = {
     });
     
     if (error) throw error;
-    return data && Array.isArray(data) && data.length > 0 ? data[0] : null;
+    return data && Array.isArray(data) && data.length > 0 ? data[0] as Studio : null;
   },
 
   // Create a new studio
@@ -43,7 +43,13 @@ export const studiosApi = {
     });
 
     if (error) throw error;
-    return data && Array.isArray(data) && data.length > 0 ? data[0] : null;
+    
+    // The RPC function should return a studio with all fields
+    // Cast to Studio type as the function returns all required fields
+    const studio = data && Array.isArray(data) && data.length > 0 ? data[0] : null;
+    if (!studio) throw new Error('Failed to create studio');
+    
+    return studio as Studio;
   },
 
   // Update an existing studio
@@ -87,7 +93,7 @@ export const studiosApi = {
     });
 
     if (error) throw error;
-    return data && Array.isArray(data) && data.length > 0 ? data[0] : null;
+    return data && Array.isArray(data) && data.length > 0 ? data[0] as Studio : null;
   },
 
   // Delete a studio (super admin or owner only)

@@ -1,8 +1,9 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { rolesApi } from '@/api/roles';
+import { studiosApi } from '@/api/studios';
 import { AppRole, UserRole, RolePermissions, ROLE_PERMISSIONS, canUserPerformAction } from '@/types/roles';
+import { Studio } from '@/types/studio';
 
 interface RoleContextType {
   userRoles: UserRole[];
@@ -32,6 +33,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { user } = useAuth();
   const [userRoles, setUserRoles] = useState<UserRole[]>([]);
   const [currentStudioId, setCurrentStudioId] = useState<string | null>(null);
+  const [currentStudio, setCurrentStudio] = useState<Studio | null>(null);
   const [currentRole, setCurrentRole] = useState<AppRole | null>(null);
   const [permissions, setPermissions] = useState<RolePermissions | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,6 +42,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user?.id) {
       setUserRoles([]);
       setCurrentRole(null);
+      setCurrentStudio(null);
       setPermissions(null);
       setLoading(false);
       return;
@@ -64,27 +67,34 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Update current role and permissions when studio changes
+  // Update current role, studio, and permissions when studio changes
   useEffect(() => {
-    if (!user?.id || !currentStudioId) {
-      setCurrentRole(null);
-      setPermissions(null);
-      return;
-    }
+    const updateCurrentRoleAndStudio = async () => {
+      if (!user?.id || !currentStudioId) {
+        setCurrentRole(null);
+        setCurrentStudio(null);
+        setPermissions(null);
+        return;
+      }
 
-    const getUserRoleForStudio = async () => {
       try {
+        // Get current role for this studio
         const role = await rolesApi.getUserRoleForStudio(user.id, currentStudioId);
         setCurrentRole(role);
         setPermissions(role ? ROLE_PERMISSIONS[role] : null);
+
+        // Get current studio details
+        const studio = await studiosApi.getStudioById(currentStudioId);
+        setCurrentStudio(studio);
       } catch (error) {
-        console.error('Failed to get user role for studio:', error);
+        console.error('Failed to get user role/studio for studio:', error);
         setCurrentRole(null);
+        setCurrentStudio(null);
         setPermissions(null);
       }
     };
 
-    getUserRoleForStudio();
+    updateCurrentRoleAndStudio();
   }, [user?.id, currentStudioId]);
 
   // Load roles when user changes
@@ -114,6 +124,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const value = {
     userRoles,
     currentStudioId,
+    currentStudio,
     currentRole,
     permissions,
     loading,
@@ -124,5 +135,9 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
     refreshRoles,
   };
 
-  return <RoleContext.Provider value={value}>{children}</RoleContext.Provider>;
+  return (
+    <RoleContext.Provider value={value}>
+      {children}
+    </RoleContext.Provider>
+  );
 };
