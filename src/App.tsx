@@ -14,9 +14,16 @@ import Calendar from "./pages/Calendar";
 import Team from "./pages/Team";
 import ScheduledShifts from "./pages/ScheduledShifts";
 import NotFound from "./pages/NotFound";
-import CookiePolicy from "./pages/CookiePolicy";
 import CookieConsent from "./components/CookieConsent";
 import ProtectedRoute from "./components/ProtectedRoute";
+import TermsLayout from "./components/layout/TermsLayout";
+import TermsOverview from "./pages/terms/Overview";
+import TermsOfUse from "./pages/terms/TermsOfUse";
+import PrivacyPolicy from "./pages/terms/PrivacyPolicy";
+import TermsOfService from "./pages/terms/TermsOfService";
+import TermsOfBusiness from "./pages/terms/TermsOfBusiness";
+import DataProtection from "./pages/terms/DataProtection";
+import CookiesPolicy from "./pages/terms/CookiesPolicy";
 
 const queryClient = new QueryClient();
 
@@ -33,7 +40,15 @@ function App() {
                   <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/auth" element={<Auth />} />
-                    <Route path="/cookie-policy" element={<CookiePolicy />} />
+                    <Route path="/terms" element={<TermsLayout />}>
+                      <Route index element={<TermsOverview />} />
+                      <Route path="terms-of-use" element={<TermsOfUse />} />
+                      <Route path="privacy-policy" element={<PrivacyPolicy />} />
+                      <Route path="terms-of-service" element={<TermsOfService />} />
+                      <Route path="terms-of-business" element={<TermsOfBusiness />} />
+                      <Route path="data-protection" element={<DataProtection />} />
+                      <Route path="cookies" element={<CookiesPolicy />} />
+                    </Route>
                     <Route
                       path="/dashboard"
                       element={
