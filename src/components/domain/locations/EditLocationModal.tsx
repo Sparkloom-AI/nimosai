@@ -11,6 +11,7 @@ import { z } from 'zod';
 import { locationsApi } from '@/api/locations';
 import { toast } from '@/hooks/use-toast';
 import { AddressAutocomplete } from './AddressAutocomplete';
+import { GoogleMapViewer } from './GoogleMapViewer';
 import { MapPin, Building, Phone, Star, Loader2 } from 'lucide-react';
 import { Location } from '@/types/studio';
 
@@ -24,6 +25,9 @@ const locationSchema = z.object({
   phone: z.string().optional(),
   is_primary: z.boolean().default(false),
   has_no_address: z.boolean().default(false),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  place_id: z.string().optional(),
 });
 
 type LocationFormData = z.infer<typeof locationSchema>;
@@ -70,6 +74,9 @@ export const EditLocationModal: React.FC<EditLocationModalProps> = ({
         phone: location.phone || '',
         is_primary: location.is_primary,
         has_no_address: isMobileService,
+        latitude: location.latitude ? Number(location.latitude) : undefined,
+        longitude: location.longitude ? Number(location.longitude) : undefined,
+        place_id: location.place_id || undefined,
       });
     }
   }, [location, reset]);
@@ -80,12 +87,18 @@ export const EditLocationModal: React.FC<EditLocationModalProps> = ({
     state: string;
     postal_code: string;
     country: string;
+    place_id?: string;
+    latitude?: number;
+    longitude?: number;
   }) => {
     setValue('address', addressData.address);
     setValue('city', addressData.city);
     setValue('state', addressData.state);
     setValue('postal_code', addressData.postal_code);
     setValue('country', addressData.country);
+    if (addressData.place_id) setValue('place_id', addressData.place_id);
+    if (addressData.latitude) setValue('latitude', addressData.latitude);
+    if (addressData.longitude) setValue('longitude', addressData.longitude);
   };
 
   const onSubmit = async (data: LocationFormData) => {
@@ -101,6 +114,9 @@ export const EditLocationModal: React.FC<EditLocationModalProps> = ({
         country: data.country,
         phone: data.phone,
         is_primary: data.is_primary,
+        place_id: data.place_id,
+        latitude: data.latitude,
+        longitude: data.longitude,
       };
 
       await locationsApi.updateLocation(location.id, updateData);
@@ -241,6 +257,33 @@ export const EditLocationModal: React.FC<EditLocationModalProps> = ({
                       <p className="text-sm text-destructive mt-1">{errors.postal_code.message}</p>
                     )}
                   </div>
+
+                  {/* Map Preview */}
+                  {(watch('latitude') && watch('longitude')) && (
+                    <div className="mt-4">
+                      <Label>Current Location</Label>
+                      <div className="mt-2">
+                        <GoogleMapViewer
+                          location={{
+                            latitude: Number(watch('latitude')),
+                            longitude: Number(watch('longitude')),
+                            name: watch('name') || 'Location',
+                            address: watch('address') || ''
+                          }}
+                          height="200px"
+                          draggable={true}
+                          onLocationChange={(newLocation) => {
+                            setValue('latitude', newLocation.lat);
+                            setValue('longitude', newLocation.lng);
+                          }}
+                          className="border rounded-lg"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Drag the marker to adjust the exact location
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

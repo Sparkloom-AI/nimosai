@@ -13,6 +13,7 @@ import { locationsApi } from '@/api/locations';
 import { useRole } from '@/contexts/RoleContext';
 import { toast } from '@/hooks/use-toast';
 import { AddressAutocomplete } from './AddressAutocomplete';
+import { GoogleMapViewer } from './GoogleMapViewer';
 import { MapPin, Building, Phone, Star, Loader2 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -26,6 +27,9 @@ const locationSchema = z.object({
   phone: z.string().optional(),
   is_primary: z.boolean().default(false),
   has_no_address: z.boolean().default(false),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  place_id: z.string().optional(),
 });
 
 type LocationFormData = z.infer<typeof locationSchema>;
@@ -67,12 +71,18 @@ export const AddLocationModal: React.FC<AddLocationModalProps> = ({
     state: string;
     postal_code: string;
     country: string;
+    place_id?: string;
+    latitude?: number;
+    longitude?: number;
   }) => {
     setValue('address', addressData.address);
     setValue('city', addressData.city);
     setValue('state', addressData.state);
     setValue('postal_code', addressData.postal_code);
     setValue('country', addressData.country);
+    if (addressData.place_id) setValue('place_id', addressData.place_id);
+    if (addressData.latitude) setValue('latitude', addressData.latitude);
+    if (addressData.longitude) setValue('longitude', addressData.longitude);
   };
 
   const onSubmit = async (data: LocationFormData) => {
@@ -98,6 +108,9 @@ export const AddLocationModal: React.FC<AddLocationModalProps> = ({
         country: data.country,
         phone: data.phone,
         is_primary: data.is_primary,
+        place_id: data.place_id,
+        latitude: data.latitude,
+        longitude: data.longitude,
       };
 
       await locationsApi.createLocation(locationData);
@@ -245,6 +258,27 @@ export const AddLocationModal: React.FC<AddLocationModalProps> = ({
                       <p className="text-sm text-destructive mt-1">{errors.postal_code.message}</p>
                     )}
                   </div>
+
+                  {/* Map Preview */}
+                  {(watch('latitude') && watch('longitude')) && (
+                    <div className="mt-4">
+                      <Label>Location Preview</Label>
+                      <div className="mt-2">
+                        <GoogleMapViewer
+                          location={{
+                            latitude: Number(watch('latitude')),
+                            longitude: Number(watch('longitude')),
+                            name: watch('name') || 'New Location',
+                            address: watch('address') || ''
+                          }}
+                          height="200px"
+                          draggable={false}
+                          showControls={false}
+                          className="border rounded-lg"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

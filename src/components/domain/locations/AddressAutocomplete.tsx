@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { MapPin, Loader2 } from 'lucide-react';
 import { loadGoogleMapsAPI, parseAddressComponents, formatAddress, type PlaceDetails } from '@/lib/googleMaps';
 import { toast } from 'sonner';
+import '@/types/google-maps';
 
 
 interface AddressSuggestion {
@@ -52,8 +53,8 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   useEffect(() => {
     const initGoogleMaps = async () => {
       try {
-        // Use environment variable for API key in real implementation
-        const apiKey = 'YOUR_GOOGLE_MAPS_API_KEY'; // This would come from Supabase secrets in edge function
+        const { getGoogleMapsApiKey } = await import('@/lib/googleMapsApi');
+        const apiKey = await getGoogleMapsApiKey();
         
         await loadGoogleMapsAPI({
           apiKey,

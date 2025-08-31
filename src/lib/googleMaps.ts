@@ -19,7 +19,7 @@ export const loadGoogleMapsAPI = (config: GoogleMapsConfig): Promise<void> => {
     }
 
     // Create callback function
-    const callbackName = 'initGoogleMaps';
+    const callbackName = `initGoogleMaps_${Date.now()}`;
     (window as any)[callbackName] = () => {
       resolve();
       delete (window as any)[callbackName];
@@ -37,6 +37,10 @@ export const loadGoogleMapsAPI = (config: GoogleMapsConfig): Promise<void> => {
   });
 
   return googleMapsPromise;
+};
+
+export const resetGoogleMapsAPI = () => {
+  googleMapsPromise = null;
 };
 
 export interface AddressComponent {
