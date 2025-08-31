@@ -1,4 +1,12 @@
 // Service and booking types
+export interface ServiceCategory {
+  id: string;
+  name: string;
+  description?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Service {
   id: string;
   studio_id: string;
@@ -7,6 +15,7 @@ export interface Service {
   duration: number; // in minutes
   price: number;
   category?: string;
+  service_category_id?: string;
   is_active: boolean;
   created_at: string;
   updated_at: string;
