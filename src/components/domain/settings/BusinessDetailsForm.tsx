@@ -119,6 +119,11 @@ export const BusinessDetailsForm = () => {
 
     setLoading(true);
     try {
+      console.log('BusinessDetailsForm: Starting form submission with data:', data);
+      console.log('BusinessDetailsForm: Primary category:', primaryCategory);
+      console.log('BusinessDetailsForm: Selected categories:', selectedCategories);
+
+      // Update studio basic info
       await studiosApi.updateStudio(currentStudio.id, {
         name: data.name,
         description: data.description,
@@ -131,14 +136,25 @@ export const BusinessDetailsForm = () => {
         linkedin_url: data.linkedin_url,
       });
 
+      // Update business categories if primary category is selected
+      if (primaryCategory) {
+        console.log('BusinessDetailsForm: Updating business categories...');
+        await studiosApi.updateStudioCategories(
+          currentStudio.id,
+          primaryCategory,
+          selectedCategories
+        );
+        console.log('BusinessDetailsForm: Business categories updated successfully');
+      }
+
       await refreshRoles();
       
       toast({
         title: 'Success',
-        description: 'Business details updated successfully',
+        description: 'Business details and categories updated successfully',
       });
     } catch (error) {
-      console.error('Error updating studio:', error);
+      console.error('BusinessDetailsForm: Error updating studio:', error);
       toast({
         title: 'Error',
         description: 'Failed to update business details',

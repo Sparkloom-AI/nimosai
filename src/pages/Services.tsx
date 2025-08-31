@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Plus } from "lucide-react";
 import { ServicesList } from "@/components/domain/services/ServicesList";
 import { ServiceForm } from "@/components/domain/services/ServiceForm";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Service } from "@/types/services";
 import { servicesApi } from "@/api/services";
 import { useToast } from "@/hooks/use-toast";
@@ -64,67 +65,71 @@ export default function Services() {
 
   if (loading || !currentStudioId) {
     return (
-      <div className="container mx-auto p-6 space-y-6">
+      <DashboardLayout>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">Services</h1>
+              <p className="text-muted-foreground">Manage your studio's services and pricing</p>
+            </div>
+          </div>
+          
+          <Card>
+            <CardContent className="p-6">
+              <div className="animate-pulse space-y-4">
+                <div className="h-4 bg-muted rounded w-1/4"></div>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-32 bg-muted rounded"></div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  return (
+    <DashboardLayout>
+      <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Services</h1>
             <p className="text-muted-foreground">Manage your studio's services and pricing</p>
           </div>
-        </div>
-        
-        <Card>
-          <CardContent className="p-6">
-            <div className="animate-pulse space-y-4">
-              <div className="h-4 bg-muted rounded w-1/4"></div>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-32 bg-muted rounded"></div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Services</h1>
-          <p className="text-muted-foreground">Manage your studio's services and pricing</p>
-        </div>
-        
-        <Button onClick={handleCreateService} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Service
-        </Button>
-      </div>
-
-      <ServicesList
-        studioId={currentStudioId}
-        services={services}
-        onEdit={handleEditService}
-        onRefresh={loadServices}
-      />
-
-      <Dialog open={formDialogOpen} onOpenChange={setFormDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>
-              {editingService ? "Edit Service" : "Create New Service"}
-            </DialogTitle>
-          </DialogHeader>
           
-          <ServiceForm
-            studioId={currentStudioId}
-            service={editingService || undefined}
-            onSuccess={handleFormSuccess}
-            onCancel={handleFormCancel}
-          />
-        </DialogContent>
-      </Dialog>
-    </div>
+          <Button onClick={handleCreateService} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Add Service
+          </Button>
+        </div>
+
+        <ServicesList
+          studioId={currentStudioId}
+          services={services}
+          onEdit={handleEditService}
+          onRefresh={loadServices}
+        />
+
+        <Dialog open={formDialogOpen} onOpenChange={setFormDialogOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>
+                {editingService ? "Edit Service" : "Create New Service"}
+              </DialogTitle>
+            </DialogHeader>
+            
+            <ServiceForm
+              studioId={currentStudioId}
+              service={editingService || undefined}
+              onSuccess={handleFormSuccess}
+              onCancel={handleFormCancel}
+            />
+          </DialogContent>
+        </Dialog>
+      </div>
+    </DashboardLayout>
   );
 }

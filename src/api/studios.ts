@@ -205,4 +205,64 @@ export const studiosApi = {
     if (error) throw error;
     return data || [];
   },
+
+  // Update studio business categories
+  async updateStudioCategories(
+    studioId: string, 
+    primaryCategoryId: string, 
+    additionalCategoryIds: string[] = []
+  ): Promise<void> {
+    console.log('updateStudioCategories: Updating categories for studio:', studioId);
+    console.log('updateStudioCategories: Primary category:', primaryCategoryId);
+    console.log('updateStudioCategories: Additional categories:', additionalCategoryIds);
+
+    // First, clear existing categories
+    const { error: deleteError } = await supabase
+      .from('studio_business_categories')
+      .delete()
+      .eq('studio_id', studioId);
+
+    if (deleteError) {
+      console.error('updateStudioCategories: Error deleting existing categories:', deleteError);
+      throw deleteError;
+    }
+
+    // Insert primary category
+    const primaryPayload = {
+      studio_id: studioId,
+      business_category_id: primaryCategoryId,
+      is_primary: true
+    };
+    console.log('updateStudioCategories: Inserting primary category payload:', primaryPayload);
+
+    const { error: primaryError } = await supabase
+      .from('studio_business_categories')
+      .insert(primaryPayload);
+
+    if (primaryError) {
+      console.error('updateStudioCategories: Error inserting primary category:', primaryError);
+      throw primaryError;
+    }
+
+    // Insert additional categories
+    if (additionalCategoryIds.length > 0) {
+      const additionalPayloads = additionalCategoryIds.map(categoryId => ({
+        studio_id: studioId,
+        business_category_id: categoryId,
+        is_primary: false
+      }));
+      console.log('updateStudioCategories: Inserting additional categories payload:', additionalPayloads);
+
+      const { error: additionalError } = await supabase
+        .from('studio_business_categories')
+        .insert(additionalPayloads);
+
+      if (additionalError) {
+        console.error('updateStudioCategories: Error inserting additional categories:', additionalError);
+        throw additionalError;
+      }
+    }
+
+    console.log('updateStudioCategories: Successfully updated studio categories');
+  },
 };

@@ -34,16 +34,30 @@ export function ServiceCategoryMultiSelect({
     const loadSuggestions = async () => {
       try {
         setLoading(true);
+        console.log('ServiceCategoryMultiSelect: Loading suggestions for studio:', studioId);
         
         // Get studio's business categories
         const { data: studioCategories } = await businessCategoriesApi.getStudioCategories(studioId);
+        console.log('ServiceCategoryMultiSelect: Studio categories data:', studioCategories);
+        
         const businessCategoryNames = studioCategories.map(cat => cat.category_name);
+        console.log('ServiceCategoryMultiSelect: Business category names:', businessCategoryNames);
+        
+        // Sort so primary category is first
+        const sortedCategories = [...studioCategories].sort((a, b) => {
+          if (a.is_primary && !b.is_primary) return -1;
+          if (!a.is_primary && b.is_primary) return 1;
+          return 0;
+        });
+        const sortedCategoryNames = sortedCategories.map(cat => cat.category_name);
+        console.log('ServiceCategoryMultiSelect: Sorted category names (primary first):', sortedCategoryNames);
         
         // Generate service category suggestions
-        const serviceSuggestions = getServiceCategorySuggestions(businessCategoryNames);
+        const serviceSuggestions = getServiceCategorySuggestions(sortedCategoryNames);
+        console.log('ServiceCategoryMultiSelect: Generated service suggestions:', serviceSuggestions);
         setSuggestions(serviceSuggestions);
       } catch (error) {
-        console.error('Error loading suggestions:', error);
+        console.error('ServiceCategoryMultiSelect: Error loading suggestions:', error);
         // Fallback to empty suggestions
         setSuggestions([]);
       } finally {
