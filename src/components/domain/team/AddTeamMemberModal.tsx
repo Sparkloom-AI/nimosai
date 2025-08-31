@@ -14,6 +14,7 @@ import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { teamApi } from '@/api/team';
 import { toast } from 'sonner';
 import { useRole } from '@/contexts/RoleContext';
+import { useSecurityValidation } from '@/hooks/useSecurityValidation';
 import { User, MapPin, Phone, Briefcase, DollarSign, Calendar } from 'lucide-react';
 
 interface AddTeamMemberModalProps {
@@ -25,6 +26,7 @@ interface AddTeamMemberModalProps {
 const AddTeamMemberModal = ({ isOpen, onOpenChange, onSuccess }: AddTeamMemberModalProps) => {
   const { currentStudioId } = useRole();
   const queryClient = useQueryClient();
+  const { validateForm, isValidating } = useSecurityValidation();
   const [activeTab, setActiveTab] = useState('personal');
 
   // Form state
@@ -148,7 +150,7 @@ const AddTeamMemberModal = ({ isOpen, onOpenChange, onSuccess }: AddTeamMemberMo
     }
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!currentStudioId) {
@@ -161,20 +163,34 @@ const AddTeamMemberModal = ({ isOpen, onOpenChange, onSuccess }: AddTeamMemberMo
       return;
     }
 
+    // Security validation
+    const validationResult = await validateForm({
+      firstName: formData.first_name,
+      lastName: formData.last_name,
+      email: formData.email,
+      phone: formData.phone,
+      jobTitle: formData.job_title,
+      notes: formData.notes
+    });
+
+    if (!validationResult.isValid || !validationResult.sanitizedData) {
+      return;
+    }
+
     const teamMemberData = {
       studio_id: currentStudioId,
-      first_name: formData.first_name,
-      last_name: formData.last_name,
-      email: formData.email,
-      phone: formData.phone || undefined,
+      first_name: validationResult.sanitizedData.firstName,
+      last_name: validationResult.sanitizedData.lastName,
+      email: validationResult.sanitizedData.email,
+      phone: validationResult.sanitizedData.phone || undefined,
       avatar_url: formData.avatar_url || undefined,
-      job_title: formData.job_title || undefined,
+      job_title: validationResult.sanitizedData.jobTitle || undefined,
       calendar_color: formData.calendar_color,
       start_date: formData.start_date,
       end_date: formData.end_date || undefined,
       employment_type: formData.employment_type,
       team_member_id: formData.team_member_id || undefined,
-      notes: formData.notes || undefined,
+      notes: validationResult.sanitizedData.notes || undefined,
       is_bookable: formData.is_bookable,
       permission_level: formData.permission_level,
       hourly_rate: formData.hourly_rate > 0 ? formData.hourly_rate : undefined,

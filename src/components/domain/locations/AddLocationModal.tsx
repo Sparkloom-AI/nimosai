@@ -11,6 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { locationsApi } from '@/api/locations';
 import { useRole } from '@/contexts/RoleContext';
+import { useSecurityValidation } from '@/hooks/useSecurityValidation';
 import { toast } from '@/hooks/use-toast';
 import { AddressAutocomplete } from './AddressAutocomplete';
 import { GoogleMapViewer } from './GoogleMapViewer';
@@ -45,6 +46,7 @@ export const AddLocationModal: React.FC<AddLocationModalProps> = ({
 }) => {
   const { currentStudioId } = useRole();
   const queryClient = useQueryClient();
+  const { validateForm, isValidating } = useSecurityValidation();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -95,18 +97,31 @@ export const AddLocationModal: React.FC<AddLocationModalProps> = ({
       return;
     }
 
+    // Security validation
+    const validationResult = await validateForm({
+      name: data.name,
+      address: data.address,
+      city: data.city,
+      state: data.state,
+      phone: data.phone || ''
+    });
+
+    if (!validationResult.isValid || !validationResult.sanitizedData) {
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       const locationData = {
         studio_id: currentStudioId,
-        name: data.name,
-        address: data.has_no_address ? 'Mobile/Online Service' : data.address,
-        city: data.has_no_address ? 'N/A' : data.city,
-        state: data.has_no_address ? 'N/A' : data.state,
+        name: validationResult.sanitizedData.name,
+        address: data.has_no_address ? 'Mobile/Online Service' : validationResult.sanitizedData.address,
+        city: data.has_no_address ? 'N/A' : validationResult.sanitizedData.city,
+        state: data.has_no_address ? 'N/A' : validationResult.sanitizedData.state,
         postal_code: data.has_no_address ? '00000' : data.postal_code,
         country: data.country,
-        phone: data.phone,
+        phone: validationResult.sanitizedData.phone,
         is_primary: data.is_primary,
         place_id: data.place_id,
         latitude: data.latitude,
