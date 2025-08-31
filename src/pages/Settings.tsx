@@ -38,7 +38,7 @@ const Settings = () => {
       title: 'Scheduling',
       description: 'Set availability and booking preferences',
       action: 'Edit',
-      badge: 'Coming Soon'
+      href: '/calendar'
     },
     {
       icon: CreditCard,
