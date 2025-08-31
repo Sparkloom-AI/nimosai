@@ -8,9 +8,7 @@ import { ServiceForm } from "@/components/domain/services/ServiceForm";
 import { Service } from "@/types/services";
 import { servicesApi } from "@/api/services";
 import { useToast } from "@/hooks/use-toast";
-
-// Mock studio ID - in real app this would come from context/auth
-const MOCK_STUDIO_ID = "1";
+import { useRole } from "@/contexts/RoleContext";
 
 export default function Services() {
   const [services, setServices] = useState<Service[]>([]);
@@ -18,11 +16,14 @@ export default function Services() {
   const [formDialogOpen, setFormDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const { toast } = useToast();
+  const { currentStudioId } = useRole();
 
   const loadServices = async () => {
+    if (!currentStudioId) return;
+    
     try {
       setLoading(true);
-      const data = await servicesApi.getServices(MOCK_STUDIO_ID);
+      const data = await servicesApi.getServices(currentStudioId);
       setServices(data);
     } catch (error) {
       console.error('Error loading services:', error);
@@ -38,7 +39,7 @@ export default function Services() {
 
   useEffect(() => {
     loadServices();
-  }, []);
+  }, [currentStudioId]);
 
   const handleCreateService = () => {
     setEditingService(null);
@@ -61,7 +62,7 @@ export default function Services() {
     setEditingService(null);
   };
 
-  if (loading) {
+  if (loading || !currentStudioId) {
     return (
       <div className="container mx-auto p-6 space-y-6">
         <div className="flex items-center justify-between">
@@ -102,7 +103,7 @@ export default function Services() {
       </div>
 
       <ServicesList
-        studioId={MOCK_STUDIO_ID}
+        studioId={currentStudioId}
         services={services}
         onEdit={handleEditService}
         onRefresh={loadServices}
@@ -117,7 +118,7 @@ export default function Services() {
           </DialogHeader>
           
           <ServiceForm
-            studioId={MOCK_STUDIO_ID}
+            studioId={currentStudioId}
             service={editingService || undefined}
             onSuccess={handleFormSuccess}
             onCancel={handleFormCancel}

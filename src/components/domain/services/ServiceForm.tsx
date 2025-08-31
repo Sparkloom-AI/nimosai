@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { ServiceCategorySelect } from "./ServiceCategorySelect";
+import { ServiceCategoryMultiSelect } from "./ServiceCategoryMultiSelect";
 import { Service } from "@/types/services";
 import { servicesApi } from "@/api/services";
 import { useToast } from "@/hooks/use-toast";
@@ -16,7 +16,7 @@ const serviceSchema = z.object({
   description: z.string().optional(),
   duration: z.number().min(1, "Duration must be at least 1 minute"),
   price: z.number().min(0, "Price must be 0 or greater"),
-  category: z.string().optional(),
+  category: z.array(z.string()).default([]),
 });
 
 type ServiceFormData = z.infer<typeof serviceSchema>;
@@ -39,7 +39,7 @@ export const ServiceForm = ({ studioId, service, onSuccess, onCancel }: ServiceF
       description: service?.description || "",
       duration: service?.duration || 60,
       price: service?.price || 0,
-      category: service?.category || "",
+      category: service?.category || [],
     },
   });
 
@@ -106,12 +106,13 @@ export const ServiceForm = ({ studioId, service, onSuccess, onCancel }: ServiceF
           name="category"
           render={({ field }) => (
             <FormItem>
+              <FormLabel>Categories</FormLabel>
               <FormControl>
-                <ServiceCategorySelect
+                <ServiceCategoryMultiSelect
                   studioId={studioId}
-                  value={field.value || ""}
+                  value={field.value}
                   onChange={field.onChange}
-                  placeholder="Select or enter a category"
+                  placeholder="Select or add categories..."
                 />
               </FormControl>
               <FormMessage />
