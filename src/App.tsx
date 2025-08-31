@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Calendar from "./pages/Calendar";
 import Team from "./pages/Team";
 import ScheduledShifts from "./pages/ScheduledShifts";
+import Locations from "./pages/Locations";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import CookieConsent from "./components/CookieConsent";
@@ -80,6 +81,14 @@ function App() {
                       element={
                         <ProtectedRoute>
                           <ScheduledShifts />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/locations"
+                      element={
+                        <ProtectedRoute>
+                          <Locations />
                         </ProtectedRoute>
                       }
                     />
