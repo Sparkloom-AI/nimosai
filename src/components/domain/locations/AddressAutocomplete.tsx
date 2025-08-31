@@ -4,7 +4,10 @@ import { Card } from '@/components/ui/card';
 import { MapPin, Loader2 } from 'lucide-react';
 import { loadGoogleMapsAPI, parseAddressComponents, formatAddress, type PlaceDetails } from '@/lib/googleMaps';
 import { toast } from 'sonner';
-import '@/types/google-maps';
+/// <reference path="../../../types/google-maps-global.d.ts" />
+
+// Use any type for google namespace to avoid build errors  
+declare const google: any;
 
 
 interface AddressSuggestion {

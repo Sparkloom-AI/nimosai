@@ -3,69 +3,11 @@ import { loadGoogleMapsAPI } from '@/lib/googleMaps';
 import { getGoogleMapsApiKey } from '@/lib/googleMapsApi';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+/// <reference path="../../../types/google-maps-global.d.ts" />
 
-// Google Maps types
-declare global {
-  interface Window {
-    google?: typeof google;
-  }
-}
+// Use any type for google namespace to avoid build errors
+declare const google: any;
 
-declare namespace google {
-  namespace maps {
-    class Map {
-      constructor(mapDiv: HTMLElement, opts?: any);
-      setCenter(latLng: LatLng | LatLngLiteral): void;
-      setZoom(zoom: number): void;
-      fitBounds(bounds: LatLngBounds): void;
-    }
-    
-    class Marker {
-      constructor(opts?: MarkerOptions);
-      setMap(map: Map | null): void;
-      getPosition(): LatLng | undefined;
-      addListener(eventName: string, handler: Function): void;
-    }
-
-    class InfoWindow {
-      constructor(opts?: InfoWindowOptions);
-      open(map?: Map, anchor?: Marker): void;
-      setContent(content: string): void;
-    }
-
-    class LatLngBounds {
-      constructor();
-      extend(point: LatLng | LatLngLiteral): void;
-      getCenter(): LatLng;
-    }
-
-    interface LatLng {
-      lat(): number;
-      lng(): number;
-    }
-
-    interface LatLngLiteral {
-      lat: number;
-      lng: number;
-    }
-
-    interface MarkerOptions {
-      position?: LatLng | LatLngLiteral;
-      map?: Map;
-      title?: string;
-      draggable?: boolean;
-      icon?: any;
-    }
-
-    interface InfoWindowOptions {
-      content?: string;
-    }
-
-    namespace SymbolPath {
-      const CIRCLE: any;
-    }
-  }
-}
 
 interface Location {
   latitude: number;
@@ -96,8 +38,8 @@ export const GoogleMapViewer: React.FC<GoogleMapViewerProps> = ({
   className = ''
 }) => {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<google.maps.Marker[]>([]);
+  const mapInstanceRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
