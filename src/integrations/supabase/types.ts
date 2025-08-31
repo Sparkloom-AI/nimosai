@@ -711,30 +711,6 @@ export type Database = {
           },
         ]
       }
-      service_categories: {
-        Row: {
-          created_at: string
-          description: string | null
-          id: string
-          name: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          name: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          name?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       services: {
         Row: {
           category: string | null
@@ -745,7 +721,6 @@ export type Database = {
           is_active: boolean
           name: string
           price: number
-          service_category_id: string | null
           studio_id: string
           updated_at: string
         }
@@ -758,7 +733,6 @@ export type Database = {
           is_active?: boolean
           name: string
           price: number
-          service_category_id?: string | null
           studio_id: string
           updated_at?: string
         }
@@ -771,7 +745,6 @@ export type Database = {
           is_active?: boolean
           name?: string
           price?: number
-          service_category_id?: string | null
           studio_id?: string
           updated_at?: string
         }
@@ -781,13 +754,6 @@ export type Database = {
             columns: ["studio_id"]
             isOneToOne: false
             referencedRelation: "studios"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "services_service_category_id_fkey"
-            columns: ["service_category_id"]
-            isOneToOne: false
-            referencedRelation: "service_categories"
             referencedColumns: ["id"]
           },
         ]
