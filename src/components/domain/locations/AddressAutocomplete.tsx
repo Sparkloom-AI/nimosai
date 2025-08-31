@@ -2,6 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { MapPin, Loader2 } from 'lucide-react';
+import { loadGoogleMapsAPI, parseAddressComponents, formatAddress, type PlaceDetails } from '@/lib/googleMaps';
+import { toast } from 'sonner';
+import '@/types/google-maps';
 
 interface AddressSuggestion {
   place_id: string;
@@ -18,6 +21,9 @@ interface AddressData {
   state: string;
   postal_code: string;
   country: string;
+  place_id?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 interface AddressAutocompleteProps {
@@ -36,36 +42,41 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [isGoogleMapsLoaded, setIsGoogleMapsLoaded] = useState(false);
   const debounceRef = useRef<NodeJS.Timeout>();
   const inputRef = useRef<HTMLInputElement>(null);
+  const autocompleteServiceRef = useRef<any>(null);
+  const placesServiceRef = useRef<any>(null);
 
-  // Mock Google Places API response for demo
-  const mockSuggestions: AddressSuggestion[] = [
-    {
-      place_id: '1',
-      description: '123 Main Street, New York, NY, USA',
-      structured_formatting: {
-        main_text: '123 Main Street',
-        secondary_text: 'New York, NY, USA'
+  // Load Google Maps API on component mount
+  useEffect(() => {
+    const initGoogleMaps = async () => {
+      try {
+        // Use environment variable for API key in real implementation
+        const apiKey = 'YOUR_GOOGLE_MAPS_API_KEY'; // This would come from Supabase secrets in edge function
+        
+        await loadGoogleMapsAPI({
+          apiKey,
+          libraries: ['places']
+        });
+
+        if (window.google?.maps?.places) {
+          autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
+          
+          // Create a hidden div for PlacesService (required by Google Maps API)
+          const hiddenDiv = document.createElement('div');
+          placesServiceRef.current = new window.google.maps.places.PlacesService(hiddenDiv);
+        }
+        
+        setIsGoogleMapsLoaded(true);
+      } catch (error) {
+        console.error('Failed to load Google Maps API:', error);
+        toast.error('Failed to load address autocomplete. Please enter address manually.');
       }
-    },
-    {
-      place_id: '2', 
-      description: '456 Business Ave, Los Angeles, CA, USA',
-      structured_formatting: {
-        main_text: '456 Business Ave',
-        secondary_text: 'Los Angeles, CA, USA'
-      }
-    },
-    {
-      place_id: '3',
-      description: '789 Studio Blvd, Miami, FL, USA',
-      structured_formatting: {
-        main_text: '789 Studio Blvd',
-        secondary_text: 'Miami, FL, USA'
-      }
-    }
-  ];
+    };
+
+    initGoogleMaps();
+  }, []);
 
   const fetchSuggestions = async (input: string) => {
     if (input.length < 3) {
@@ -73,33 +84,89 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
       return;
     }
 
+    if (!isGoogleMapsLoaded || !autocompleteServiceRef.current) {
+      // Fallback to manual entry
+      setSuggestions([]);
+      return;
+    }
+
     setIsLoading(true);
 
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 300));
+    try {
+      const request = {
+        input,
+        types: ['establishment', 'geocode'],
+        componentRestrictions: { country: 'us' }, // Restrict to US for business addresses
+      };
 
-    // Filter mock suggestions based on input
-    const filtered = mockSuggestions.filter(suggestion =>
-      suggestion.description.toLowerCase().includes(input.toLowerCase())
-    );
-
-    setSuggestions(filtered);
-    setIsLoading(false);
-    setShowSuggestions(true);
+      autocompleteServiceRef.current.getPlacePredictions(request, (predictions: any, status: any) => {
+        if (status === 'OK' && predictions) {
+          const formattedSuggestions: AddressSuggestion[] = predictions.map(prediction => ({
+            place_id: prediction.place_id,
+            description: prediction.description,
+            structured_formatting: {
+              main_text: prediction.structured_formatting?.main_text || prediction.description,
+              secondary_text: prediction.structured_formatting?.secondary_text || ''
+            }
+          }));
+          
+          setSuggestions(formattedSuggestions);
+          setShowSuggestions(true);
+        } else {
+          setSuggestions([]);
+        }
+        setIsLoading(false);
+      });
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+      setSuggestions([]);
+      setIsLoading(false);
+    }
   };
 
-  const parseAddress = (description: string): AddressData => {
-    // Simple parsing logic for demo - in real implementation, 
-    // you'd use Google Places Details API to get structured address
-    const parts = description.split(', ');
-    
-    return {
-      address: parts[0] || '',
-      city: parts[1] || '',
-      state: parts[2]?.split(' ')[0] || '',
-      postal_code: parts[2]?.split(' ')[1] || '',
-      country: parts[3] || 'US'
-    };
+  const getPlaceDetails = (placeId: string): Promise<PlaceDetails> => {
+    return new Promise((resolve, reject) => {
+      if (!placesServiceRef.current) {
+        reject(new Error('Places service not available'));
+        return;
+      }
+
+      const request = {
+        placeId,
+        fields: ['place_id', 'formatted_address', 'address_components', 'geometry', 'name']
+      };
+
+      placesServiceRef.current.getDetails(request, (place: any, status: any) => {
+        if (status === 'OK' && place) {
+          resolve(place);
+        } else {
+          reject(new Error(`Failed to get place details: ${status}`));
+        }
+      });
+    });
+  };
+
+  const parseGooglePlaceToAddressData = async (placeId: string): Promise<AddressData> => {
+    try {
+      const place = await getPlaceDetails(placeId);
+      
+      if (!place.address_components) {
+        throw new Error('No address components found');
+      }
+
+      const components = parseAddressComponents(place.address_components);
+      const formattedAddress = formatAddress(components);
+
+      return {
+        ...formattedAddress,
+        place_id: place.place_id,
+        latitude: place.geometry?.location.lat(),
+        longitude: place.geometry?.location.lng()
+      };
+    } catch (error) {
+      console.error('Error parsing place details:', error);
+      throw error;
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -116,13 +183,18 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
     }, 300);
   };
 
-  const handleSuggestionSelect = (suggestion: AddressSuggestion) => {
+  const handleSuggestionSelect = async (suggestion: AddressSuggestion) => {
     setQuery(suggestion.description);
     setShowSuggestions(false);
     setSuggestions([]);
     
-    const addressData = parseAddress(suggestion.description);
-    onAddressSelect(addressData);
+    try {
+      const addressData = await parseGooglePlaceToAddressData(suggestion.place_id);
+      onAddressSelect(addressData);
+    } catch (error) {
+      console.error('Error getting address details:', error);
+      toast.error('Failed to get address details. Please try again.');
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

@@ -41,14 +41,18 @@ export type Database = {
       locations: {
         Row: {
           address: string
+          address_components: Json | null
           city: string
           country: string
           created_at: string
           id: string
           is_active: boolean
           is_primary: boolean
+          latitude: number | null
+          longitude: number | null
           name: string
           phone: string | null
+          place_id: string | null
           postal_code: string
           state: string
           studio_id: string
@@ -56,14 +60,18 @@ export type Database = {
         }
         Insert: {
           address: string
+          address_components?: Json | null
           city?: string
           country?: string
           created_at?: string
           id?: string
           is_active?: boolean
           is_primary?: boolean
+          latitude?: number | null
+          longitude?: number | null
           name: string
           phone?: string | null
+          place_id?: string | null
           postal_code?: string
           state?: string
           studio_id: string
@@ -71,14 +79,18 @@ export type Database = {
         }
         Update: {
           address?: string
+          address_components?: Json | null
           city?: string
           country?: string
           created_at?: string
           id?: string
           is_active?: boolean
           is_primary?: boolean
+          latitude?: number | null
+          longitude?: number | null
           name?: string
           phone?: string | null
+          place_id?: string | null
           postal_code?: string
           state?: string
           studio_id?: string

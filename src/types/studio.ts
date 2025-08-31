@@ -31,6 +31,9 @@ export interface Location {
   country: string;
   phone?: string;
   is_primary: boolean;
+  place_id?: string;
+  latitude?: number;
+  longitude?: number;
   created_at: string;
   updated_at: string;
 }

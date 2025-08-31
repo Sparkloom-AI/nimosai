@@ -39,6 +39,9 @@ export const locationsApi = {
     country?: string;
     phone?: string;
     is_primary?: boolean;
+    place_id?: string;
+    latitude?: number;
+    longitude?: number;
   }): Promise<Location> {
     const { data, error } = await supabase
       .from('locations')
@@ -52,6 +55,9 @@ export const locationsApi = {
         country: locationData.country || 'US',
         phone: locationData.phone,
         is_primary: locationData.is_primary || false,
+        place_id: locationData.place_id,
+        latitude: locationData.latitude,
+        longitude: locationData.longitude,
       } as any)
       .select()
       .single();
@@ -73,6 +79,9 @@ export const locationsApi = {
       phone: string;
       is_primary: boolean;
       is_active: boolean;
+      place_id: string;
+      latitude: number;
+      longitude: number;
     }>
   ): Promise<Location> {
     const { data, error } = await supabase
