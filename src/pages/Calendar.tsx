@@ -32,6 +32,27 @@ const Calendar = () => {
   // Get studio ID from user context (you'll need to implement this)
   const studioId = user?.user_metadata?.studio_id || '';
 
+  const getDateRange = () => {
+    switch (viewType) {
+      case 'day':
+        return { start: currentDate, end: currentDate };
+      case '3-day':
+        return { start: currentDate, end: addDays(currentDate, 2) };
+      case 'week':
+        const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
+        return { start: weekStart, end: endOfWeek(currentDate, { weekStartsOn: 0 }) };
+      case 'month':
+        const monthStart = startOfMonth(currentDate);
+        const monthEnd = endOfMonth(currentDate);
+        return { 
+          start: startOfWeek(monthStart, { weekStartsOn: 0 }), 
+          end: endOfWeek(monthEnd, { weekStartsOn: 0 }) 
+        };
+      default:
+        return { start: currentDate, end: currentDate };
+    }
+  };
+
   // Fetch appointments
   const { data: appointments = [], isLoading: appointmentsLoading } = useQuery({
     queryKey: ['appointments', studioId, getDateRange()],
@@ -109,27 +130,6 @@ const Calendar = () => {
 
   const handleSaveAppointment = async (appointmentData: BookingRequest) => {
     await createAppointmentMutation.mutateAsync(appointmentData);
-  };
-
-  const getDateRange = () => {
-    switch (viewType) {
-      case 'day':
-        return { start: currentDate, end: currentDate };
-      case '3-day':
-        return { start: currentDate, end: addDays(currentDate, 2) };
-      case 'week':
-        const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
-        return { start: weekStart, end: endOfWeek(currentDate, { weekStartsOn: 0 }) };
-      case 'month':
-        const monthStart = startOfMonth(currentDate);
-        const monthEnd = endOfMonth(currentDate);
-        return { 
-          start: startOfWeek(monthStart, { weekStartsOn: 0 }), 
-          end: endOfWeek(monthEnd, { weekStartsOn: 0 }) 
-        };
-      default:
-        return { start: currentDate, end: currentDate };
-    }
   };
 
   return (

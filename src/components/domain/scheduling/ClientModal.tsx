@@ -93,9 +93,16 @@ const ClientModal: React.FC<ClientModalProps> = ({
   const handleSubmit = async (data: ClientFormData) => {
     try {
       const clientData = {
-        ...data,
         studio_id: studioId,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        email: data.email || undefined,
+        phone: data.phone || undefined,
         date_of_birth: data.date_of_birth ? format(data.date_of_birth, 'yyyy-MM-dd') : undefined,
+        gender: data.gender || undefined,
+        notes: data.notes || undefined,
+        emergency_contact_name: data.emergency_contact_name || undefined,
+        emergency_contact_phone: data.emergency_contact_phone || undefined,
         preferences: {},
       };
 

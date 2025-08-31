@@ -20,6 +20,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'Calendar', href: '/calendar', icon: Calendar },
+  { name: 'Clients', href: '/clients', icon: Users },
   { name: 'Team', href: '/team', icon: Users },
   { name: 'Scheduled Shifts', href: '/scheduled-shifts', icon: Clock },
   { name: 'Locations', href: '/locations', icon: MapPin },

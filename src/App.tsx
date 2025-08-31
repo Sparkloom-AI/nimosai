@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Calendar from "./pages/Calendar";
+import Clients from "./pages/Clients";
 import Team from "./pages/Team";
 import ScheduledShifts from "./pages/ScheduledShifts";
 import Locations from "./pages/Locations";
@@ -65,6 +66,14 @@ function App() {
                       element={
                         <ProtectedRoute>
                           <Calendar />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/clients"
+                      element={
+                        <ProtectedRoute>
+                          <Clients />
                         </ProtectedRoute>
                       }
                     />

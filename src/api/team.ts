@@ -149,3 +149,16 @@ export const teamApi = {
     return data;
   }
 };
+
+// Export individual functions for easier importing
+export const getTeamMembers = teamApi.getTeamMembers;
+export const createTeamMember = teamApi.createTeamMember;
+export const updateTeamMember = teamApi.updateTeamMember;
+export const deleteTeamMember = teamApi.deleteTeamMember;
+export const addTeamMemberAddress = teamApi.addTeamMemberAddress;
+export const addEmergencyContact = teamApi.addEmergencyContact;
+export const assignService = teamApi.assignService;
+export const removeService = teamApi.removeService;
+export const assignLocation = teamApi.assignLocation;
+export const getServices = teamApi.getServices;
+export const getLocations = teamApi.getLocations;

@@ -57,6 +57,6 @@ export interface TeamMemberAddress {
   is_primary: boolean;
 }
 
-export type EmploymentType = 'full_time' | 'part_time' | 'contract' | 'freelance';
+export type EmploymentType = 'full_time' | 'part_time' | 'contract' | 'freelance' | 'contractor' | 'intern';
 export type PermissionLevel = 'low' | 'medium' | 'high' | 'admin';
 export type ShiftStatus = 'scheduled' | 'confirmed' | 'cancelled' | 'completed';

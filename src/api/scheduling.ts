@@ -48,7 +48,7 @@ export async function updateClient(id: string, updates: Partial<Client>): Promis
     .single();
   
   if (error) throw error;
-  return data;
+  return data as Client;
 }
 
 export async function deleteClient(id: string): Promise<void> {
@@ -123,7 +123,7 @@ export async function updateAppointment(id: string, updates: Partial<Appointment
     .single();
   
   if (error) throw error;
-  return data;
+  return data as Appointment;
 }
 
 export async function rescheduleAppointment(request: ReschedulingRequest): Promise<Appointment> {
@@ -186,7 +186,7 @@ export async function rescheduleAppointment(request: ReschedulingRequest): Promi
       notes: request.reason
     });
   
-  return data;
+  return data as Appointment;
 }
 
 export async function cancelAppointment(id: string, reason?: string): Promise<Appointment> {
@@ -209,7 +209,7 @@ export async function cancelAppointment(id: string, reason?: string): Promise<Ap
       notes: reason
     });
   
-  return data;
+  return data as Appointment;
 }
 
 // Availability Management
@@ -281,7 +281,7 @@ export async function addToWaitlist(entry: Omit<WaitlistEntry, 'id' | 'created_a
     .single();
   
   if (error) throw error;
-  return data;
+  return data as WaitlistEntry;
 }
 
 // Blocked Time Management
@@ -300,7 +300,7 @@ export async function getBlockedTime(
     .order('start_time');
   
   if (error) throw error;
-  return data || [];
+  return (data || []) as BlockedTime[];
 }
 
 export async function createBlockedTime(block: Omit<BlockedTime, 'id' | 'created_at' | 'updated_at'>): Promise<BlockedTime> {
@@ -311,7 +311,7 @@ export async function createBlockedTime(block: Omit<BlockedTime, 'id' | 'created
     .single();
   
   if (error) throw error;
-  return data;
+  return data as BlockedTime;
 }
 
 // Service Buffer Management
@@ -339,7 +339,7 @@ export async function updateServiceBuffer(
     .single();
   
   if (error) throw error;
-  return data;
+  return data as ServiceBuffer;
 }
 
 // Client Preferences
@@ -365,5 +365,5 @@ export async function updateClientPreferences(
     .single();
   
   if (error) throw error;
-  return data;
+  return data as ClientPreferences;
 }
