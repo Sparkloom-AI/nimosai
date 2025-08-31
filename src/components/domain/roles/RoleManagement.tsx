@@ -58,7 +58,6 @@ const RoleManagement: React.FC<RoleManagementProps> = ({ studioId }) => {
       setNewUserEmail('');
     } catch (error) {
       toast.error('Failed to assign role');
-      console.error('Role assignment error:', error);
     }
   };
 
@@ -71,7 +70,6 @@ const RoleManagement: React.FC<RoleManagementProps> = ({ studioId }) => {
       refetch();
     } catch (error) {
       toast.error('Failed to remove role');
-      console.error('Role removal error:', error);
     }
   };
 

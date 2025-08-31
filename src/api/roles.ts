@@ -72,19 +72,29 @@ export const rolesApi = {
     return data;
   },
 
-  // Assign role to user
+  // Assign role to user (using secure function)
   async assignRole(roleData: Omit<UserRoleInsert, 'role'> & { role: AppRole }): Promise<UserRole> {
-    const { data, error } = await supabase
-      .from('user_roles')
-      .insert({
-        ...roleData,
-        role: convertToDbRole(roleData.role),
-      })
-      .select()
-      .single();
+    if (!roleData.user_id || !roleData.studio_id) {
+      throw new Error('User ID and Studio ID are required');
+    }
+
+    const { data, error } = await supabase.rpc('assign_user_role_secure', {
+      p_user_id: roleData.user_id,
+      p_role: convertToDbRole(roleData.role),
+      p_studio_id: roleData.studio_id,
+    });
     
     if (error) throw error;
-    return convertDbUserRole(data);
+    
+    // Fetch the created role
+    const { data: roleRecord, error: fetchError } = await supabase
+      .from('user_roles')
+      .select('*')
+      .eq('id', data)
+      .single();
+      
+    if (fetchError) throw fetchError;
+    return convertDbUserRole(roleRecord);
   },
 
   // Update user role
@@ -105,12 +115,11 @@ export const rolesApi = {
     return convertDbUserRole(data);
   },
 
-  // Remove role from user
+  // Remove role from user (using secure function)
   async removeRole(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('user_roles')
-      .delete()
-      .eq('id', id);
+    const { error } = await supabase.rpc('remove_user_role_secure', {
+      p_role_id: id,
+    });
     
     if (error) throw error;
   },

@@ -113,7 +113,6 @@ const Auth = () => {
         toast.success('Let\'s get you started! Please complete your account setup.');
       }
     } catch (error: any) {
-      console.error('Error checking email:', error);
       toast.error('Unable to verify email. Please try again.');
     } finally {
       setEmailCheckLoading(false);
@@ -140,7 +139,6 @@ const Auth = () => {
       }
     } catch (error: any) {
       toast.error('An unexpected error occurred');
-      console.error('Login error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -169,7 +167,6 @@ const Auth = () => {
       }
     } catch (error: any) {
       toast.error('An unexpected error occurred');
-      console.error('Registration error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -184,7 +181,6 @@ const Auth = () => {
       }
     } catch (error: any) {
       toast.error('An unexpected error occurred');
-      console.error('Google sign in error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -208,7 +204,6 @@ const Auth = () => {
       }
     } catch (error: any) {
       toast.error('An unexpected error occurred');
-      console.error('Password reset error:', error);
     } finally {
       setIsLoading(false);
     }

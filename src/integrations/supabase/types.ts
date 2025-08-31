@@ -637,6 +637,42 @@ export type Database = {
           },
         ]
       }
+      security_audit_log: {
+        Row: {
+          created_at: string
+          event_details: Json
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          studio_id: string | null
+          success: boolean
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_details?: Json
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          studio_id?: string | null
+          success?: boolean
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_details?: Json
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          studio_id?: string | null
+          success?: boolean
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       service_buffers: {
         Row: {
           cleanup_time: number
@@ -1245,6 +1281,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_user_role_secure: {
+        Args: {
+          p_assigned_by?: string
+          p_role: Database["public"]["Enums"]["app_role"]
+          p_studio_id: string
+          p_user_id: string
+        }
+        Returns: string
+      }
       can_manage_studio: {
         Args: { _studio_id: string; _user_id: string }
         Returns: boolean
@@ -1350,6 +1395,10 @@ export type Database = {
           _studio_id?: string
           _user_id: string
         }
+        Returns: boolean
+      }
+      remove_user_role_secure: {
+        Args: { p_removed_by?: string; p_role_id: string }
         Returns: boolean
       }
       update_studio_data: {

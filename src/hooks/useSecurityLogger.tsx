@@ -25,31 +25,35 @@ export const useSecurityLogger = () => {
 
   const logSecurityEvent = async (event: SecurityEvent) => {
     try {
-      // Get client IP and user agent
+      // Get client IP and user agent (sanitized)
       const userAgent = navigator.userAgent;
       
       const eventData = {
-        ...event,
+        event_type: event.event_type,
         user_id: event.user_id || user?.id,
-        user_agent: userAgent,
-        timestamp: new Date().toISOString(),
-        metadata: {
+        user_agent: userAgent.substring(0, 255), // Limit length
+        event_details: {
           ...event.metadata,
-          url: window.location.href,
-          referrer: document.referrer
-        }
+          url: window.location.origin, // Only origin, not full path
+          timestamp: new Date().toISOString()
+        },
+        success: true
       };
 
-      // Log to console in development
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Security Event:', eventData);
-      }
+      // Store security events in the database
+      const { error } = await supabase
+        .from('security_audit_log')
+        .insert(eventData);
 
-      // In production, you could send this to a logging service
-      // For now, we'll use Supabase edge functions or a dedicated logging table
+      if (error && process.env.NODE_ENV === 'development') {
+        console.error('Failed to log security event:', error);
+      }
       
     } catch (error) {
-      console.error('Failed to log security event:', error);
+      // Silent failure in production
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to log security event:', error);
+      }
     }
   };
 
