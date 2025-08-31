@@ -40,6 +40,24 @@ export const getServiceCategorySuggestions = (businessCategories: string[]): str
 };
 
 /**
+ * Get service category suggestions grouped by business category
+ * @param businessCategories Array of business category names
+ * @returns Object with business category names as keys and their service categories as values
+ */
+export const getGroupedServiceCategorySuggestions = (businessCategories: string[]): Record<string, string[]> => {
+  const grouped: Record<string, string[]> = {};
+  
+  businessCategories.forEach(categoryName => {
+    const categorySuggestions = serviceCategoryMapping[categoryName];
+    if (categorySuggestions && categorySuggestions.length > 0) {
+      grouped[categoryName] = [...categorySuggestions];
+    }
+  });
+  
+  return grouped;
+};
+
+/**
  * Get all unique service categories across all business types
  */
 export const getAllServiceCategories = (): string[] => {

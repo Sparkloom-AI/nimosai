@@ -6,7 +6,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Check, ChevronsUpDown, X, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getServiceCategorySuggestions } from "@/utils/serviceCategoryMapping";
+import { getGroupedServiceCategorySuggestions } from "@/utils/serviceCategoryMapping";
 import { businessCategoriesApi } from "@/api/businessCategories";
 
 interface ServiceCategoryMultiSelectProps {
@@ -24,7 +24,7 @@ export function ServiceCategoryMultiSelect({
   placeholder = "Select categories...",
   required = false
 }: ServiceCategoryMultiSelectProps) {
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [groupedSuggestions, setGroupedSuggestions] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [customInput, setCustomInput] = useState("");
@@ -52,14 +52,14 @@ export function ServiceCategoryMultiSelect({
         const sortedCategoryNames = sortedCategories.map(cat => cat.category_name);
         console.log('ServiceCategoryMultiSelect: Sorted category names (primary first):', sortedCategoryNames);
         
-        // Generate service category suggestions
-        const serviceSuggestions = getServiceCategorySuggestions(sortedCategoryNames);
-        console.log('ServiceCategoryMultiSelect: Generated service suggestions:', serviceSuggestions);
-        setSuggestions(serviceSuggestions);
+        // Generate grouped service category suggestions
+        const groupedServiceSuggestions = getGroupedServiceCategorySuggestions(sortedCategoryNames);
+        console.log('ServiceCategoryMultiSelect: Generated grouped service suggestions:', groupedServiceSuggestions);
+        setGroupedSuggestions(groupedServiceSuggestions);
       } catch (error) {
         console.error('ServiceCategoryMultiSelect: Error loading suggestions:', error);
         // Fallback to empty suggestions
-        setSuggestions([]);
+        setGroupedSuggestions({});
       } finally {
         setLoading(false);
       }
@@ -137,29 +137,31 @@ export function ServiceCategoryMultiSelect({
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-full p-0">
+          <PopoverContent className="w-full p-0 bg-background border z-50">
             <Command>
               <CommandInput placeholder="Search categories..." />
               <CommandList>
                 <CommandEmpty>No categories found.</CommandEmpty>
-                <CommandGroup>
-                  {suggestions.map((category) => (
-                    <CommandItem
-                      key={category}
-                      value={category}
-                      onSelect={() => handleSelectCategory(category)}
-                      className="cursor-pointer"
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          value.includes(category) ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      {category}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
+                {Object.entries(groupedSuggestions).map(([businessCategory, categories]) => (
+                  <CommandGroup key={businessCategory} heading={businessCategory}>
+                    {categories.map((category) => (
+                      <CommandItem
+                        key={category}
+                        value={category}
+                        onSelect={() => handleSelectCategory(category)}
+                        className="cursor-pointer"
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            value.includes(category) ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        {category}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                ))}
               </CommandList>
             </Command>
           </PopoverContent>
