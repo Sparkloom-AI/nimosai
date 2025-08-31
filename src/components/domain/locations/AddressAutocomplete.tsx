@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { MapPin, Loader2 } from 'lucide-react';
 import { loadGoogleMapsAPI, parseAddressComponents, formatAddress, type PlaceDetails } from '@/lib/googleMaps';
 import { toast } from 'sonner';
-import '@/types/google-maps';
+
 
 interface AddressSuggestion {
   place_id: string;
