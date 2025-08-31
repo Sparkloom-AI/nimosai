@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import CookiePreferences from './CookiePreferences';
 
 const CookieConsent = () => {
@@ -71,9 +72,9 @@ const CookieConsent = () => {
             Cookies enable us to enhance your experience by personalizing content and 
             analyzing traffic. You can accept all cookies, allow only essentials ones, or manage 
             your preferences. See our{' '}
-            <button className="text-primary underline hover:no-underline">
+            <Link to="/terms/cookies" className="text-primary underline hover:no-underline">
               cookie policy
-            </button>
+            </Link>
             .
           </p>
 
