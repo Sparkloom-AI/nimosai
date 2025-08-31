@@ -14,6 +14,302 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointment_history: {
+        Row: {
+          appointment_id: string
+          change_type: string
+          changed_by: string
+          created_at: string
+          id: string
+          new_values: Json | null
+          notes: string | null
+          old_values: Json | null
+        }
+        Insert: {
+          appointment_id: string
+          change_type: string
+          changed_by: string
+          created_at?: string
+          id?: string
+          new_values?: Json | null
+          notes?: string | null
+          old_values?: Json | null
+        }
+        Update: {
+          appointment_id?: string
+          change_type?: string
+          changed_by?: string
+          created_at?: string
+          id?: string
+          new_values?: Json | null
+          notes?: string | null
+          old_values?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_history_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      appointments: {
+        Row: {
+          appointment_date: string
+          booking_source: string | null
+          client_arrived_at: string | null
+          client_id: string | null
+          confirmation_sent_at: string | null
+          created_at: string
+          end_time: string
+          id: string
+          internal_notes: string | null
+          location_id: string
+          notes: string | null
+          paid_amount: number
+          payment_status: string
+          reminder_sent_at: string | null
+          service_completed_at: string | null
+          service_id: string
+          service_started_at: string | null
+          start_time: string
+          status: string
+          studio_id: string
+          team_member_id: string
+          total_price: number
+          updated_at: string
+        }
+        Insert: {
+          appointment_date: string
+          booking_source?: string | null
+          client_arrived_at?: string | null
+          client_id?: string | null
+          confirmation_sent_at?: string | null
+          created_at?: string
+          end_time: string
+          id?: string
+          internal_notes?: string | null
+          location_id: string
+          notes?: string | null
+          paid_amount?: number
+          payment_status?: string
+          reminder_sent_at?: string | null
+          service_completed_at?: string | null
+          service_id: string
+          service_started_at?: string | null
+          start_time: string
+          status?: string
+          studio_id: string
+          team_member_id: string
+          total_price?: number
+          updated_at?: string
+        }
+        Update: {
+          appointment_date?: string
+          booking_source?: string | null
+          client_arrived_at?: string | null
+          client_id?: string | null
+          confirmation_sent_at?: string | null
+          created_at?: string
+          end_time?: string
+          id?: string
+          internal_notes?: string | null
+          location_id?: string
+          notes?: string | null
+          paid_amount?: number
+          payment_status?: string
+          reminder_sent_at?: string | null
+          service_completed_at?: string | null
+          service_id?: string
+          service_started_at?: string | null
+          start_time?: string
+          status?: string
+          studio_id?: string
+          team_member_id?: string
+          total_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      availability_rules: {
+        Row: {
+          created_at: string
+          day_of_week: number | null
+          effective_from: string
+          effective_until: string | null
+          end_time: string
+          id: string
+          is_available: boolean
+          location_id: string | null
+          rule_type: string
+          service_id: string | null
+          start_time: string
+          studio_id: string
+          team_member_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week?: number | null
+          effective_from?: string
+          effective_until?: string | null
+          end_time: string
+          id?: string
+          is_available?: boolean
+          location_id?: string | null
+          rule_type: string
+          service_id?: string | null
+          start_time: string
+          studio_id: string
+          team_member_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number | null
+          effective_from?: string
+          effective_until?: string | null
+          end_time?: string
+          id?: string
+          is_available?: boolean
+          location_id?: string | null
+          rule_type?: string
+          service_id?: string | null
+          start_time?: string
+          studio_id?: string
+          team_member_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_rules_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "availability_rules_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "availability_rules_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blocked_time: {
+        Row: {
+          block_type: string
+          created_at: string
+          created_by: string
+          description: string | null
+          end_date: string
+          end_time: string | null
+          id: string
+          is_all_day: boolean
+          is_recurring: boolean
+          location_id: string | null
+          recurring_pattern: Json | null
+          start_date: string
+          start_time: string | null
+          studio_id: string
+          team_member_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          block_type?: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          end_date: string
+          end_time?: string | null
+          id?: string
+          is_all_day?: boolean
+          is_recurring?: boolean
+          location_id?: string | null
+          recurring_pattern?: Json | null
+          start_date: string
+          start_time?: string | null
+          studio_id: string
+          team_member_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          block_type?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          end_date?: string
+          end_time?: string | null
+          id?: string
+          is_all_day?: boolean
+          is_recurring?: boolean
+          location_id?: string | null
+          recurring_pattern?: Json | null
+          start_date?: string
+          start_time?: string | null
+          studio_id?: string
+          team_member_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blocked_time_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blocked_time_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_categories: {
         Row: {
           created_at: string
@@ -34,6 +330,107 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      client_preferences: {
+        Row: {
+          accessibility_needs: string | null
+          allergies: string | null
+          booking_preferences: Json | null
+          client_id: string
+          communication_preferences: Json | null
+          created_at: string
+          id: string
+          preferred_locations: string[] | null
+          preferred_team_members: string[] | null
+          preferred_times: Json | null
+          updated_at: string
+        }
+        Insert: {
+          accessibility_needs?: string | null
+          allergies?: string | null
+          booking_preferences?: Json | null
+          client_id: string
+          communication_preferences?: Json | null
+          created_at?: string
+          id?: string
+          preferred_locations?: string[] | null
+          preferred_team_members?: string[] | null
+          preferred_times?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          accessibility_needs?: string | null
+          allergies?: string | null
+          booking_preferences?: Json | null
+          client_id?: string
+          communication_preferences?: Json | null
+          created_at?: string
+          id?: string
+          preferred_locations?: string[] | null
+          preferred_team_members?: string[] | null
+          preferred_times?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_preferences_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: true
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          created_at: string
+          date_of_birth: string | null
+          email: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          first_name: string
+          gender: string | null
+          id: string
+          last_name: string
+          notes: string | null
+          phone: string | null
+          preferences: Json | null
+          studio_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date_of_birth?: string | null
+          email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          first_name: string
+          gender?: string | null
+          id?: string
+          last_name: string
+          notes?: string | null
+          phone?: string | null
+          preferences?: Json | null
+          studio_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date_of_birth?: string | null
+          email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          first_name?: string
+          gender?: string | null
+          id?: string
+          last_name?: string
+          notes?: string | null
+          phone?: string | null
+          preferences?: Json | null
+          studio_id?: string
           updated_at?: string
         }
         Relationships: []
@@ -150,6 +547,133 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      recurring_appointments: {
+        Row: {
+          client_id: string
+          created_at: string
+          end_date: string | null
+          end_time: string
+          id: string
+          is_active: boolean
+          location_id: string
+          notes: string | null
+          pattern_config: Json
+          pattern_type: string
+          service_id: string
+          start_date: string
+          start_time: string
+          studio_id: string
+          team_member_id: string
+          total_price: number
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          end_date?: string | null
+          end_time: string
+          id?: string
+          is_active?: boolean
+          location_id: string
+          notes?: string | null
+          pattern_config?: Json
+          pattern_type: string
+          service_id: string
+          start_date: string
+          start_time: string
+          studio_id: string
+          team_member_id: string
+          total_price?: number
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          end_date?: string | null
+          end_time?: string
+          id?: string
+          is_active?: boolean
+          location_id?: string
+          notes?: string | null
+          pattern_config?: Json
+          pattern_type?: string
+          service_id?: string
+          start_date?: string
+          start_time?: string
+          studio_id?: string
+          team_member_id?: string
+          total_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurring_appointments_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_appointments_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_appointments_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_appointments_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_buffers: {
+        Row: {
+          cleanup_time: number
+          created_at: string
+          id: string
+          service_id: string
+          setup_time: number
+          travel_time: number
+          updated_at: string
+        }
+        Insert: {
+          cleanup_time?: number
+          created_at?: string
+          id?: string
+          service_id: string
+          setup_time?: number
+          travel_time?: number
+          updated_at?: string
+        }
+        Update: {
+          cleanup_time?: number
+          created_at?: string
+          id?: string
+          service_id?: string
+          setup_time?: number
+          travel_time?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_buffers_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: true
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       services: {
         Row: {
@@ -629,6 +1153,92 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      waitlist: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          location_id: string | null
+          notes: string | null
+          notification_preferences: Json | null
+          preferred_date_end: string | null
+          preferred_date_start: string | null
+          preferred_team_member_id: string | null
+          preferred_time_end: string | null
+          preferred_time_start: string | null
+          priority_score: number | null
+          service_id: string
+          studio_id: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          location_id?: string | null
+          notes?: string | null
+          notification_preferences?: Json | null
+          preferred_date_end?: string | null
+          preferred_date_start?: string | null
+          preferred_team_member_id?: string | null
+          preferred_time_end?: string | null
+          preferred_time_start?: string | null
+          priority_score?: number | null
+          service_id: string
+          studio_id: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          location_id?: string | null
+          notes?: string | null
+          notification_preferences?: Json | null
+          preferred_date_end?: string | null
+          preferred_date_start?: string | null
+          preferred_team_member_id?: string | null
+          preferred_time_end?: string | null
+          preferred_time_start?: string | null
+          priority_score?: number | null
+          service_id?: string
+          studio_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waitlist_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_preferred_team_member_id_fkey"
+            columns: ["preferred_team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

@@ -11,6 +11,9 @@ interface CalendarViewProps {
   dateRange: { start: Date; end: Date };
   searchQuery: string;
   selectedTeamMembers: string[];
+  appointments?: any[];
+  onNewAppointment?: (date?: Date, teamMemberId?: string) => void;
+  isLoading?: boolean;
 }
 
 const CalendarView = ({
