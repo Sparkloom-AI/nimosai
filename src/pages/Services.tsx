@@ -1,0 +1,129 @@
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Plus } from "lucide-react";
+import { ServicesList } from "@/components/domain/services/ServicesList";
+import { ServiceForm } from "@/components/domain/services/ServiceForm";
+import { Service } from "@/types/services";
+import { servicesApi } from "@/api/services";
+import { useToast } from "@/hooks/use-toast";
+
+// Mock studio ID - in real app this would come from context/auth
+const MOCK_STUDIO_ID = "1";
+
+export default function Services() {
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [formDialogOpen, setFormDialogOpen] = useState(false);
+  const [editingService, setEditingService] = useState<Service | null>(null);
+  const { toast } = useToast();
+
+  const loadServices = async () => {
+    try {
+      setLoading(true);
+      const data = await servicesApi.getServices(MOCK_STUDIO_ID);
+      setServices(data);
+    } catch (error) {
+      console.error('Error loading services:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load services. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadServices();
+  }, []);
+
+  const handleCreateService = () => {
+    setEditingService(null);
+    setFormDialogOpen(true);
+  };
+
+  const handleEditService = (service: Service) => {
+    setEditingService(service);
+    setFormDialogOpen(true);
+  };
+
+  const handleFormSuccess = () => {
+    setFormDialogOpen(false);
+    setEditingService(null);
+    loadServices();
+  };
+
+  const handleFormCancel = () => {
+    setFormDialogOpen(false);
+    setEditingService(null);
+  };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Services</h1>
+            <p className="text-muted-foreground">Manage your studio's services and pricing</p>
+          </div>
+        </div>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="animate-pulse space-y-4">
+              <div className="h-4 bg-muted rounded w-1/4"></div>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-32 bg-muted rounded"></div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Services</h1>
+          <p className="text-muted-foreground">Manage your studio's services and pricing</p>
+        </div>
+        
+        <Button onClick={handleCreateService} className="gap-2">
+          <Plus className="h-4 w-4" />
+          Add Service
+        </Button>
+      </div>
+
+      <ServicesList
+        studioId={MOCK_STUDIO_ID}
+        services={services}
+        onEdit={handleEditService}
+        onRefresh={loadServices}
+      />
+
+      <Dialog open={formDialogOpen} onOpenChange={setFormDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              {editingService ? "Edit Service" : "Create New Service"}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <ServiceForm
+            studioId={MOCK_STUDIO_ID}
+            service={editingService || undefined}
+            onSuccess={handleFormSuccess}
+            onCancel={handleFormCancel}
+          />
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

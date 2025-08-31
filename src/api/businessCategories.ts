@@ -66,4 +66,16 @@ export const businessCategoriesApi = {
 
     if (error) throw error;
   },
+
+  // Get studio's business categories
+  async getStudioCategories(studioId: string) {
+    const { data, error } = await supabase
+      .rpc('get_studio_categories', { studio_id: studioId });
+
+    if (error) {
+      console.error('Error fetching studio categories:', error);
+      throw error;
+    }
+    return { data: data || [] };
+  },
 };
