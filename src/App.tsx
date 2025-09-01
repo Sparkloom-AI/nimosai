@@ -15,6 +15,7 @@ import Team from "./pages/Team";
 import ScheduledShifts from "./pages/ScheduledShifts";
 import Locations from "./pages/Locations";
 import Services from "./pages/Services";
+import Packages from "./pages/Packages";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import CookieConsent from "./components/CookieConsent";
@@ -106,6 +107,14 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <Services />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/packages"
+                    element={
+                      <ProtectedRoute>
+                        <Packages />
                       </ProtectedRoute>
                     }
                   />

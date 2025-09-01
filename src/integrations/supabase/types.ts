@@ -503,6 +503,51 @@ export type Database = {
           },
         ]
       }
+      packages: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          discount_type: string | null
+          discount_value: number | null
+          id: string
+          is_active: boolean
+          name: string
+          price: number
+          services: Json
+          studio_id: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          discount_type?: string | null
+          discount_value?: number | null
+          id?: string
+          is_active?: boolean
+          name: string
+          price?: number
+          services?: Json
+          studio_id: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          discount_type?: string | null
+          discount_value?: number | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          price?: number
+          services?: Json
+          studio_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

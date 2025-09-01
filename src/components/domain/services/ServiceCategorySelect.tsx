@@ -97,35 +97,21 @@ export const ServiceCategorySelect = ({
             <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0" align="start">
+        <PopoverContent className="w-full p-0 z-50" align="start">
           <Command>
             <CommandInput placeholder="Search categories..." />
-            <CommandList>
+            <CommandList className="max-h-[200px] overflow-y-auto">
               <CommandEmpty>No categories found.</CommandEmpty>
-              {Object.entries(groupedSuggestions).map(([businessCategory, serviceCategories]) => (
-                <CommandGroup key={businessCategory} heading={businessCategory}>
-                  {serviceCategories.map((category) => (
-                    <CommandItem
-                      key={category}
-                      value={category}
-                      onSelect={() => handleSelectCategory(category)}
-                      className="cursor-pointer"
-                    >
-                      {category}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              ))}
               <CommandGroup>
                 {!showCustomInput ? (
-                  <CommandItem onSelect={() => setShowCustomInput(true)}>
+                  <CommandItem onSelect={() => setShowCustomInput(true)} className="cursor-pointer">
                     <Plus className="h-4 w-4 mr-2" />
-                    Add custom category
+                    Add new category
                   </CommandItem>
                 ) : (
                   <div className="p-2 space-y-2">
                     <Input
-                      placeholder="Enter custom category..."
+                      placeholder="Enter new category..."
                       value={customInput}
                       onChange={(e) => setCustomInput(e.target.value)}
                       onKeyDown={handleCustomInputKeyDown}
@@ -151,6 +137,20 @@ export const ServiceCategorySelect = ({
                       </Button>
                     </div>
                   </div>
+                )}
+              </CommandGroup>
+              <CommandGroup>
+                {Object.entries(groupedSuggestions).map(([businessCategory, serviceCategories]) => 
+                  serviceCategories.map((category) => (
+                    <CommandItem
+                      key={category}
+                      value={category}
+                      onSelect={() => handleSelectCategory(category)}
+                      className="cursor-pointer"
+                    >
+                      {category}
+                    </CommandItem>
+                  ))
                 )}
               </CommandGroup>
             </CommandList>

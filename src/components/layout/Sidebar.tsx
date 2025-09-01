@@ -12,7 +12,8 @@ import {
   MessageSquare,
   CreditCard,
   Clock,
-  MapPin
+  MapPin,
+  Package
 } from 'lucide-react';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -25,6 +26,7 @@ const navigation = [
   { name: 'Scheduled Shifts', href: '/scheduled-shifts', icon: Clock },
   { name: 'Locations', href: '/locations', icon: MapPin },
   { name: 'Services', href: '/services', icon: Briefcase },
+  { name: 'Packages', href: '/packages', icon: Package },
   { name: 'Reports', href: '/reports', icon: BarChart3 },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
   { name: 'Payments', href: '/payments', icon: CreditCard },
