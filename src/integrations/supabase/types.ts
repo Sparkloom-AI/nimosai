@@ -1458,24 +1458,42 @@ export type Database = {
         Returns: boolean
       }
       update_studio_data: {
-        Args: {
-          studio_country?: string
-          studio_currency?: string
-          studio_default_client_language?: string
-          studio_default_team_language?: string
-          studio_description?: string
-          studio_email?: string
-          studio_facebook_url?: string
-          studio_id: string
-          studio_instagram_url?: string
-          studio_linkedin_url?: string
-          studio_name?: string
-          studio_phone?: string
-          studio_tax_included?: boolean
-          studio_timezone?: string
-          studio_twitter_url?: string
-          studio_website?: string
-        }
+        Args:
+          | {
+              studio_country?: string
+              studio_currency?: string
+              studio_default_client_language?: string
+              studio_default_team_language?: string
+              studio_description?: string
+              studio_email?: string
+              studio_facebook_url?: string
+              studio_id: string
+              studio_instagram_url?: string
+              studio_linkedin_url?: string
+              studio_name?: string
+              studio_phone?: string
+              studio_tax_included?: boolean
+              studio_timezone?: string
+              studio_twitter_url?: string
+              studio_website?: string
+            }
+          | {
+              studio_country?: string
+              studio_currency?: string
+              studio_default_client_language?: string
+              studio_default_team_language?: string
+              studio_description?: string
+              studio_email?: string
+              studio_facebook_url?: string
+              studio_id: string
+              studio_instagram_url?: string
+              studio_name?: string
+              studio_phone?: string
+              studio_tax_included?: boolean
+              studio_tiktok_url?: string
+              studio_timezone?: string
+              studio_website?: string
+            }
         Returns: {
           country: string
           created_at: string
