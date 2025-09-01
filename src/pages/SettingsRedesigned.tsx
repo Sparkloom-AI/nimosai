@@ -3,12 +3,13 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Settings as SettingsIcon, Building2, Globe2, Megaphone, MoreHorizontal, ArrowLeft } from 'lucide-react';
+import { Settings as SettingsIcon, Building2, Globe2, Megaphone, MoreHorizontal, ArrowLeft, Wand2 } from 'lucide-react';
 import { EnhancedBusinessDetailsForm } from '@/components/domain/settings/EnhancedBusinessDetailsForm';
 import { BasicInfoForm } from '@/components/domain/settings/BasicInfoForm';
 import { LocationsSection } from '@/components/domain/locations/LocationsSection';
+import SettingsWizard from '@/components/domain/settings/SettingsWizard';
 
-type SettingsSection = 'overview' | 'business-details' | 'basic-info' | 'locations';
+type SettingsSection = 'overview' | 'business-details' | 'basic-info' | 'locations' | 'wizard';
 
 const SettingsRedesigned = () => {
   const [activeSection, setActiveSection] = useState<SettingsSection>('overview');
@@ -16,6 +17,8 @@ const SettingsRedesigned = () => {
 
   const renderSection = () => {
     switch (activeSection) {
+      case 'wizard':
+        return <SettingsWizard onClose={() => setActiveSection('overview')} />;
       case 'business-details':
         return (
           <div className="space-y-6">
@@ -67,6 +70,28 @@ const SettingsRedesigned = () => {
                 Manage your business settings and preferences
               </p>
             </div>
+
+            {/* Settings Wizard Card */}
+            <Card className="border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Wand2 className="w-5 h-5 text-primary" />
+                  Settings Wizard
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Update all your business information in a guided, step-by-step process
+                </p>
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  onClick={() => setActiveSection('wizard')}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                >
+                  <Wand2 className="w-4 h-4 mr-2" />
+                  Launch Settings Wizard
+                </Button>
+              </CardContent>
+            </Card>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
               <TabsList className="grid w-full grid-cols-4">
