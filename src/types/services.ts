@@ -6,7 +6,7 @@ export interface Service {
   description?: string;
   duration: number; // in minutes
   price: number;
-  category: string[]; // Changed to array for multiple categories
+  category: string; // Single category selection
   is_active: boolean;
   created_at: string;
   updated_at: string;

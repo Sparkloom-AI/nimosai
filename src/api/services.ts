@@ -74,7 +74,7 @@ export const servicesApi = {
       .from('services')
       .select('*')
       .eq('studio_id', studioId)
-      .contains('category', [category])
+      .eq('category', category)
       .eq('is_active', true)
       .order('name');
 
@@ -93,11 +93,11 @@ export const servicesApi = {
 
     if (error) throw error;
     
-    // Flatten all category arrays and get unique values
+    // Get unique categories from single category field
     const allCategories = new Set<string>();
     data?.forEach(item => {
-      if (Array.isArray(item.category)) {
-        item.category.forEach(cat => allCategories.add(cat));
+      if (item.category && typeof item.category === 'string') {
+        allCategories.add(item.category);
       }
     });
     
