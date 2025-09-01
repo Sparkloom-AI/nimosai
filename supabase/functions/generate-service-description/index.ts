@@ -39,30 +39,50 @@ Requirements:
 
 Description:`;
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4.1-2025-04-14',
-        messages: [
-          { 
-            role: 'system', 
-            content: 'You are a professional wellness service description writer. Create concise, professional descriptions that highlight the benefits and experience of wellness services.' 
-          },
-          { role: 'user', content: prompt }
-        ],
-        max_tokens: 150,
-        temperature: 0.7,
-      }),
-    });
+    // Model configuration with fallback
+    const models = ['gpt-4.1-2025-04-14', 'gpt-4o-mini'];
+    let response;
+    let lastError;
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('OpenAI API error:', errorData);
-      throw new Error(`OpenAI API error: ${response.status}`);
+    // Try each model in order until one succeeds
+    for (const model of models) {
+      try {
+        response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openAIApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model,
+            messages: [
+              { 
+                role: 'system', 
+                content: 'You are a professional wellness service description writer. Create concise, professional descriptions that highlight the benefits and experience of wellness services.' 
+              },
+              { role: 'user', content: prompt }
+            ],
+            max_tokens: 150,
+            temperature: 0.7,
+          }),
+        });
+
+        if (response.ok) {
+          break; // Success, exit the loop
+        } else {
+          const errorData = await response.json();
+          lastError = errorData;
+          console.warn(`Model ${model} failed:`, errorData);
+        }
+      } catch (error) {
+        lastError = error;
+        console.warn(`Model ${model} error:`, error);
+      }
+    }
+
+    if (!response || !response.ok) {
+      console.error('All models failed. Last error:', lastError);
+      throw new Error(`OpenAI API error: All models failed`);
     }
 
     const data = await response.json();

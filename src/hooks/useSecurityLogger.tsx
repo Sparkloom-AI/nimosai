@@ -28,6 +28,23 @@ export const useSecurityLogger = () => {
       // Get client IP and user agent (sanitized)
       const userAgent = navigator.userAgent;
       
+      // Get client IP from headers (if available via proxy)
+      const getClientIP = async (): Promise<string | null> => {
+        try {
+          // Try to get IP from ipify service (respects privacy)
+          const response = await fetch('https://api.ipify.org?format=json', {
+            method: 'GET',
+            signal: AbortSignal.timeout(2000) // 2 second timeout
+          });
+          const data = await response.json();
+          return data.ip || null;
+        } catch {
+          return null; // Silent fallback if IP detection fails
+        }
+      };
+
+      const clientIP = await getClientIP();
+      
       const eventData = {
         event_type: event.event_type,
         user_id: event.user_id || user?.id,
@@ -35,7 +52,9 @@ export const useSecurityLogger = () => {
         event_details: {
           ...event.metadata,
           url: window.location.origin, // Only origin, not full path
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          client_ip: clientIP, // Add IP for geographic context
+          user_agent_full: userAgent.substring(0, 500) // More context for analysis
         },
         success: true
       };
