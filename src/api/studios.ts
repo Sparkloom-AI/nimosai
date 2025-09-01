@@ -96,7 +96,8 @@ export const studiosApi = {
   }): Promise<Studio> {
     console.log('createStudio: Creating studio with data:', studioData);
     
-    const { data, error } = await supabase.rpc('create_studio_with_data', {
+    // Call the simplified RPC that returns only studio_id
+    const { data: studioId, error } = await supabase.rpc('create_studio_with_data', {
       p_studio_name: studioData.name,
       p_studio_website: studioData.website || null,
       p_studio_business_category_id: studioData.business_category_id || null,
@@ -112,33 +113,19 @@ export const studiosApi = {
       throw error;
     }
     
-    console.log('createStudio: Raw data:', data);
+    if (!studioId) {
+      throw new Error('Failed to create studio');
+    }
     
-    const studioRecord = data && Array.isArray(data) && data.length > 0 ? data[0] : null;
-    if (!studioRecord) throw new Error('Failed to create studio');
+    console.log('createStudio: Studio created with ID:', studioId);
     
-    const studio: Studio = {
-      id: studioRecord.id,
-      name: studioRecord.name,
-      description: studioRecord.description || '',
-      phone: studioRecord.phone || '',
-      email: studioRecord.email || '',
-      website: studioRecord.website || '',
-      timezone: studioRecord.timezone || 'UTC',
-      country: studioRecord.country || 'US',
-      currency: studioRecord.currency || 'USD',
-      tax_included: studioRecord.tax_included ?? true,
-      default_team_language: studioRecord.default_team_language || 'en',
-      default_client_language: studioRecord.default_client_language || 'en',
-      facebook_url: studioRecord.facebook_url || '',
-      instagram_url: studioRecord.instagram_url || '',
-      twitter_url: studioRecord.twitter_url || '',
-      linkedin_url: studioRecord.linkedin_url || '',
-      created_at: studioRecord.created_at,
-      updated_at: studioRecord.updated_at,
-    };
+    // Fetch the full studio data using the returned ID
+    const studio = await this.getStudioById(studioId);
+    if (!studio) {
+      throw new Error('Failed to retrieve created studio');
+    }
     
-    console.log('createStudio: Created studio:', studio);
+    console.log('createStudio: Retrieved studio:', studio);
     return studio;
   },
 

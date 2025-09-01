@@ -1354,26 +1354,7 @@ export type Database = {
           p_studio_timezone?: string
           p_studio_website?: string
         }
-        Returns: {
-          country: string
-          created_at: string
-          currency: string
-          default_client_language: string
-          default_team_language: string
-          description: string
-          email: string
-          facebook_url: string
-          id: string
-          instagram_url: string
-          linkedin_url: string
-          name: string
-          phone: string
-          tax_included: boolean
-          timezone: string
-          twitter_url: string
-          updated_at: string
-          website: string
-        }[]
+        Returns: string
       }
       get_studio_by_id: {
         Args: { studio_id: string }
