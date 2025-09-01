@@ -8,6 +8,7 @@ import { ServiceForm } from "@/components/domain/services/ServiceForm";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Service } from "@/types/services";
 import { servicesApi } from "@/api/services";
+import { studiosApi } from "@/api/studios";
 import { useToast } from "@/hooks/use-toast";
 import { useRole } from "@/contexts/RoleContext";
 
@@ -16,6 +17,7 @@ export default function Services() {
   const [loading, setLoading] = useState(true);
   const [formDialogOpen, setFormDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
+  const [studioCurrency, setStudioCurrency] = useState<string>("USD");
   const { toast } = useToast();
   const { currentStudioId } = useRole();
 
@@ -24,8 +26,14 @@ export default function Services() {
     
     try {
       setLoading(true);
-      const data = await servicesApi.getServices(currentStudioId);
-      setServices(data);
+      const [servicesData, studioData] = await Promise.all([
+        servicesApi.getServices(currentStudioId),
+        studiosApi.getStudioById(currentStudioId)
+      ]);
+      setServices(servicesData);
+      if (studioData?.currency) {
+        setStudioCurrency(studioData.currency);
+      }
     } catch (error) {
       console.error('Error loading services:', error);
       toast({
@@ -124,6 +132,7 @@ export default function Services() {
             <ServiceForm
               studioId={currentStudioId}
               service={editingService || undefined}
+              studioCurrency={studioCurrency}
               onSuccess={handleFormSuccess}
               onCancel={handleFormCancel}
             />

@@ -36,11 +36,9 @@ export const ServicesList = ({ studioId, services, onEdit, onRefresh }: Services
   const [deleting, setDeleting] = useState(false);
   const { toast } = useToast();
 
-  // Group services by their first category
+  // Group services by their category
   const servicesByCategory = services.reduce((acc, service) => {
-    const primaryCategory = service.category && service.category.length > 0 
-      ? service.category[0] 
-      : 'Uncategorized';
+    const primaryCategory = service.category || 'Uncategorized';
     if (!acc[primaryCategory]) {
       acc[primaryCategory] = [];
     }
@@ -159,16 +157,13 @@ export const ServicesList = ({ studioId, services, onEdit, onRefresh }: Services
                     </p>
                   )}
                   
-                  {service.category && service.category.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {service.category.map((cat) => (
-                        <span 
-                          key={cat}
-                          className="inline-flex items-center rounded-full bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground"
-                        >
-                          {cat}
-                        </span>
-                      ))}
+                  {service.category && (
+                    <div className="mb-3">
+                      <span 
+                        className="inline-flex items-center rounded-full bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground"
+                      >
+                        {service.category}
+                      </span>
                     </div>
                   )}
                   
