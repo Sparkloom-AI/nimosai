@@ -14,7 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, Loader2 } from "lucide-react";
 
 const serviceSchema = z.object({
-  name: z.string().min(1, "Titel is required"),
+  name: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   duration: z.number().min(1, "Duration must be at least 1 minute"),
   price: z.number().min(0, "Price must be 0 or greater"),
@@ -152,7 +152,7 @@ export const ServiceForm = ({ studioId, service, onSuccess, onCancel, studioCurr
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Titel *</FormLabel>
+              <FormLabel>Title *</FormLabel>
               <FormControl>
                 <Input placeholder="e.g., Swedish Massage" {...field} />
               </FormControl>

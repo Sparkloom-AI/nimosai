@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, Edit, Trash2, Clock, DollarSign } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, Clock } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -152,20 +152,15 @@ export const ServicesList = ({ studioId, services, onEdit, onRefresh, studioCurr
                 </CardHeader>
                 
                 <CardContent className="pt-0">
-                  {service.description && (
-                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                      {service.description}
-                    </p>
-                  )}
-                  
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span>{formatDuration(service.duration)}</span>
-                    </div>
-                    <div className="flex items-center gap-1 font-semibold">
-                      <DollarSign className="h-4 w-4 text-muted-foreground" />
-                      <span>{formatPrice(service.price)}</span>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span>{formatDuration(service.duration)}</span>
+                      </div>
+                      <div className="flex items-center gap-1 font-semibold">
+                        <span>{formatPrice(service.price)}</span>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
