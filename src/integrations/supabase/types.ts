@@ -1399,12 +1399,11 @@ export type Database = {
           facebook_url: string
           id: string
           instagram_url: string
-          linkedin_url: string
           name: string
           phone: string
           tax_included: boolean
+          tiktok_url: string
           timezone: string
-          twitter_url: string
           updated_at: string
           website: string
         }[]
@@ -1435,12 +1434,11 @@ export type Database = {
           facebook_url: string
           id: string
           instagram_url: string
-          linkedin_url: string
           name: string
           phone: string
           tax_included: boolean
+          tiktok_url: string
           timezone: string
-          twitter_url: string
           updated_at: string
           website: string
         }[]
