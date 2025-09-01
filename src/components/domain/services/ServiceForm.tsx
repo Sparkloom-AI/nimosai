@@ -187,7 +187,7 @@ export const ServiceForm = ({ studioId, service, onSuccess, onCancel, studioCurr
           render={({ field }) => (
             <FormItem>
               <FormLabel className="flex items-center justify-between">
-                Description
+                Description (Optional)
                 <Button
                   type="button"
                   variant="outline"

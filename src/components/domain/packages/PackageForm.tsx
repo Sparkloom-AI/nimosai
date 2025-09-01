@@ -14,6 +14,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Service } from "@/types/services";
+import { supabase } from "@/integrations/supabase/client";
+import { Sparkles, Loader2 } from "lucide-react";
 
 const packageSchema = z.object({
   name: z.string().min(1, "Package name is required"),
@@ -37,6 +39,7 @@ interface PackageFormProps {
 
 export const PackageForm = ({ studioId, package: packageData, onSuccess, onCancel, studioCurrency = "USD" }: PackageFormProps) => {
   const [loading, setLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
   const [services, setServices] = useState<Service[]>([]);
   const { toast } = useToast();
 
@@ -83,6 +86,82 @@ export const PackageForm = ({ studioId, package: packageData, onSuccess, onCance
     };
     return symbols[currency] || currency;
   };
+
+  const generateAIDescription = async () => {
+    try {
+      setAiLoading(true);
+      const packageName = form.getValues("name");
+      const category = form.getValues("category");
+      
+      if (!packageName) {
+        toast({
+          title: "Name required",
+          description: "Please enter a package name first.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('generate-service-description', {
+        body: { serviceName: packageName, category, isPackage: true }
+      });
+
+      if (error) throw error;
+
+      if (data?.description) {
+        form.setValue("description", data.description);
+        toast({
+          title: "Description generated",
+          description: "AI-generated description has been added.",
+        });
+      }
+    } catch (error) {
+      console.error('Error generating AI description:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate description. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  // Calculate total price of selected services
+  const calculateServicesTotal = () => {
+    const selectedServiceIds = form.watch("services") || [];
+    return selectedServiceIds.reduce((total, serviceId) => {
+      const service = services.find(s => s.id === serviceId);
+      return total + (service?.price || 0);
+    }, 0);
+  };
+
+  // Calculate final price after discount
+  const calculateFinalPrice = () => {
+    const total = calculateServicesTotal();
+    const discountType = form.watch("discount_type");
+    const discountValue = form.watch("discount_value") || 0;
+    
+    if (discountType === "percentage") {
+      return total - (total * discountValue / 100);
+    } else {
+      return total - discountValue;
+    }
+  };
+
+  // Watch for changes in services or discount to auto-calculate price
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      if (values.services?.length || values.discount_type || values.discount_value !== undefined) {
+        const newPrice = Math.max(0, calculateFinalPrice());
+        if (newPrice !== form.getValues("price")) {
+          form.setValue("price", newPrice);
+        }
+      }
+    });
+    
+    return () => subscription.unsubscribe();
+  }, [form, services]);
 
   const onSubmit = async (data: PackageFormData) => {
     try {
@@ -169,7 +248,24 @@ export const PackageForm = ({ studioId, package: packageData, onSuccess, onCance
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel className="flex items-center justify-between">
+                Description (Optional)
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={generateAIDescription}
+                  disabled={aiLoading}
+                  className="ml-2"
+                >
+                  {aiLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Sparkles className="h-4 w-4 mr-2" />
+                  )}
+                  Generate with AI
+                </Button>
+              </FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Brief description of the package..."
@@ -257,6 +353,32 @@ export const PackageForm = ({ studioId, package: packageData, onSuccess, onCance
           />
         </div>
 
+        {/* Price Summary */}
+        <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
+          <h4 className="font-medium">Price Summary</h4>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span>Services Total:</span>
+              <span>{getCurrencySymbol(studioCurrency)}{calculateServicesTotal().toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Discount:</span>
+              <span>
+                -{getCurrencySymbol(studioCurrency)}
+                {form.watch("discount_type") === "percentage" 
+                  ? (calculateServicesTotal() * (form.watch("discount_value") || 0) / 100).toFixed(2)
+                  : (form.watch("discount_value") || 0).toFixed(2)
+                }
+              </span>
+            </div>
+            <hr />
+            <div className="flex justify-between font-semibold">
+              <span>Final Price:</span>
+              <span>{getCurrencySymbol(studioCurrency)}{Math.max(0, calculateFinalPrice()).toFixed(2)}</span>
+            </div>
+          </div>
+        </div>
+
         <FormField
           control={form.control}
           name="price"
@@ -275,7 +397,8 @@ export const PackageForm = ({ studioId, package: packageData, onSuccess, onCance
                     placeholder="0.00"
                     className="pl-8"
                     {...field}
-                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                    value={field.value || 0}
+                    readOnly
                   />
                 </div>
               </FormControl>

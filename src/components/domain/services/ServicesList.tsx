@@ -28,9 +28,10 @@ interface ServicesListProps {
   services: Service[];
   onEdit: (service: Service) => void;
   onRefresh: () => void;
+  studioCurrency?: string;
 }
 
-export const ServicesList = ({ studioId, services, onEdit, onRefresh }: ServicesListProps) => {
+export const ServicesList = ({ studioId, services, onEdit, onRefresh, studioCurrency = "USD" }: ServicesListProps) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -79,7 +80,7 @@ export const ServicesList = ({ studioId, services, onEdit, onRefresh }: Services
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: studioCurrency,
     }).format(price);
   };
 
@@ -155,16 +156,6 @@ export const ServicesList = ({ studioId, services, onEdit, onRefresh }: Services
                     <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
                       {service.description}
                     </p>
-                  )}
-                  
-                  {service.category && (
-                    <div className="mb-3">
-                      <span 
-                        className="inline-flex items-center rounded-full bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground"
-                      >
-                        {service.category}
-                      </span>
-                    </div>
                   )}
                   
                   <div className="flex items-center justify-between text-sm">
