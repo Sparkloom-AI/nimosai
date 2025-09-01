@@ -14,8 +14,7 @@ export interface Studio {
   default_client_language: string;
   facebook_url?: string;
   instagram_url?: string;
-  twitter_url?: string;
-  linkedin_url?: string;
+  tiktok_url?: string;
   created_at: string;
   updated_at: string;
 }

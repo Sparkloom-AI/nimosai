@@ -23,7 +23,6 @@ const navigation = [
   { name: 'Clients', href: '/clients', icon: Users },
   { name: 'Team', href: '/team', icon: Users },
   { name: 'Scheduled Shifts', href: '/scheduled-shifts', icon: Clock },
-  { name: 'Locations', href: '/locations', icon: MapPin },
   { name: 'Services', href: '/services', icon: Briefcase },
   { name: 'Reports', href: '/reports', icon: BarChart3 },
   { name: 'Messages', href: '/messages', icon: MessageSquare },

@@ -334,6 +334,39 @@ export type Database = {
         }
         Relationships: []
       }
+      business_hours: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          end_time: string | null
+          id: string
+          is_closed: boolean
+          location_id: string
+          start_time: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          end_time?: string | null
+          id?: string
+          is_closed?: boolean
+          location_id: string
+          start_time?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          end_time?: string | null
+          id?: string
+          is_closed?: boolean
+          location_id?: string
+          start_time?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       client_preferences: {
         Row: {
           accessibility_needs: string | null
@@ -854,12 +887,11 @@ export type Database = {
           facebook_url: string | null
           id: string
           instagram_url: string | null
-          linkedin_url: string | null
           name: string
           phone: string | null
           tax_included: boolean | null
+          tiktok_url: string | null
           timezone: string
-          twitter_url: string | null
           updated_at: string
           website: string | null
         }
@@ -874,12 +906,11 @@ export type Database = {
           facebook_url?: string | null
           id?: string
           instagram_url?: string | null
-          linkedin_url?: string | null
           name: string
           phone?: string | null
           tax_included?: boolean | null
+          tiktok_url?: string | null
           timezone?: string
-          twitter_url?: string | null
           updated_at?: string
           website?: string | null
         }
@@ -894,12 +925,11 @@ export type Database = {
           facebook_url?: string | null
           id?: string
           instagram_url?: string | null
-          linkedin_url?: string | null
           name?: string
           phone?: string | null
           tax_included?: boolean | null
+          tiktok_url?: string | null
           timezone?: string
-          twitter_url?: string | null
           updated_at?: string
           website?: string | null
         }

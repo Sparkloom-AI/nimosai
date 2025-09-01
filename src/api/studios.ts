@@ -73,8 +73,7 @@ export const studiosApi = {
       default_client_language: studioRecord.default_client_language || 'en',
       facebook_url: studioRecord.facebook_url || '',
       instagram_url: studioRecord.instagram_url || '',
-      twitter_url: studioRecord.twitter_url || '',
-      linkedin_url: studioRecord.linkedin_url || '',
+      tiktok_url: studioRecord.tiktok_url || '',
       created_at: studioRecord.created_at,
       updated_at: studioRecord.updated_at,
     };
