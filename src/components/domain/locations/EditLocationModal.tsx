@@ -36,14 +36,14 @@ interface EditLocationModalProps {
   location: Location;
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onLocationUpdated?: () => void;
 }
 
 export const EditLocationModal: React.FC<EditLocationModalProps> = ({
   location,
   isOpen,
   onClose,
-  onSuccess
+  onLocationUpdated
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -126,7 +126,7 @@ export const EditLocationModal: React.FC<EditLocationModalProps> = ({
         description: "Location has been successfully updated.",
       });
 
-      onSuccess();
+      onLocationUpdated?.();
     } catch (error) {
       toast({
         title: "Error",

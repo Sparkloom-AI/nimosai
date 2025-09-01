@@ -38,11 +38,13 @@ type LocationFormData = z.infer<typeof locationSchema>;
 interface AddLocationModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onLocationAdded?: () => void;
 }
 
 export const AddLocationModal: React.FC<AddLocationModalProps> = ({
   isOpen,
-  onClose
+  onClose,
+  onLocationAdded
 }) => {
   const { currentStudioId } = useRole();
   const queryClient = useQueryClient();
@@ -137,6 +139,7 @@ export const AddLocationModal: React.FC<AddLocationModalProps> = ({
 
       queryClient.invalidateQueries({ queryKey: ['locations', currentStudioId] });
       reset();
+      onLocationAdded?.();
       onClose();
     } catch (error) {
       toast({

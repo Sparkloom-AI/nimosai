@@ -132,7 +132,7 @@ export const LocationsList: React.FC<LocationsListProps> = ({ onAddLocation }) =
           location={editingLocation}
           isOpen={!!editingLocation}
           onClose={() => setEditingLocation(null)}
-          onSuccess={() => {
+          onLocationUpdated={() => {
             setEditingLocation(null);
             refetch();
           }}

@@ -28,8 +28,7 @@ export const studiosApi = {
       default_client_language: studioRecord.default_client_language || 'en',
       facebook_url: studioRecord.facebook_url || '',
       instagram_url: studioRecord.instagram_url || '',
-      twitter_url: studioRecord.twitter_url || '',
-      linkedin_url: studioRecord.linkedin_url || '',
+      tiktok_url: (studioRecord as any).tiktok_url || '',
       created_at: studioRecord.created_at,
       updated_at: studioRecord.updated_at,
     })) as Studio[];
@@ -73,7 +72,7 @@ export const studiosApi = {
       default_client_language: studioRecord.default_client_language || 'en',
       facebook_url: studioRecord.facebook_url || '',
       instagram_url: studioRecord.instagram_url || '',
-      tiktok_url: studioRecord.tiktok_url || '',
+      tiktok_url: (studioRecord as any).tiktok_url || '',
       created_at: studioRecord.created_at,
       updated_at: studioRecord.updated_at,
     };
@@ -145,8 +144,7 @@ export const studiosApi = {
       default_client_language?: string;
       facebook_url?: string;
       instagram_url?: string;
-      twitter_url?: string;
-      linkedin_url?: string;
+      tiktok_url?: string;
     }
   ): Promise<Studio> {
     const { data, error } = await supabase.rpc('update_studio_data', {
@@ -164,8 +162,7 @@ export const studiosApi = {
       studio_default_client_language: updates.default_client_language || null,
       studio_facebook_url: updates.facebook_url || null,
       studio_instagram_url: updates.instagram_url || null,
-      studio_twitter_url: updates.twitter_url || null,
-      studio_linkedin_url: updates.linkedin_url || null
+      studio_tiktok_url: updates.tiktok_url || null
     });
 
     if (error) throw error;
