@@ -26,13 +26,23 @@ export default function Services() {
     
     try {
       setLoading(true);
-      const [servicesData, studioData] = await Promise.all([
+      console.log('Services: Loading services for studio:', currentStudioId);
+      
+      const [servicesData, studioDataArray] = await Promise.all([
         servicesApi.getServices(currentStudioId),
         studiosApi.getStudioById(currentStudioId)
       ]);
+      
+      console.log('Services: Loaded services:', servicesData);
+      console.log('Services: Studio data:', studioDataArray);
+      
       setServices(servicesData);
+      
+      // Handle studio data properly - getStudioById returns an array
+      const studioData = Array.isArray(studioDataArray) ? studioDataArray[0] : studioDataArray;
       if (studioData?.currency) {
         setStudioCurrency(studioData.currency);
+        console.log('Services: Set currency to:', studioData.currency);
       }
     } catch (error) {
       console.error('Error loading services:', error);

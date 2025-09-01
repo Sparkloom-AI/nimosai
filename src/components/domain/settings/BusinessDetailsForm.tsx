@@ -85,8 +85,11 @@ export const BusinessDetailsForm = () => {
           form.reset(formData);
 
           // Load studio categories
-          const studioCategories = await studiosApi.getStudioCategories(currentStudio.id);
-          console.log('BusinessDetailsForm: Studio categories:', studioCategories);
+          const studioCategoriesResponse = await businessCategoriesApi.getStudioCategories(currentStudio.id);
+          console.log('BusinessDetailsForm: Studio categories response:', studioCategoriesResponse);
+          
+          const studioCategories = studioCategoriesResponse.data || [];
+          console.log('BusinessDetailsForm: Studio categories data:', studioCategories);
           
           const primary = studioCategories.find(cat => cat.is_primary);
           const additional = studioCategories.filter(cat => !cat.is_primary);

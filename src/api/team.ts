@@ -9,6 +9,8 @@ type TeamMemberUpdate = Database['public']['Tables']['team_members']['Update'];
 export const teamApi = {
   // Fetch all team members for a studio
   async getTeamMembers(studioId: string) {
+    console.log('TeamAPI: Fetching team members for studio:', studioId);
+    
     const { data, error } = await supabase
       .from('team_members')
       .select(`
@@ -27,7 +29,12 @@ export const teamApi = {
       .eq('studio_id', studioId)
       .order('created_at', { ascending: false });
     
-    if (error) throw error;
+    if (error) {
+      console.error('TeamAPI: Error fetching team members:', error);
+      throw error;
+    }
+    
+    console.log('TeamAPI: Fetched team members:', data);
     return data;
   },
 
