@@ -55,27 +55,46 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   // Load Google Maps API on component mount
   useEffect(() => {
     const initGoogleMaps = async () => {
+      console.log('Initializing Google Maps API...');
+      
       try {
+        console.log('Importing Google Maps API key module...');
         const { getGoogleMapsApiKey } = await import('@/lib/googleMapsApi');
+        
+        console.log('Requesting Google Maps API key...');
         const apiKey = await getGoogleMapsApiKey();
+        console.log('API key retrieved, loading Google Maps API...');
         
         await loadGoogleMapsAPI({
           apiKey,
           libraries: ['places']
         });
 
+        console.log('Checking if Google Maps Places API is available...');
         if (window.google?.maps?.places) {
+          console.log('Initializing AutocompleteService and PlacesService...');
           autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
           
           // Create a hidden div for PlacesService (required by Google Maps API)
           const hiddenDiv = document.createElement('div');
           placesServiceRef.current = new window.google.maps.places.PlacesService(hiddenDiv);
+          
+          console.log('Google Maps services initialized successfully');
+        } else {
+          console.error('Google Maps Places API not available after loading');
+          throw new Error('Google Maps Places API not available');
         }
         
         setIsGoogleMapsLoaded(true);
+        console.log('Google Maps initialization complete');
       } catch (error) {
-        console.error('Failed to load Google Maps API:', error);
-        toast.error('Failed to load address autocomplete. Please enter address manually.');
+        console.error('Failed to load Google Maps API:', {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        });
+        
+        toast.error(`Failed to load address autocomplete: ${error.message}. Please enter address manually.`);
       }
     };
 

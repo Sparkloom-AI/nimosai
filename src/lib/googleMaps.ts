@@ -7,20 +7,31 @@ export interface GoogleMapsConfig {
 let googleMapsPromise: Promise<void> | null = null;
 
 export const loadGoogleMapsAPI = (config: GoogleMapsConfig): Promise<void> => {
+  console.log('loadGoogleMapsAPI called with config:', {
+    hasApiKey: !!config.apiKey,
+    libraries: config.libraries,
+    apiKeyLength: config.apiKey?.length
+  });
+
   if (googleMapsPromise) {
+    console.log('Returning existing Google Maps promise');
     return googleMapsPromise;
   }
 
   googleMapsPromise = new Promise((resolve, reject) => {
     // Check if already loaded
     if (window.google && window.google.maps) {
+      console.log('Google Maps API already loaded');
       resolve();
       return;
     }
 
+    console.log('Loading Google Maps API script...');
+
     // Create callback function
     const callbackName = `initGoogleMaps_${Date.now()}`;
     (window as any)[callbackName] = () => {
+      console.log('Google Maps API loaded successfully via callback');
       resolve();
       delete (window as any)[callbackName];
     };
@@ -31,9 +42,26 @@ export const loadGoogleMapsAPI = (config: GoogleMapsConfig): Promise<void> => {
     script.src = `https://maps.googleapis.com/maps/api/js?key=${config.apiKey}&libraries=${libraries}&callback=${callbackName}`;
     script.async = true;
     script.defer = true;
-    script.onerror = () => reject(new Error('Failed to load Google Maps API'));
+    
+    script.onerror = (error) => {
+      console.error('Failed to load Google Maps API script:', error);
+      reject(new Error('Failed to load Google Maps API script'));
+    };
 
+    script.onload = () => {
+      console.log('Google Maps API script loaded successfully');
+    };
+
+    console.log('Adding Google Maps script to head:', script.src);
     document.head.appendChild(script);
+
+    // Timeout fallback
+    setTimeout(() => {
+      if (!window.google?.maps) {
+        console.error('Google Maps API failed to load within timeout');
+        reject(new Error('Google Maps API loading timeout'));
+      }
+    }, 15000); // 15 second timeout
   });
 
   return googleMapsPromise;

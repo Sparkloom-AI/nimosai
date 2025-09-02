@@ -8,6 +8,7 @@ import { EnhancedBusinessDetailsForm } from '@/components/domain/settings/Enhanc
 import { BasicInfoForm } from '@/components/domain/settings/BasicInfoForm';
 import { LocationsSection } from '@/components/domain/locations/LocationsSection';
 import SettingsWizard from '@/components/domain/settings/SettingsWizard';
+import { GoogleMapsTest } from '@/components/domain/locations/GoogleMapsTest';
 
 type SettingsSection = 'overview' | 'business-details' | 'basic-info' | 'locations' | 'wizard';
 
@@ -218,20 +219,34 @@ const SettingsRedesigned = () => {
               </TabsContent>
 
               <TabsContent value="other" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Other Settings</CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      Additional settings and integrations for your business.
-                    </p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-8 text-muted-foreground">
-                      <MoreHorizontal className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>Additional settings coming soon</p>
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Development & Testing</CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        Tools for testing integrations and debugging.
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      <GoogleMapsTest />
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Other Settings</CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        Additional settings and integrations for your business.
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center py-8 text-muted-foreground">
+                        <MoreHorizontal className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p>Additional settings coming soon</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               </TabsContent>
             </Tabs>
           </div>
