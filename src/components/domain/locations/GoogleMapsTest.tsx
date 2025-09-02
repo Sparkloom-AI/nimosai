@@ -1,207 +1,157 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { getGooglePlacesApiKey, searchPlacesText } from '@/lib/googleMapsApi';
 import { Badge } from '@/components/ui/badge';
-import { getGoogleMapsApiKey } from '@/lib/googleMapsApi';
-import { loadGoogleMapsAPI } from '@/lib/googleMaps';
-import { CheckCircle, XCircle, Loader2, TestTube } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface TestResult {
   step: string;
-  status: 'pending' | 'success' | 'error';
+  status: 'pending' | 'running' | 'success' | 'error' | 'warning';
   message?: string;
-  details?: any;
+  details?: string;
 }
 
 export const GoogleMapsTest: React.FC = () => {
   const [testing, setTesting] = useState(false);
   const [results, setResults] = useState<TestResult[]>([]);
 
-  const updateResult = (step: string, status: 'pending' | 'success' | 'error', message?: string, details?: any) => {
+  const updateResult = (step: string, status: TestResult['status'], message?: string, details?: string) => {
     setResults(prev => {
-      const newResults = [...prev];
-      const existingIndex = newResults.findIndex(r => r.step === step);
+      const existingIndex = prev.findIndex(r => r.step === step);
+      const newResult: TestResult = { step, status, message, details };
       
       if (existingIndex >= 0) {
-        newResults[existingIndex] = { step, status, message, details };
+        const updated = [...prev];
+        updated[existingIndex] = newResult;
+        return updated;
       } else {
-        newResults.push({ step, status, message, details });
+        return [...prev, newResult];
       }
-      
-      return newResults;
     });
   };
 
   const runTests = async () => {
     setTesting(true);
     setResults([]);
-    
+
     try {
-      // Test 1: Get API Key
-      updateResult('Get API Key', 'pending');
-      try {
-        const apiKey = await getGoogleMapsApiKey();
-        updateResult('Get API Key', 'success', `API key retrieved (${apiKey.length} characters)`);
-      } catch (error) {
-        updateResult('Get API Key', 'error', error.message);
-        return;
-      }
+      // Test 1: Get Google Places API Key
+      updateResult('api_key', 'running', 'Retrieving Places API key...');
+      const apiKey = await getGooglePlacesApiKey();
+      updateResult('api_key', 'success', `Places API key retrieved: ${apiKey.substring(0, 10)}...`);
 
-      // Test 2: Load Google Maps API
-      updateResult('Load Google Maps', 'pending');
-      try {
-        const apiKey = await getGoogleMapsApiKey();
-        await loadGoogleMapsAPI({
-          apiKey,
-          libraries: ['places']
-        });
-        updateResult('Load Google Maps', 'success', 'Google Maps API loaded successfully');
-      } catch (error) {
-        updateResult('Load Google Maps', 'error', error.message);
-        return;
-      }
+      // Test 2: Test Places Text Search API
+      updateResult('places_search', 'running', 'Testing Places Text Search API...');
+      const searchResults = await searchPlacesText({
+        textQuery: 'New York City Hall'
+      });
+      updateResult('places_search', 'success', `Found ${searchResults.length} places`);
 
-      // Test 3: Check Google Maps Objects
-      updateResult('Check APIs', 'pending');
-      try {
-        const hasGoogle = !!window.google;
-        const hasMaps = !!window.google?.maps;
-        const hasPlaces = !!window.google?.maps?.places;
-        const hasAutocomplete = !!window.google?.maps?.places?.AutocompleteService;
-        const hasPlacesService = !!window.google?.maps?.places?.PlacesService;
-
-        if (hasGoogle && hasMaps && hasPlaces && hasAutocomplete && hasPlacesService) {
-          updateResult('Check APIs', 'success', 'All Google Maps APIs available', {
-            hasGoogle,
-            hasMaps,
-            hasPlaces,
-            hasAutocomplete,
-            hasPlacesService
-          });
-        } else {
-          updateResult('Check APIs', 'error', 'Some Google Maps APIs missing', {
-            hasGoogle,
-            hasMaps,
-            hasPlaces,
-            hasAutocomplete,
-            hasPlacesService
-          });
-          return;
-        }
-      } catch (error) {
-        updateResult('Check APIs', 'error', error.message);
-        return;
-      }
-
-      // Test 4: Test AutocompleteService
-      updateResult('Test Autocomplete', 'pending');
-      try {
-        const autocompleteService = new window.google.maps.places.AutocompleteService();
+      // Test 3: Validate search results structure
+      updateResult('results_validation', 'running', 'Validating search results...');
+      if (searchResults.length > 0) {
+        const firstResult = searchResults[0];
+        const hasRequiredFields = firstResult.place_id && 
+                                firstResult.description && 
+                                firstResult.structured_formatting;
         
-        await new Promise((resolve, reject) => {
-          autocompleteService.getPlacePredictions(
-            {
-              input: 'New York',
-              types: ['establishment', 'geocode'],
-              componentRestrictions: { country: 'us' }
-            },
-            (predictions, status) => {
-              if (status === 'OK' && predictions && predictions.length > 0) {
-                updateResult('Test Autocomplete', 'success', `Found ${predictions.length} predictions`);
-                resolve(predictions);
-              } else {
-                updateResult('Test Autocomplete', 'error', `Autocomplete failed with status: ${status}`);
-                reject(new Error(`Autocomplete failed: ${status}`));
-              }
-            }
-          );
-        });
-      } catch (error) {
-        updateResult('Test Autocomplete', 'error', error.message);
-        return;
+        if (hasRequiredFields) {
+          updateResult('results_validation', 'success', 'Search results have correct structure');
+        } else {
+          updateResult('results_validation', 'error', 'Search results missing required fields');
+        }
+      } else {
+        updateResult('results_validation', 'warning', 'No results returned to validate');
       }
-
-      toast.success('All Google Maps tests passed!');
-
+      
+      toast.success('All Google Places tests passed!');
     } catch (error) {
-      console.error('Test suite failed:', error);
+      console.error('Test failed:', error);
       toast.error(`Test failed: ${error.message}`);
     } finally {
       setTesting(false);
     }
   };
 
-  const getStatusIcon = (status: 'pending' | 'success' | 'error') => {
+  const getStatusIcon = (status: TestResult['status']) => {
     switch (status) {
-      case 'pending':
-        return <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />;
       case 'success':
-        return <CheckCircle className="h-4 w-4 text-success" />;
+        return <CheckCircle className="h-4 w-4 text-green-600" />;
       case 'error':
-        return <XCircle className="h-4 w-4 text-destructive" />;
+        return <XCircle className="h-4 w-4 text-red-600" />;
+      case 'warning':
+        return <AlertCircle className="h-4 w-4 text-yellow-600" />;
+      case 'running':
+        return <Loader2 className="h-4 w-4 animate-spin text-blue-600" />;
+      default:
+        return <div className="h-4 w-4 rounded-full bg-gray-300" />;
     }
   };
 
-  const getStatusColor = (status: 'pending' | 'success' | 'error') => {
+  const getStatusColor = (status: TestResult['status']) => {
     switch (status) {
-      case 'pending':
-        return 'bg-muted text-muted-foreground';
       case 'success':
-        return 'bg-success/10 text-success border border-success/20';
+        return 'bg-green-100 text-green-800 border-green-200';
       case 'error':
-        return 'bg-destructive/10 text-destructive border border-destructive/20';
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'warning':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'running':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
   return (
     <Card className="w-full max-w-2xl">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <TestTube className="h-5 w-5" />
-          Google Maps Integration Test
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+        <CardTitle>Google Places Integration Test</CardTitle>
+        <CardDescription>
+          Test the Google Places Text Search API integration to ensure everything is working correctly.
+        </CardDescription>
         <Button 
           onClick={runTests} 
           disabled={testing}
-          className="w-full"
+          className="w-fit"
         >
           {testing ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Running Tests...
             </>
           ) : (
-            <>
-              <TestTube className="h-4 w-4 mr-2" />
-              Run Google Maps Tests
-            </>
+            'Run Integration Tests'
           )}
         </Button>
-
-        {results.length > 0 && (
-          <div className="space-y-3">
-            <h3 className="font-semibold">Test Results:</h3>
-            {results.map((result, index) => (
-              <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  {getStatusIcon(result.status)}
-                  <div>
-                    <div className="font-medium">{result.step}</div>
-                    {result.message && (
-                      <div className="text-sm text-muted-foreground">{result.message}</div>
-                    )}
-                  </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          {results.map((result) => (
+            <div key={result.step} className="flex items-center gap-3 p-3 rounded-lg border bg-muted/50">
+              {getStatusIcon(result.status)}
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{result.step.replace('_', ' ').toUpperCase()}</span>
+                  <Badge 
+                    variant="outline" 
+                    className={getStatusColor(result.status)}
+                  >
+                    {result.status}
+                  </Badge>
                 </div>
-                <Badge className={getStatusColor(result.status)}>
-                  {result.status}
-                </Badge>
+                {result.message && (
+                  <p className="text-sm text-muted-foreground mt-1">{result.message}</p>
+                )}
+                {result.details && (
+                  <p className="text-xs text-muted-foreground mt-1 font-mono">{result.details}</p>
+                )}
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );

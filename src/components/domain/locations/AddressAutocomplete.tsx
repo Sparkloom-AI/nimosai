@@ -1,24 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
+import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Loader2 } from 'lucide-react';
-import { loadGoogleMapsAPI, parseAddressComponents, formatAddress, type PlaceDetails } from '@/lib/googleMaps';
+import { Input } from '@/components/ui/input';
+import { searchPlacesText, type AddressSuggestion, type PlacesSearchRequest } from '@/lib/googleMapsApi';
 import { toast } from 'sonner';
-/// <reference path="../../../types/google-maps-global.d.ts" />
 
-// Use any type for google namespace to avoid build errors  
-declare const google: any;
+// Re-export the interface for consistency
+export type { AddressSuggestion } from '@/lib/googleMapsApi';
 
-
-interface AddressSuggestion {
-  place_id: string;
-  description: string;
-  structured_formatting: {
-    main_text: string;
-    secondary_text: string;
-  };
-}
-
+// Address data structure expected by parent components (matching existing interface)
 interface AddressData {
   address: string;
   city: string;
@@ -36,191 +25,133 @@ interface AddressAutocompleteProps {
   value?: string;
 }
 
-export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
-  onAddressSelect,
-  placeholder = "Start typing an address...",
-  value: initialValue = ""
-}) => {
-  const [query, setQuery] = useState(initialValue);
+export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({ onAddressSelect }) => {
+  const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [isGoogleMapsLoaded, setIsGoogleMapsLoaded] = useState(false);
-  const debounceRef = useRef<NodeJS.Timeout>();
+  const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const autocompleteServiceRef = useRef<any>(null);
-  const placesServiceRef = useRef<any>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
 
-  // Load Google Maps API on component mount
-  useEffect(() => {
-    const initGoogleMaps = async () => {
-      console.log('Initializing Google Maps API...');
-      
-      try {
-        console.log('Importing Google Maps API key module...');
-        const { getGoogleMapsApiKey } = await import('@/lib/googleMapsApi');
-        
-        console.log('Requesting Google Maps API key...');
-        const apiKey = await getGoogleMapsApiKey();
-        console.log('API key retrieved, loading Google Maps API...');
-        
-        await loadGoogleMapsAPI({
-          apiKey,
-          libraries: ['places']
-        });
-
-        console.log('Checking if Google Maps Places API is available...');
-        if (window.google?.maps?.places) {
-          console.log('Initializing AutocompleteService and PlacesService...');
-          autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
-          
-          // Create a hidden div for PlacesService (required by Google Maps API)
-          const hiddenDiv = document.createElement('div');
-          placesServiceRef.current = new window.google.maps.places.PlacesService(hiddenDiv);
-          
-          console.log('Google Maps services initialized successfully');
-        } else {
-          console.error('Google Maps Places API not available after loading');
-          throw new Error('Google Maps Places API not available');
-        }
-        
-        setIsGoogleMapsLoaded(true);
-        console.log('Google Maps initialization complete');
-      } catch (error) {
-        console.error('Failed to load Google Maps API:', {
-          message: error.message,
-          stack: error.stack,
-          name: error.name
-        });
-        
-        toast.error(`Failed to load address autocomplete: ${error.message}. Please enter address manually.`);
-      }
-    };
-
-    initGoogleMaps();
-  }, []);
-
+  // Fetch suggestions using Google Places Text Search API
   const fetchSuggestions = async (input: string) => {
-    if (input.length < 3) {
+    if (!input.trim()) {
       setSuggestions([]);
-      return;
-    }
-
-    if (!isGoogleMapsLoaded || !autocompleteServiceRef.current) {
-      // Fallback to manual entry
-      setSuggestions([]);
+      setShowSuggestions(false);
       return;
     }
 
     setIsLoading(true);
-
+    
     try {
-      const request = {
-        input,
-        types: ['establishment', 'geocode'],
-        componentRestrictions: { country: 'us' }, // Restrict to US for business addresses
+      console.log('AddressAutocomplete: Fetching suggestions for:', input);
+      
+      const request: PlacesSearchRequest = {
+        textQuery: input.trim()
       };
 
-      autocompleteServiceRef.current.getPlacePredictions(request, (predictions: any, status: any) => {
-        if (status === 'OK' && predictions) {
-          const formattedSuggestions: AddressSuggestion[] = predictions.map(prediction => ({
-            place_id: prediction.place_id,
-            description: prediction.description,
-            structured_formatting: {
-              main_text: prediction.structured_formatting?.main_text || prediction.description,
-              secondary_text: prediction.structured_formatting?.secondary_text || ''
-            }
-          }));
-          
-          setSuggestions(formattedSuggestions);
-          setShowSuggestions(true);
-        } else {
-          setSuggestions([]);
-        }
-        setIsLoading(false);
-      });
+      const results = await searchPlacesText(request);
+      console.log('AddressAutocomplete: Received suggestions:', results.length);
+      
+      setSuggestions(results);
+      setShowSuggestions(true);
     } catch (error) {
-      console.error('Error fetching suggestions:', error);
+      console.error('AddressAutocomplete: Error fetching suggestions:', error);
       setSuggestions([]);
+      setShowSuggestions(false);
+      toast.error('Failed to search addresses. Please try again.');
+    } finally {
       setIsLoading(false);
     }
   };
 
-  const getPlaceDetails = (placeId: string): Promise<PlaceDetails> => {
-    return new Promise((resolve, reject) => {
-      if (!placesServiceRef.current) {
-        reject(new Error('Places service not available'));
-        return;
+  // Parse suggestion to AddressData (simplified since we don't have detailed place info)
+  const parseAddressSuggestionToAddressData = (suggestion: AddressSuggestion): AddressData => {
+    console.log('AddressAutocomplete: Parsing suggestion:', suggestion);
+    
+    // Extract basic info from the description
+    const parts = suggestion.description.split(', ');
+    const streetAddress = suggestion.structured_formatting.main_text || parts[0] || '';
+    const remainingParts = parts.slice(1);
+    
+    // Try to identify city, state, country from remaining parts
+    let city = '';
+    let state = '';
+    let country = '';
+    let postalCode = '';
+    
+    if (remainingParts.length > 0) {
+      // Last part is often country
+      country = remainingParts[remainingParts.length - 1] || '';
+      
+      // Second to last might be state/region
+      if (remainingParts.length > 1) {
+        state = remainingParts[remainingParts.length - 2] || '';
       }
+      
+      // Earlier parts might be city
+      if (remainingParts.length > 2) {
+        city = remainingParts.slice(0, -2).join(', ');
+      } else if (remainingParts.length === 2) {
+        city = remainingParts[0] || '';
+      }
+    }
 
-      const request = {
-        placeId,
-        fields: ['place_id', 'formatted_address', 'address_components', 'geometry', 'name']
-      };
+    const addressData: AddressData = {
+      place_id: suggestion.place_id,
+      address: streetAddress,
+      city,
+      state,
+      postal_code: postalCode,
+      country,
+      latitude: 0, // Note: Text Search API doesn't provide coordinates in this simplified version
+      longitude: 0,
+    };
 
-      placesServiceRef.current.getDetails(request, (place: any, status: any) => {
-        if (status === 'OK' && place) {
-          resolve(place);
-        } else {
-          reject(new Error(`Failed to get place details: ${status}`));
-        }
-      });
-    });
+    console.log('AddressAutocomplete: Parsed address data:', addressData);
+    return addressData;
   };
 
-  const parseGooglePlaceToAddressData = async (placeId: string): Promise<AddressData> => {
+  // Handle suggestion selection
+  const handleSuggestionSelect = async (suggestion: AddressSuggestion) => {
+    console.log('AddressAutocomplete: Suggestion selected:', suggestion);
+    
+    setQuery(suggestion.description);
+    setShowSuggestions(false);
+    setSelectedIndex(-1);
+    setIsLoading(true);
+
     try {
-      const place = await getPlaceDetails(placeId);
-      
-      if (!place.address_components) {
-        throw new Error('No address components found');
-      }
-
-      const components = parseAddressComponents(place.address_components);
-      const formattedAddress = formatAddress(components);
-
-      return {
-        ...formattedAddress,
-        place_id: place.place_id,
-        latitude: place.geometry?.location.lat(),
-        longitude: place.geometry?.location.lng()
-      };
+      const addressData = parseAddressSuggestionToAddressData(suggestion);
+      console.log('AddressAutocomplete: Calling onAddressSelect with:', addressData);
+      onAddressSelect(addressData);
     } catch (error) {
-      console.error('Error parsing place details:', error);
-      throw error;
+      console.error('AddressAutocomplete: Error processing selected address:', error);
+      toast.error('Failed to process selected address. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  // Debounced input change handler
+  let debounceTimer: NodeJS.Timeout;
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setQuery(value);
     setSelectedIndex(-1);
 
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-
-    debounceRef.current = setTimeout(() => {
+    // Clear previous timer
+    clearTimeout(debounceTimer);
+    
+    // Set new timer
+    debounceTimer = setTimeout(() => {
       fetchSuggestions(value);
     }, 300);
   };
 
-  const handleSuggestionSelect = async (suggestion: AddressSuggestion) => {
-    setQuery(suggestion.description);
-    setShowSuggestions(false);
-    setSuggestions([]);
-    
-    try {
-      const addressData = await parseGooglePlaceToAddressData(suggestion.place_id);
-      onAddressSelect(addressData);
-    } catch (error) {
-      console.error('Error getting address details:', error);
-      toast.error('Failed to get address details. Please try again.');
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  // Handle keyboard navigation
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!showSuggestions || suggestions.length === 0) return;
 
     switch (e.key) {
@@ -247,21 +178,13 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
     }
   };
 
+  // Handle blur with delay to allow clicks
   const handleBlur = () => {
-    // Delay hiding suggestions to allow for clicks
     setTimeout(() => {
       setShowSuggestions(false);
       setSelectedIndex(-1);
     }, 200);
   };
-
-  useEffect(() => {
-    return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
-    };
-  }, []);
 
   return (
     <div className="relative">
@@ -277,7 +200,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
               setShowSuggestions(true);
             }
           }}
-          placeholder={placeholder}
+          placeholder="Start typing an address..."
           className="pr-10"
         />
         <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -290,43 +213,44 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
       </div>
 
       {showSuggestions && suggestions.length > 0 && (
-        <Card className="absolute z-50 w-full mt-1 max-h-60 overflow-y-auto shadow-lg">
-          <div className="p-1">
-            {suggestions.map((suggestion, index) => (
-              <div
-                key={suggestion.place_id}
-                className={`px-3 py-2 cursor-pointer rounded-sm transition-colors ${
-                  index === selectedIndex 
-                    ? 'bg-accent text-accent-foreground' 
-                    : 'hover:bg-muted'
-                }`}
-                onClick={() => handleSuggestionSelect(suggestion)}
-              >
-                <div className="flex items-start gap-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                  <div>
-                    <div className="font-medium">
-                      {suggestion.structured_formatting.main_text}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {suggestion.structured_formatting.secondary_text}
-                    </div>
+        <div 
+          ref={suggestionsRef}
+          className="absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-y-auto"
+        >
+          {suggestions.map((suggestion, index) => (
+            <div
+              key={suggestion.place_id}
+              className={`px-3 py-2 cursor-pointer transition-colors ${
+                index === selectedIndex 
+                  ? 'bg-accent text-accent-foreground' 
+                  : 'hover:bg-muted'
+              }`}
+              onClick={() => handleSuggestionSelect(suggestion)}
+            >
+              <div className="flex items-start gap-2">
+                <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <div className="font-medium text-sm">
+                    {suggestion.structured_formatting.main_text}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {suggestion.structured_formatting.secondary_text}
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </Card>
+            </div>
+          ))}
+        </div>
       )}
 
       {query.length >= 3 && !isLoading && suggestions.length === 0 && showSuggestions && (
-        <Card className="absolute z-50 w-full mt-1 shadow-lg">
+        <div className="absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-lg">
           <div className="p-4 text-center text-muted-foreground">
             <MapPin className="h-6 w-6 mx-auto mb-2 opacity-50" />
             <p className="text-sm">No addresses found</p>
             <p className="text-xs">Try a different search term</p>
           </div>
-        </Card>
+        </div>
       )}
     </div>
   );

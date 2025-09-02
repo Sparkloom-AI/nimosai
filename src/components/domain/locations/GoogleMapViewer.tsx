@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { loadGoogleMapsAPI } from '@/lib/googleMaps';
-import { getGoogleMapsApiKey } from '@/lib/googleMapsApi';
+import { getGooglePlacesApiKey } from '@/lib/googleMapsApi';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 /// <reference path="../../../types/google-maps-global.d.ts" />
@@ -58,7 +58,7 @@ export const GoogleMapViewer: React.FC<GoogleMapViewerProps> = ({
       setIsLoading(true);
       setError(null);
 
-      const apiKey = await getGoogleMapsApiKey();
+      const apiKey = await getGooglePlacesApiKey();
       await loadGoogleMapsAPI({
         apiKey,
         libraries: ['places', 'geometry']

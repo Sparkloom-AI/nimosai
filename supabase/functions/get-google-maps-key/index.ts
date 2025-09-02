@@ -6,7 +6,7 @@ const corsHeaders = {
 }
 
 Deno.serve(async (req) => {
-  console.log('Google Maps API key request received:', {
+  console.log('Google Places API key request received:', {
     method: req.method,
     url: req.url,
     hasAuth: !!req.headers.get('Authorization')
@@ -26,7 +26,7 @@ Deno.serve(async (req) => {
     console.log('Environment check:', {
       hasSupabaseUrl: !!supabaseUrl,
       hasServiceKey: !!supabaseServiceKey,
-      hasGoogleMapsKey: !!Deno.env.get('GOOGLE_MAPS_API_KEY')
+      hasGooglePlacesKey: !!Deno.env.get('GOOGLE_PLACE_API_KEY')
     });
 
     if (!supabaseUrl || !supabaseServiceKey) {
@@ -72,20 +72,20 @@ Deno.serve(async (req) => {
 
     console.log('User authenticated successfully:', user.id);
 
-    // Get Google Maps API key from secrets
-    const googleMapsApiKey = Deno.env.get('GOOGLE_MAPS_API_KEY')
+    // Get Google Places API key from secrets
+    const googlePlacesApiKey = Deno.env.get('GOOGLE_PLACE_API_KEY')
     
-    if (!googleMapsApiKey) {
-      console.error('Google Maps API key not found in environment variables');
+    if (!googlePlacesApiKey) {
+      console.error('Google Places API key not found in environment variables');
       return new Response(
-        JSON.stringify({ error: 'API key not configured' }),
+        JSON.stringify({ error: 'Places API key not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log('Google Maps API key found, returning to client');
+    console.log('Google Places API key found, returning to client');
     return new Response(
-      JSON.stringify({ apiKey: googleMapsApiKey }),
+      JSON.stringify({ apiKey: googlePlacesApiKey }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
