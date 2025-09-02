@@ -1,13 +1,12 @@
-
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
-interface ProtectedRouteProps {
+interface OnboardingProtectedRouteProps {
   children: React.ReactNode;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const OnboardingProtectedRoute: React.FC<OnboardingProtectedRouteProps> = ({ children }) => {
   const { user, loading, onboardingComplete } = useAuth();
   const navigate = useNavigate();
 
@@ -39,5 +38,5 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   return <>{children}</>;
 };
 
-export { ProtectedRoute };
-export default ProtectedRoute;
+export { OnboardingProtectedRoute };
+export default OnboardingProtectedRoute;

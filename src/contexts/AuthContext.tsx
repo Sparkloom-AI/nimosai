@@ -8,10 +8,12 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  onboardingComplete: boolean | null;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
   signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  completeOnboarding: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,6 +44,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(null);
+
+  // Fetch profile data when user changes
+  const fetchProfileData = async (userId: string) => {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('onboarding_complete')
+        .eq('id', userId)
+        .single();
+      
+      setOnboardingComplete(profile?.onboarding_complete ?? false);
+    } catch (error) {
+      console.warn('Failed to fetch profile data:', error);
+      setOnboardingComplete(false);
+    }
+  };
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -49,6 +68,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          // Defer profile fetching to avoid deadlocks
+          setTimeout(() => {
+            fetchProfileData(session.user.id);
+          }, 0);
+        } else {
+          setOnboardingComplete(null);
+        }
+        
         setLoading(false);
       }
     );
@@ -57,6 +86,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        fetchProfileData(session.user.id);
+      } else {
+        setOnboardingComplete(null);
+      }
+      
       setLoading(false);
     });
 
@@ -201,14 +237,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const completeOnboarding = async () => {
+    if (!user) return;
+    
+    try {
+      await supabase
+        .from('profiles')
+        .update({ onboarding_complete: true })
+        .eq('id', user.id);
+      
+      setOnboardingComplete(true);
+    } catch (error) {
+      console.warn('Failed to complete onboarding:', error);
+    }
+  };
+
   const value = {
     user,
     session,
     loading,
+    onboardingComplete,
     signIn,
     signUp,
     signInWithGoogle,
     signOut,
+    completeOnboarding,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

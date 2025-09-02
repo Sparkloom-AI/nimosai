@@ -20,6 +20,7 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import CookieConsent from "./components/CookieConsent";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Onboarding from "./pages/Onboarding";
 import TermsLayout from "./components/layout/TermsLayout";
 import TermsOverview from "./pages/terms/Overview";
 import TermsOfUse from "./pages/terms/TermsOfUse";
@@ -44,6 +45,7 @@ function App() {
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<Auth />} />
+                  <Route path="/onboarding" element={<Onboarding />} />
                   <Route path="/forgot-password" element={<ForgotPasswordForm />} />
                   <Route path="/terms" element={<TermsLayout />}>
                     <Route index element={<TermsOverview />} />

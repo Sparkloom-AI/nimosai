@@ -652,6 +652,7 @@ export type Database = {
           full_name: string | null
           id: string
           language: string | null
+          onboarding_complete: boolean
           phone_prefix: string | null
           timezone: string | null
           updated_at: string
@@ -666,6 +667,7 @@ export type Database = {
           full_name?: string | null
           id: string
           language?: string | null
+          onboarding_complete?: boolean
           phone_prefix?: string | null
           timezone?: string | null
           updated_at?: string
@@ -680,6 +682,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           language?: string | null
+          onboarding_complete?: boolean
           phone_prefix?: string | null
           timezone?: string | null
           updated_at?: string
