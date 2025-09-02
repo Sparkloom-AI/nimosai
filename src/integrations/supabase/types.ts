@@ -529,6 +529,7 @@ export type Database = {
           city: string
           country: string
           created_at: string
+          google_maps_shortlink: string | null
           id: string
           is_active: boolean
           is_primary: boolean
@@ -538,6 +539,7 @@ export type Database = {
           phone: string | null
           place_id: string | null
           postal_code: string
+          shortlink_generated_at: string | null
           state: string
           studio_id: string
           updated_at: string
@@ -548,6 +550,7 @@ export type Database = {
           city?: string
           country?: string
           created_at?: string
+          google_maps_shortlink?: string | null
           id?: string
           is_active?: boolean
           is_primary?: boolean
@@ -557,6 +560,7 @@ export type Database = {
           phone?: string | null
           place_id?: string | null
           postal_code?: string
+          shortlink_generated_at?: string | null
           state?: string
           studio_id: string
           updated_at?: string
@@ -567,6 +571,7 @@ export type Database = {
           city?: string
           country?: string
           created_at?: string
+          google_maps_shortlink?: string | null
           id?: string
           is_active?: boolean
           is_primary?: boolean
@@ -576,6 +581,7 @@ export type Database = {
           phone?: string | null
           place_id?: string | null
           postal_code?: string
+          shortlink_generated_at?: string | null
           state?: string
           studio_id?: string
           updated_at?: string
@@ -677,6 +683,36 @@ export type Database = {
           phone_prefix?: string | null
           timezone?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      quick_link_settings: {
+        Row: {
+          auto_generate_maps_links: boolean
+          created_at: string
+          id: string
+          maps_link_refresh_days: number
+          studio_id: string
+          updated_at: string
+          whatsapp_link_template: string | null
+        }
+        Insert: {
+          auto_generate_maps_links?: boolean
+          created_at?: string
+          id?: string
+          maps_link_refresh_days?: number
+          studio_id: string
+          updated_at?: string
+          whatsapp_link_template?: string | null
+        }
+        Update: {
+          auto_generate_maps_links?: boolean
+          created_at?: string
+          id?: string
+          maps_link_refresh_days?: number
+          studio_id?: string
+          updated_at?: string
+          whatsapp_link_template?: string | null
         }
         Relationships: []
       }
@@ -943,6 +979,8 @@ export type Database = {
           instagram_url: string | null
           name: string
           phone: string | null
+          studio_manager_whatsapp: string | null
+          studio_owner_whatsapp: string | null
           tax_included: boolean | null
           tiktok_url: string | null
           timezone: string
@@ -962,6 +1000,8 @@ export type Database = {
           instagram_url?: string | null
           name: string
           phone?: string | null
+          studio_manager_whatsapp?: string | null
+          studio_owner_whatsapp?: string | null
           tax_included?: boolean | null
           tiktok_url?: string | null
           timezone?: string
@@ -981,6 +1021,8 @@ export type Database = {
           instagram_url?: string | null
           name?: string
           phone?: string | null
+          studio_manager_whatsapp?: string | null
+          studio_owner_whatsapp?: string | null
           tax_included?: boolean | null
           tiktok_url?: string | null
           timezone?: string

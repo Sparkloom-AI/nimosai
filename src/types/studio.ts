@@ -15,6 +15,8 @@ export interface Studio {
   facebook_url?: string;
   instagram_url?: string;
   tiktok_url?: string;
+  studio_manager_whatsapp?: string;
+  studio_owner_whatsapp?: string;
   created_at: string;
   updated_at: string;
 }
@@ -33,6 +35,8 @@ export interface Location {
   place_id?: string;
   latitude?: number;
   longitude?: number;
+  google_maps_shortlink?: string;
+  shortlink_generated_at?: string;
   created_at: string;
   updated_at: string;
 }

@@ -145,6 +145,8 @@ export const studiosApi = {
       facebook_url?: string;
       instagram_url?: string;
       tiktok_url?: string;
+      studio_manager_whatsapp?: string;
+      studio_owner_whatsapp?: string;
     }
   ): Promise<Studio> {
     const { data, error } = await supabase.rpc('update_studio_data', {
