@@ -3,15 +3,16 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Settings as SettingsIcon, Building2, Globe2, Megaphone, MoreHorizontal, ArrowLeft, Wand2, Calendar } from 'lucide-react';
+import { Settings as SettingsIcon, Building2, Globe2, Megaphone, MoreHorizontal, ArrowLeft, Wand2, Calendar, MapPin } from 'lucide-react';
 import { EnhancedBusinessDetailsForm } from '@/components/domain/settings/EnhancedBusinessDetailsForm';
 import { BasicInfoForm } from '@/components/domain/settings/BasicInfoForm';
 import { LocationsSection } from '@/components/domain/locations/LocationsSection';
 import SettingsWizard from '@/components/domain/settings/SettingsWizard';
 import { GoogleMapsTest } from '@/components/domain/locations/GoogleMapsTest';
 import { AppointmentsSettings } from '@/components/domain/settings/AppointmentsSettings';
+import { BusinessAddressForm } from '@/components/domain/settings/BusinessAddressForm';
 
-type SettingsSection = 'overview' | 'business-details' | 'basic-info' | 'locations' | 'appointments' | 'wizard';
+type SettingsSection = 'overview' | 'business-details' | 'basic-info' | 'locations' | 'appointments' | 'address' | 'wizard';
 
 const SettingsRedesigned = () => {
   const [activeSection, setActiveSection] = useState<SettingsSection>('overview');
@@ -75,6 +76,20 @@ const SettingsRedesigned = () => {
               <span>Appointments</span>
             </div>
             <AppointmentsSettings />
+          </div>
+        );
+      case 'address':
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Button variant="ghost" size="sm" onClick={() => setActiveSection('overview')}>
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Settings
+              </Button>
+              <span>/</span>
+              <span>Business Address</span>
+            </div>
+            <BusinessAddressForm />
           </div>
         );
       default:
@@ -215,6 +230,28 @@ const SettingsRedesigned = () => {
                       </p>
                       <Button variant="outline" size="sm" className="w-full">
                         Configure
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card 
+                    className="cursor-pointer transition-colors hover:bg-muted/50"
+                    onClick={() => setActiveSection('address')}
+                  >
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-5 w-5 text-primary" />
+                        <CardTitle className="text-sm font-medium">
+                          Business Address
+                        </CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <p className="text-xs text-muted-foreground mb-3">
+                        Set your main business address with worldwide search support
+                      </p>
+                      <Button variant="outline" size="sm" className="w-full">
+                        Update Address
                       </Button>
                     </CardContent>
                   </Card>

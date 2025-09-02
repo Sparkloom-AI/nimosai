@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 export type { AddressSuggestion } from '@/lib/googleMapsApi';
 
 // Address data structure expected by parent components (matching existing interface)
-interface AddressData {
+export interface AddressData {
   address: string;
   city: string;
   state: string;
@@ -25,8 +25,8 @@ interface AddressAutocompleteProps {
   value?: string;
 }
 
-export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({ onAddressSelect }) => {
-  const [query, setQuery] = useState('');
+export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({ onAddressSelect, placeholder = "Start typing an address...", value = "" }) => {
+  const [query, setQuery] = useState(value);
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -34,9 +34,9 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({ onAddr
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
-  // Fetch suggestions using Google Places Text Search API
+  // Fetch suggestions using Google Places Text Search API with worldwide support
   const fetchSuggestions = async (input: string) => {
-    if (!input.trim()) {
+    if (!input.trim() || input.trim().length < 2) {
       setSuggestions([]);
       setShowSuggestions(false);
       return;
@@ -47,8 +47,11 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({ onAddr
     try {
       console.log('AddressAutocomplete: Fetching suggestions for:', input);
       
+      // Enhanced request with better formatting for worldwide searches
       const request: PlacesSearchRequest = {
-        textQuery: input.trim()
+        textQuery: input.trim(),
+        // Remove location bias to enable worldwide search
+        // The Google Places Text Search API will return global results by default
       };
 
       const results = await searchPlacesText(request);
@@ -66,35 +69,62 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({ onAddr
     }
   };
 
-  // Parse suggestion to AddressData (simplified since we don't have detailed place info)
+  // Parse suggestion to AddressData with improved worldwide parsing
   const parseAddressSuggestionToAddressData = (suggestion: AddressSuggestion): AddressData => {
     console.log('AddressAutocomplete: Parsing suggestion:', suggestion);
     
     // Extract basic info from the description
     const parts = suggestion.description.split(', ');
     const streetAddress = suggestion.structured_formatting.main_text || parts[0] || '';
-    const remainingParts = parts.slice(1);
+    const secondaryText = suggestion.structured_formatting.secondary_text || '';
     
-    // Try to identify city, state, country from remaining parts
+    // Parse secondary text for better geographic extraction
+    const secondaryParts = secondaryText.split(', ');
+    
     let city = '';
     let state = '';
     let country = '';
     let postalCode = '';
     
-    if (remainingParts.length > 0) {
-      // Last part is often country
-      country = remainingParts[remainingParts.length - 1] || '';
+    // Improved parsing logic for worldwide addresses
+    if (secondaryParts.length > 0) {
+      // Last part is typically country
+      country = secondaryParts[secondaryParts.length - 1]?.trim() || '';
       
-      // Second to last might be state/region
-      if (remainingParts.length > 1) {
-        state = remainingParts[remainingParts.length - 2] || '';
+      // Look for postal codes (patterns vary by country)
+      const postalCodeRegex = /\b([A-Z]{1,2}\d{1,2}[A-Z]?\s?\d[A-Z]{2}|\d{4,6})\b/;
+      const postalMatch = secondaryText.match(postalCodeRegex);
+      if (postalMatch) {
+        postalCode = postalMatch[1];
       }
       
-      // Earlier parts might be city
-      if (remainingParts.length > 2) {
-        city = remainingParts.slice(0, -2).join(', ');
-      } else if (remainingParts.length === 2) {
-        city = remainingParts[0] || '';
+      // For 2+ parts: first is typically city, middle parts are state/region
+      if (secondaryParts.length >= 2) {
+        city = secondaryParts[0]?.trim() || '';
+        
+        // State/region is everything between city and country, excluding postal codes
+        if (secondaryParts.length > 2) {
+          const stateParts = secondaryParts.slice(1, -1)
+            .map(part => part.replace(postalCodeRegex, '').trim())
+            .filter(part => part.length > 0);
+          state = stateParts.join(', ');
+        }
+      } else {
+        // Single part - could be city or state depending on context
+        city = secondaryParts[0]?.trim() || '';
+      }
+    }
+    
+    // Fallback parsing from full description if secondary text parsing failed
+    if (!city && !country && parts.length > 1) {
+      const remainingParts = parts.slice(1);
+      country = remainingParts[remainingParts.length - 1]?.trim() || '';
+      
+      if (remainingParts.length >= 2) {
+        city = remainingParts[0]?.trim() || '';
+        if (remainingParts.length > 2) {
+          state = remainingParts.slice(1, -1).join(', ').trim();
+        }
       }
     }
 
@@ -200,7 +230,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({ onAddr
               setShowSuggestions(true);
             }
           }}
-          placeholder="Start typing an address..."
+          placeholder={placeholder}
           className="pr-10"
         />
         <div className="absolute right-3 top-1/2 -translate-y-1/2">
