@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointment_booking_rules: {
+        Row: {
+          allow_group_appointments: boolean
+          allow_team_member_selection: boolean
+          cancellation_allowed: boolean
+          cancellation_buffer_hours: number
+          created_at: string
+          future_booking_limit_months: number
+          id: string
+          immediate_booking_allowed: boolean
+          immediate_booking_buffer_minutes: number
+          max_group_size: number
+          online_booking_enabled: boolean
+          rescheduling_allowed: boolean
+          rescheduling_buffer_hours: number
+          studio_id: string
+          updated_at: string
+        }
+        Insert: {
+          allow_group_appointments?: boolean
+          allow_team_member_selection?: boolean
+          cancellation_allowed?: boolean
+          cancellation_buffer_hours?: number
+          created_at?: string
+          future_booking_limit_months?: number
+          id?: string
+          immediate_booking_allowed?: boolean
+          immediate_booking_buffer_minutes?: number
+          max_group_size?: number
+          online_booking_enabled?: boolean
+          rescheduling_allowed?: boolean
+          rescheduling_buffer_hours?: number
+          studio_id: string
+          updated_at?: string
+        }
+        Update: {
+          allow_group_appointments?: boolean
+          allow_team_member_selection?: boolean
+          cancellation_allowed?: boolean
+          cancellation_buffer_hours?: number
+          created_at?: string
+          future_booking_limit_months?: number
+          id?: string
+          immediate_booking_allowed?: boolean
+          immediate_booking_buffer_minutes?: number
+          max_group_size?: number
+          online_booking_enabled?: boolean
+          rescheduling_allowed?: boolean
+          rescheduling_buffer_hours?: number
+          studio_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       appointment_history: {
         Row: {
           appointment_id: string
