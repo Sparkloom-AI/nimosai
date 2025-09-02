@@ -13,7 +13,15 @@ export const useSessionTimeout = ({
   warningMinutes = 5,
   enabled = true
 }: UseSessionTimeoutOptions = {}) => {
-  const { user, signOut } = useAuth();
+  // Safe auth access - handle cases where hook is used outside provider
+  let user, signOut;
+  try {
+    ({ user, signOut } = useAuth());
+  } catch (error) {
+    // If useAuth fails (outside provider), disable session timeout
+    user = null;
+    signOut = async () => {};
+  }
   const timeoutRef = useRef<NodeJS.Timeout>();
   const warningRef = useRef<NodeJS.Timeout>();
   const activityRef = useRef<number>(Date.now());
