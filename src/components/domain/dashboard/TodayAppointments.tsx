@@ -35,11 +35,13 @@ const TodayAppointments = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'confirmed':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+        return 'bg-success/10 text-success border border-success/20';
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+        return 'bg-warning/10 text-warning border border-warning/20';
+      case 'cancelled':
+        return 'bg-destructive/10 text-destructive border border-destructive/20';
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+        return 'bg-muted text-muted-foreground border border-border';
     }
   };
 

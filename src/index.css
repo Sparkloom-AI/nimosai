@@ -61,8 +61,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 22.7%;
     
-    /* Sidebar - Calm Professional Space */
-    --sidebar-background: 220 13% 98%;
+    /* Sidebar - Calm Professional Space - Light Gray Background */
+    --sidebar-background: 220 14% 96%; /* #F5F5F5 - Light gray background */
     --sidebar-foreground: 0 0% 32%;
     --sidebar-primary: 145 63% 49%;
     --sidebar-primary-foreground: 0 0% 100%;

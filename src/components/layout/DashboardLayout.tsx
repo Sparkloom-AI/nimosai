@@ -23,7 +23,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted">
+    <div className="min-h-screen bg-background">
       <div className="flex h-screen">
         <Sidebar />
         <div className={cn(
@@ -31,7 +31,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           isCollapsed ? "ml-0" : "ml-0" // No additional margin needed as sidebar handles its own width
         )}>
           <Header />
-          <main className="flex-1 overflow-y-auto p-6">
+          <main className="flex-1 overflow-y-auto bg-background">
             <div className="max-w-7xl mx-auto animate-fade-in">
               {children}
             </div>

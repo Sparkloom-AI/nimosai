@@ -11,7 +11,7 @@ import TopTeamMembers from '@/components/domain/dashboard/TopTeamMembers';
 const Dashboard = () => {
   return (
     <DashboardLayout>
-      <div className="p-6 space-y-8 animate-fade-in">
+      <div className="p-6 space-y-8 animate-fade-in bg-background">
         {/* Header - Calm & Empowering */}
         <div className="mb-8">
           <h1 className="text-3xl font-heading font-bold text-foreground">Your Studio Dashboard</h1>
