@@ -72,24 +72,65 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Continue even if this fails
       }
 
+      // Check rate limiting for login attempts
+      try {
+        const { data: rateLimitCheck } = await supabase.rpc('check_rate_limit', {
+          p_action_type: 'login',
+          p_max_attempts: 5,
+          p_window_minutes: 15
+        });
+
+        if (!rateLimitCheck) {
+          return { error: { message: 'Too many login attempts. Please try again later.' } };
+        }
+      } catch (rateLimitError) {
+        // Continue with login if rate limit check fails
+        console.warn('Rate limit check failed:', rateLimitError);
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
+        // Log failed login attempt (without sensitive data)
+        try {
+          await supabase.rpc('log_security_event_enhanced', {
+            p_event_type: 'login_failure',
+            p_event_details: { 
+              email_hash: btoa(email).substring(0, 10), // Obfuscated email
+              error_type: error.message.includes('Invalid') ? 'invalid_credentials' : 'other'
+            }
+          });
+        } catch (logError) {
+          console.warn('Failed to log security event:', logError);
+        }
+
         // Enhanced error handling without logging sensitive data
         if (error.message.includes('Invalid login credentials')) {
-          // Don't reveal whether email exists or not
           return { error: { message: 'Invalid email or password' } };
         } else if (error.message.includes('Email not confirmed')) {
           return { error: { message: 'Please check your email and click the confirmation link' } };
         } else if (error.message.includes('Too many requests')) {
           return { error: { message: 'Too many login attempts. Please try again later' } };
         }
+        return { error: { message: 'Login failed. Please try again.' } };
       }
 
-      return { error };
+      // Log successful login
+      try {
+        await supabase.rpc('log_security_event_enhanced', {
+          p_event_type: 'login_success',
+          p_event_details: { 
+            email_hash: btoa(email).substring(0, 10) // Obfuscated email
+          }
+        });
+      } catch (logError) {
+        console.warn('Failed to log security event:', logError);
+      }
+
+      return { error: null };
     } catch (error) {
       return { error: { message: 'An unexpected error occurred' } };
     }

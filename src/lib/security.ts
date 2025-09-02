@@ -7,13 +7,30 @@ export const passwordSchema = z.string().min(6, 'Password must be at least 6 cha
 export const nameSchema = z.string().min(1, 'Name is required').max(100);
 export const phoneSchema = z.string().regex(/^\+?[\d\s\-()]+$/, 'Invalid phone number').max(20);
 
-// Sanitization functions
+// Enhanced sanitization functions
 export const sanitizeInput = (input: string): string => {
-  return input.trim().replace(/[<>]/g, '');
+  return input
+    .trim()
+    .replace(/[<>'"&]/g, '') // Remove potential XSS characters
+    .replace(/javascript:/gi, '') // Remove javascript protocol
+    .replace(/vbscript:/gi, '') // Remove vbscript protocol
+    .replace(/on\w+\s*=/gi, '') // Remove event handlers
+    .substring(0, 1000); // Limit length
 };
 
 export const sanitizeEmail = (email: string): string => {
-  return email.toLowerCase().trim();
+  return email
+    .toLowerCase()
+    .trim()
+    .replace(/[<>'"&]/g, '')
+    .substring(0, 254); // RFC 5321 limit
+};
+
+export const sanitizePhone = (phone: string): string => {
+  return phone
+    .trim()
+    .replace(/[^\d\s\-()+ ]/g, '') // Only allow phone-related characters
+    .substring(0, 20);
 };
 
 // Security event types for logging

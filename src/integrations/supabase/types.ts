@@ -716,6 +716,36 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limit_attempts: {
+        Row: {
+          action_type: string
+          attempt_count: number
+          created_at: string
+          id: string
+          ip_address: unknown | null
+          user_id: string | null
+          window_start: string
+        }
+        Insert: {
+          action_type: string
+          attempt_count?: number
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          user_id?: string | null
+          window_start?: string
+        }
+        Update: {
+          action_type?: string
+          attempt_count?: number
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          user_id?: string | null
+          window_start?: string
+        }
+        Relationships: []
+      }
       recurring_appointments: {
         Row: {
           client_id: string
@@ -1469,6 +1499,16 @@ export type Database = {
         Args: { email_address: string }
         Returns: boolean
       }
+      check_rate_limit: {
+        Args: {
+          p_action_type?: string
+          p_ip_address?: unknown
+          p_max_attempts?: number
+          p_user_id?: string
+          p_window_minutes?: number
+        }
+        Returns: boolean
+      }
       create_studio_with_data: {
         Args: {
           p_additional_category_ids?: string[]
@@ -1547,6 +1587,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      log_security_event_enhanced: {
+        Args: {
+          p_event_details?: Json
+          p_event_type: string
+          p_ip_address?: unknown
+          p_studio_id?: string
+          p_user_id?: string
+        }
+        Returns: undefined
+      }
       remove_user_role_secure: {
         Args: { p_removed_by?: string; p_role_id: string }
         Returns: boolean
@@ -1608,6 +1658,10 @@ export type Database = {
           updated_at: string
           website: string
         }[]
+      }
+      validate_studio_access_secure: {
+        Args: { p_action?: string; p_studio_id: string; p_user_id: string }
+        Returns: boolean
       }
     }
     Enums: {
