@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import AccountInfoWizard from '@/components/domain/auth/AccountInfoWizard';
+import ProfessionalAccountWizard from '@/components/domain/auth/ProfessionalAccountWizard';
 
 const OnboardingAccount = () => {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ const OnboardingAccount = () => {
             <p className="text-muted-foreground">Let's start by setting up your professional account.</p>
           </div>
           
-          <AccountInfoWizard onComplete={handleComplete} />
+          <ProfessionalAccountWizard onComplete={handleComplete} />
         </div>
       </div>
     </div>
