@@ -29,7 +29,7 @@ type AuthStep = 'email' | 'login' | 'register' | 'email-confirmation' | 'setup' 
 const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, signIn, signUp, signInWithGoogle, loading: authLoading, accountSetupComplete } = useAuth();
+  const { user, signIn, signUp, signInWithGoogle, loading: authLoading } = useAuth();
   const { userRoles, loading: rolesLoading } = useRole();
   
   const [step, setStep] = useState<AuthStep>('email');
@@ -126,25 +126,13 @@ const Auth = () => {
   // Check if user needs setup after authentication
   useEffect(() => {
     if (user && !authLoading && !rolesLoading) {
-      // For Google users who haven't completed account setup, redirect to register step
-      if (isGoogleSignup(user) && accountSetupComplete === false) {
-        const googleData = extractGoogleUserMetadata(user);
-        if (googleData) {
-          setEmail(googleData.email);
-          setFirstName(googleData.firstName);
-          setLastName(googleData.lastName);
-        }
-        setStep('register');
-        return;
-      }
-      
       if (userRoles.length === 0) {
         setStep('setup');
       } else {
         navigate('/dashboard');
       }
     }
-  }, [user, userRoles, authLoading, rolesLoading, accountSetupComplete, navigate]);
+  }, [user, userRoles, authLoading, rolesLoading, navigate]);
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -195,84 +183,24 @@ const Auth = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!firstName || !lastName || !agreedToTerms) {
+    if (!email || !password || !firstName || !lastName || !agreedToTerms) {
       toast.error('Please fill in all required fields and agree to the terms.');
-      return;
-    }
-
-    // For non-Google users, password is required
-    if (!user && !password) {
-      toast.error('Please enter a password.');
       return;
     }
 
     setIsLoading(true);
     try {
       const fullName = `${firstName} ${lastName}`;
-      
-      // If user already exists (Google user), just update their profile
-      if (user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({
-            full_name: fullName,
-            country: locationData.country,
-            country_code: locationData.countryCode,
-            timezone: locationData.timezone,
-            phone_prefix: locationData.phonePrefix,
-            currency: locationData.currency,
-            language: locationData.language,
-            account_setup_complete: true
-          })
-          .eq('id', user.id);
-
-        if (profileError) {
-          toast.error('Failed to save profile. Please try again.');
-          return;
-        }
-
-        toast.success('Account setup complete!');
-        navigate('/onboarding/studio');
-        return;
-      }
-
-      // For email users, create the account first
       const { error } = await signUp(email, password, fullName);
       
       if (error) {
-        if (error.message?.includes('already registered')) {
+        if (error.message.includes('User already registered')) {
           toast.error('An account with this email already exists. Please sign in instead.');
           setStep('login');
         } else {
           toast.error(error.message || 'Failed to create account');
         }
-        return;
-      }
-
-      // Save profile data to complete account setup
-      try {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({
-            full_name: fullName,
-            country: locationData.country,
-            country_code: locationData.countryCode,
-            timezone: locationData.timezone,
-            phone_prefix: locationData.phonePrefix,
-            currency: locationData.currency,
-            language: locationData.language,
-            account_setup_complete: true
-          })
-          .eq('email', email);
-
-        if (profileError) {
-          console.warn('Failed to save profile:', profileError);
-          // Still proceed with confirmation
-        }
-
-        setStep('email-confirmation');
-      } catch (profileSaveError) {
-        console.warn('Failed to save profile data:', profileSaveError);
+      } else {
         setStep('email-confirmation');
       }
     } catch (error: any) {
@@ -361,26 +289,15 @@ const Auth = () => {
             <h1 className="text-2xl font-bold mb-4">Check your email</h1>
             <p className="text-muted-foreground mb-6">
               We've sent you a confirmation link at <strong>{email}</strong>. 
-              Click the link to verify your account and continue to your studio setup.
+              Click the link to verify your account and complete setup.
             </p>
-            <div className="space-y-3">
-              <Button 
-                onClick={() => navigate('/onboarding/studio')}
-                className="w-full"
-              >
-                Continue to Studio Setup
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={handleBackToEmail}
-                className="w-full"
-              >
-                Back to sign in
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground mt-4">
-              You can verify your email later. For now, let's set up your studio!
-            </p>
+            <Button 
+              variant="outline" 
+              onClick={handleBackToEmail}
+              className="w-full"
+            >
+              Back to sign in
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -632,39 +549,37 @@ const Auth = () => {
                   </div>
                 </div>
 
-                {/* 2. Password - Skip for Google users */}
-                {!user && (
-                  <div>
-                    <label htmlFor="password" className="block text-sm font-medium mb-2 text-foreground">
-                      Password
-                    </label>
-                    <div className="relative">
-                      <Input
-                        id="password"
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="Enter a password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="pr-10 h-12"
-                        required
-                        minLength={6}
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-12 px-3"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </Button>
-                    </div>
+                {/* 2. Password */}
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium mb-2 text-foreground">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter a password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pr-10 h-12"
+                      required
+                      minLength={6}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-12 px-3"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </Button>
                   </div>
-                )}
+                </div>
 
                 {/* 3. Mobile number */}
                 <div>
@@ -730,10 +645,10 @@ const Auth = () => {
                   {isLoading ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      {user ? 'Completing setup...' : 'Creating account...'}
+                      Creating account...
                     </>
                   ) : (
-                    user ? 'Complete Account Setup' : 'Create account'
+                    'Create account'
                   )}
                 </Button>
 
