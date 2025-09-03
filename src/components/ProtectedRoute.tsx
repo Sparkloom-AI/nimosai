@@ -16,7 +16,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       if (!user) {
         navigate('/auth');
       } else if (accountSetupComplete === false) {
-        navigate('/onboarding/account');
+        navigate('/auth');
       } else if (studioSetupComplete === false) {
         navigate('/onboarding/studio');
       }

@@ -48,7 +48,7 @@ function App() {
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<Auth />} />
           <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/onboarding/account" element={<OnboardingAccount />} />
+          
           <Route path="/onboarding/studio" element={<OnboardingStudio />} />
                   <Route path="/forgot-password" element={<ForgotPasswordForm />} />
                   <Route path="/terms" element={<TermsLayout />}>

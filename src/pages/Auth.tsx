@@ -17,6 +17,12 @@ import { ExpandableLocationSettings } from '@/components/domain/auth/ExpandableL
 import { supabase } from '@/integrations/supabase/client';
 import { useRateLimiter } from '@/hooks/useRateLimiter';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
+import { 
+  extractGoogleUserMetadata, 
+  isGoogleSignup, 
+  getBrowserLocationDefaults, 
+  mergeLocationData 
+} from '@/lib/authUtils';
 
 type AuthStep = 'email' | 'login' | 'register' | 'email-confirmation' | 'setup' | 'reset-password';
 
@@ -38,6 +44,7 @@ const Auth = () => {
   const [emailCheckLoading, setEmailCheckLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showLocationSettings, setShowLocationSettings] = useState(false);
+  const [smartDefaultsApplied, setSmartDefaultsApplied] = useState(false);
 
   // Security features
   const loginLimiter = useRateLimiter({
@@ -64,19 +71,49 @@ const Auth = () => {
     language: 'English'
   });
 
-  // Update location data when detection completes
+  // Smart defaults for Google sign-ups and location detection
   useEffect(() => {
-    if (detectedLocation.isDetected && !detectedLocation.isLoading) {
-      setLocationData({
-        country: detectedLocation.country,
-        countryCode: detectedLocation.countryCode,
-        phonePrefix: detectedLocation.phonePrefix,
-        timezone: detectedLocation.timezone,
-        currency: detectedLocation.currency,
-        language: detectedLocation.language
-      });
+    if (step !== 'register' || smartDefaultsApplied) return;
+
+    // Get browser-based defaults first
+    const browserDefaults = getBrowserLocationDefaults();
+    
+    // If user signed up with Google, extract their metadata
+    if (user && isGoogleSignup(user)) {
+      const googleData = extractGoogleUserMetadata(user);
+      
+      if (googleData) {
+        setFirstName(googleData.firstName);
+        setLastName(googleData.lastName);
+        
+        console.log('Google sign-up detected, applying smart defaults:', {
+          name: `${googleData.firstName} ${googleData.lastName}`,
+          email: googleData.email,
+          avatar: googleData.avatarUrl
+        });
+      }
     }
-  }, [detectedLocation]);
+    
+    // Merge IP detection with browser defaults when available
+    if (detectedLocation.isDetected && !detectedLocation.isLoading) {
+      const mergedLocation = mergeLocationData(detectedLocation, browserDefaults);
+      setLocationData(mergedLocation);
+    } else {
+      // Use browser defaults immediately
+      setLocationData(browserDefaults);
+    }
+    
+    setSmartDefaultsApplied(true);
+  }, [step, user, detectedLocation.isDetected, detectedLocation.isLoading, smartDefaultsApplied]);
+
+  // Update location data when IP detection completes
+  useEffect(() => {
+    if (detectedLocation.isDetected && !detectedLocation.isLoading && smartDefaultsApplied && step === 'register') {
+      const browserDefaults = getBrowserLocationDefaults();
+      const mergedLocation = mergeLocationData(detectedLocation, browserDefaults);
+      setLocationData(mergedLocation);
+    }
+  }, [detectedLocation.isDetected, detectedLocation.isLoading, smartDefaultsApplied, step]);
 
   // Check for password reset mode
   useEffect(() => {
@@ -155,6 +192,7 @@ const Auth = () => {
     try {
       const fullName = `${firstName} ${lastName}`;
       const { error } = await signUp(email, password, fullName);
+      
       if (error) {
         if (error.message.includes('User already registered')) {
           toast.error('An account with this email already exists. Please sign in instead.');
