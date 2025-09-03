@@ -115,7 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Continue even if this fails
       }
 
-      // Check rate limiting for login attempts
+      // Check rate limiting for login attempts (gracefully handle errors)
       try {
         const { data: rateLimitCheck } = await supabase.rpc('check_rate_limit', {
           p_action_type: 'login',
@@ -127,8 +127,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return { error: { message: 'Too many login attempts. Please try again later.' } };
         }
       } catch (rateLimitError) {
-        // Continue with login if rate limit check fails
-        console.warn('Rate limit check failed:', rateLimitError);
+        // Continue with login if rate limit check fails (database function may not exist)
+        console.warn('Rate limit check failed, proceeding with login:', rateLimitError);
       }
 
       const { data, error } = await supabase.auth.signInWithPassword({
