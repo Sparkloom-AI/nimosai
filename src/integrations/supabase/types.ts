@@ -1528,6 +1528,16 @@ export type Database = {
         }
         Returns: string
       }
+      enhanced_rate_limit_check: {
+        Args: {
+          p_action_type?: string
+          p_ip_address?: unknown
+          p_max_attempts?: number
+          p_user_id?: string
+          p_window_minutes?: number
+        }
+        Returns: boolean
+      }
       get_studio_by_id: {
         Args: { studio_id: string }
         Returns: {

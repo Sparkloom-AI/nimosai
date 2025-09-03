@@ -14,6 +14,7 @@ import { CalendarIcon, User, Phone, Mail, Heart } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { useSecurityValidation } from '@/hooks/useSecurityValidation';
 import type { Client } from '@/types/scheduling';
 
 const clientSchema = z.object({
@@ -47,6 +48,7 @@ const ClientModal: React.FC<ClientModalProps> = ({
   studioId,
   isLoading = false
 }) => {
+  const { validateForm, isValidating } = useSecurityValidation();
   const form = useForm<ClientFormData>({
     resolver: zodResolver(clientSchema),
     defaultValues: {
@@ -92,17 +94,32 @@ const ClientModal: React.FC<ClientModalProps> = ({
 
   const handleSubmit = async (data: ClientFormData) => {
     try {
+      // Security validation for all client input fields
+      const validationResult = await validateForm({
+        firstName: data.first_name,
+        lastName: data.last_name,
+        email: data.email || '',
+        phone: data.phone || '',
+        notes: data.notes || '',
+        emergencyContactName: data.emergency_contact_name || '',
+        emergencyContactPhone: data.emergency_contact_phone || ''
+      });
+
+      if (!validationResult.isValid || !validationResult.sanitizedData) {
+        return;
+      }
+
       const clientData = {
         studio_id: studioId,
-        first_name: data.first_name,
-        last_name: data.last_name,
-        email: data.email || undefined,
-        phone: data.phone || undefined,
+        first_name: validationResult.sanitizedData.firstName,
+        last_name: validationResult.sanitizedData.lastName,
+        email: validationResult.sanitizedData.email || undefined,
+        phone: validationResult.sanitizedData.phone || undefined,
         date_of_birth: data.date_of_birth ? format(data.date_of_birth, 'yyyy-MM-dd') : undefined,
         gender: data.gender || undefined,
-        notes: data.notes || undefined,
-        emergency_contact_name: data.emergency_contact_name || undefined,
-        emergency_contact_phone: data.emergency_contact_phone || undefined,
+        notes: validationResult.sanitizedData.notes || undefined,
+        emergency_contact_name: validationResult.sanitizedData.emergencyContactName || undefined,
+        emergency_contact_phone: validationResult.sanitizedData.emergencyContactPhone || undefined,
         preferences: {},
       };
 
@@ -329,8 +346,8 @@ const ClientModal: React.FC<ClientModalProps> = ({
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Saving...' : client ? 'Update' : 'Create'} Client
+              <Button type="submit" disabled={isLoading || isValidating}>
+                {isLoading || isValidating ? 'Saving...' : client ? 'Update' : 'Create'} Client
               </Button>
             </div>
           </form>

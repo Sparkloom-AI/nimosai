@@ -15,7 +15,7 @@ import { LocationDetectionBanner } from '@/components/domain/auth/LocationDetect
 import { MobilePrefixSelector } from '@/components/domain/auth/MobilePrefixSelector';
 import { ExpandableLocationSettings } from '@/components/domain/auth/ExpandableLocationSettings';
 import { supabase } from '@/integrations/supabase/client';
-import { useRateLimiter } from '@/hooks/useRateLimiter';
+import { useLoginRateLimiter, usePasswordResetRateLimiter, useRegistrationRateLimiter } from '@/hooks/useEnhancedRateLimiter';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import { 
   extractGoogleUserMetadata, 
@@ -46,12 +46,10 @@ const Auth = () => {
   const [showLocationSettings, setShowLocationSettings] = useState(false);
   const [smartDefaultsApplied, setSmartDefaultsApplied] = useState(false);
 
-  // Security features
-  const loginLimiter = useRateLimiter({
-    maxAttempts: 5,
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    blockDurationMs: 30 * 60 * 1000 // 30 minutes
-  });
+  // Security rate limiters
+  const { checkRateLimit: checkLoginLimit } = useLoginRateLimiter();
+  const { checkRateLimit: checkPasswordResetLimit } = usePasswordResetRateLimiter();
+  const { checkRateLimit: checkRegistrationLimit } = useRegistrationRateLimiter();
 
   // Enable session timeout for authenticated users
   useSessionTimeout({

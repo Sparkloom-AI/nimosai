@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { useSecurityValidation } from '@/hooks/useSecurityValidation';
 
 const businessSetupSchema = z.object({
   businessName: z.string().min(1, 'Business name is required'),
@@ -25,6 +26,7 @@ interface BusinessSetupFormProps {
 
 const BusinessSetupForm: React.FC<BusinessSetupFormProps> = ({ onBack, onComplete }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const { validateForm, isValidating } = useSecurityValidation();
 
   const form = useForm<BusinessSetupFormData>({
     resolver: zodResolver(businessSetupSchema),
@@ -40,7 +42,26 @@ const BusinessSetupForm: React.FC<BusinessSetupFormProps> = ({ onBack, onComplet
   const onSubmit = async (data: BusinessSetupFormData) => {
     setIsLoading(true);
     try {
-      onComplete(data);
+      // Security validation for business setup data
+      const validationResult = await validateForm({
+        businessName: data.businessName,
+        website: data.website || '',
+        description: data.description || '',
+        phone: data.phone || '',
+        email: data.email || ''
+      });
+
+      if (!validationResult.isValid || !validationResult.sanitizedData) {
+        return;
+      }
+
+      onComplete({
+        businessName: validationResult.sanitizedData.businessName,
+        website: validationResult.sanitizedData.website,
+        description: validationResult.sanitizedData.description,
+        phone: validationResult.sanitizedData.phone,
+        email: validationResult.sanitizedData.email
+      });
     } finally {
       setIsLoading(false);
     }
@@ -180,7 +201,7 @@ const BusinessSetupForm: React.FC<BusinessSetupFormProps> = ({ onBack, onComplet
                   <Button 
                     type="submit" 
                     className="h-12 px-8 bg-foreground text-background hover:bg-foreground/90"
-                    disabled={isLoading}
+                    disabled={isLoading || isValidating}
                   >
                     Continue
                     <ArrowRight className="w-4 h-4 ml-2" />
