@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
+import { Loader2, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,6 +11,12 @@ import { useIPLocationDetection } from '@/hooks/useIPLocationDetection';
 import { MobilePrefixSelector } from './MobilePrefixSelector';
 import { LocationDetectionBanner } from './LocationDetectionBanner';
 import { ExpandableLocationSettings } from './ExpandableLocationSettings';
+import { 
+  extractGoogleUserMetadata, 
+  isGoogleSignup, 
+  getBrowserLocationDefaults, 
+  mergeLocationData 
+} from '@/lib/authUtils';
 
 interface ProfessionalAccountWizardProps {
   onComplete: () => void;
@@ -19,6 +25,7 @@ interface ProfessionalAccountWizardProps {
 const ProfessionalAccountWizard: React.FC<ProfessionalAccountWizardProps> = ({ onComplete }) => {
   const { user, completeAccountSetup } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [smartDefaultsApplied, setSmartDefaultsApplied] = useState(false);
   
   // Form fields
   const [firstName, setFirstName] = useState('');
@@ -29,14 +36,58 @@ const ProfessionalAccountWizard: React.FC<ProfessionalAccountWizardProps> = ({ o
   // Location detection
   const detectedLocation = useIPLocationDetection();
   const [locationData, setLocationData] = useState({
-    country: detectedLocation.country || 'US',
-    countryCode: detectedLocation.countryCode || 'US',
-    phonePrefix: detectedLocation.phonePrefix || '+1',
-    timezone: detectedLocation.timezone || 'America/New_York',
-    currency: detectedLocation.currency || 'USD',
-    language: detectedLocation.language || 'en',
+    country: 'US',
+    countryCode: 'US', 
+    phonePrefix: '+1',
+    timezone: 'America/New_York',
+    currency: 'USD',
+    language: 'en',
   });
   const [showLocationSettings, setShowLocationSettings] = useState(false);
+
+  // Smart defaults for Google sign-ups
+  useEffect(() => {
+    if (!user || smartDefaultsApplied) return;
+
+    // Get browser-based defaults first
+    const browserDefaults = getBrowserLocationDefaults();
+    
+    // If user signed up with Google, extract their metadata
+    if (isGoogleSignup(user)) {
+      const googleData = extractGoogleUserMetadata(user);
+      
+      if (googleData) {
+        setFirstName(googleData.firstName);
+        setLastName(googleData.lastName);
+        
+        console.log('Google sign-up detected, applying smart defaults:', {
+          name: `${googleData.firstName} ${googleData.lastName}`,
+          email: googleData.email,
+          avatar: googleData.avatarUrl
+        });
+      }
+    }
+    
+    // Merge IP detection with browser defaults when available
+    if (detectedLocation.isDetected && !detectedLocation.isLoading) {
+      const mergedLocation = mergeLocationData(detectedLocation, browserDefaults);
+      setLocationData(mergedLocation);
+    } else {
+      // Use browser defaults immediately
+      setLocationData(browserDefaults);
+    }
+    
+    setSmartDefaultsApplied(true);
+  }, [user, detectedLocation.isDetected, detectedLocation.isLoading, smartDefaultsApplied]);
+
+  // Update location data when IP detection completes
+  useEffect(() => {
+    if (detectedLocation.isDetected && !detectedLocation.isLoading && smartDefaultsApplied) {
+      const browserDefaults = getBrowserLocationDefaults();
+      const mergedLocation = mergeLocationData(detectedLocation, browserDefaults);
+      setLocationData(mergedLocation);
+    }
+  }, [detectedLocation.isDetected, detectedLocation.isLoading, smartDefaultsApplied]);
 
   const handleEditLocation = () => {
     setShowLocationSettings(!showLocationSettings);
@@ -92,11 +143,24 @@ const ProfessionalAccountWizard: React.FC<ProfessionalAccountWizardProps> = ({ o
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Smart defaults indicator */}
+          {user && isGoogleSignup(user) && smartDefaultsApplied && (firstName || lastName) && (
+            <div className="flex items-center gap-2 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+              <CheckCircle className="w-4 h-4 text-primary" />
+              <span className="text-sm text-primary">
+                We've pre-filled your information from your Google account. You can edit any details below.
+              </span>
+            </div>
+          )}
+
           {/* 1. First name / Last name */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="firstName" className="block text-sm font-medium mb-2 text-foreground">
                 First name
+                {user && isGoogleSignup(user) && smartDefaultsApplied && firstName && (
+                  <span className="ml-1 text-xs text-primary">(from Google)</span>
+                )}
               </label>
               <Input
                 id="firstName"
@@ -111,6 +175,9 @@ const ProfessionalAccountWizard: React.FC<ProfessionalAccountWizardProps> = ({ o
             <div>
               <label htmlFor="lastName" className="block text-sm font-medium mb-2 text-foreground">
                 Last name
+                {user && isGoogleSignup(user) && smartDefaultsApplied && lastName && (
+                  <span className="ml-1 text-xs text-primary">(from Google)</span>
+                )}
               </label>
               <Input
                 id="lastName"
