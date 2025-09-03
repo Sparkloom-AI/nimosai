@@ -150,11 +150,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.warn('Failed to log security event:', logError);
         }
 
-        // Enhanced error handling without logging sensitive data
+        // Enhanced error handling - allow unconfirmed emails for existing users
         if (error.message.includes('Invalid login credentials')) {
           return { error: { message: 'Invalid email or password' } };
         } else if (error.message.includes('Email not confirmed')) {
-          return { error: { message: 'Please check your email and click the confirmation link' } };
+          // For subsequent logins, require email confirmation
+          return { error: { message: 'Please check your email and click the confirmation link to verify your account' } };
         } else if (error.message.includes('Too many requests')) {
           return { error: { message: 'Too many login attempts. Please try again later' } };
         }
@@ -183,7 +184,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       cleanupAuthState();
       
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = `${window.location.origin}/auth`;
       
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -215,7 +216,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       cleanupAuthState();
       
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = `${window.location.origin}/auth`;
       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
