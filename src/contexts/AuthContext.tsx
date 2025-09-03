@@ -8,12 +8,14 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  onboardingComplete: boolean | null;
+  accountSetupComplete: boolean | null;
+  studioSetupComplete: boolean | null;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
   signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
-  completeOnboarding: () => Promise<void>;
+  completeAccountSetup: () => Promise<void>;
+  completeStudioSetup: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -44,21 +46,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(null);
+  const [accountSetupComplete, setAccountSetupComplete] = useState<boolean | null>(null);
+  const [studioSetupComplete, setStudioSetupComplete] = useState<boolean | null>(null);
 
   // Fetch profile data when user changes
   const fetchProfileData = async (userId: string) => {
     try {
       const { data: profile } = await supabase
         .from('profiles')
-        .select('onboarding_complete')
+        .select('account_setup_complete, onboarding_complete')
         .eq('id', userId)
         .single();
       
-      setOnboardingComplete(profile?.onboarding_complete ?? false);
+      setAccountSetupComplete(profile?.account_setup_complete ?? false);
+      setStudioSetupComplete(profile?.onboarding_complete ?? false);
     } catch (error) {
       console.warn('Failed to fetch profile data:', error);
-      setOnboardingComplete(false);
+      setAccountSetupComplete(false);
+      setStudioSetupComplete(false);
     }
   };
 
@@ -75,7 +80,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             fetchProfileData(session.user.id);
           }, 0);
         } else {
-          setOnboardingComplete(null);
+          setAccountSetupComplete(null);
+          setStudioSetupComplete(null);
         }
         
         setLoading(false);
@@ -90,7 +96,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (session?.user) {
         fetchProfileData(session.user.id);
       } else {
-        setOnboardingComplete(null);
+        setAccountSetupComplete(null);
+        setStudioSetupComplete(null);
       }
       
       setLoading(false);
@@ -237,7 +244,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const completeOnboarding = async () => {
+  const completeAccountSetup = async () => {
+    if (!user) return;
+    
+    try {
+      await supabase
+        .from('profiles')
+        .update({ account_setup_complete: true })
+        .eq('id', user.id);
+      
+      setAccountSetupComplete(true);
+    } catch (error) {
+      console.warn('Failed to complete account setup:', error);
+    }
+  };
+
+  const completeStudioSetup = async () => {
     if (!user) return;
     
     try {
@@ -246,9 +268,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .update({ onboarding_complete: true })
         .eq('id', user.id);
       
-      setOnboardingComplete(true);
+      setStudioSetupComplete(true);
     } catch (error) {
-      console.warn('Failed to complete onboarding:', error);
+      console.warn('Failed to complete studio setup:', error);
     }
   };
 
@@ -256,12 +278,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     session,
     loading,
-    onboardingComplete,
+    accountSetupComplete,
+    studioSetupComplete,
     signIn,
     signUp,
     signInWithGoogle,
     signOut,
-    completeOnboarding,
+    completeAccountSetup,
+    completeStudioSetup,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

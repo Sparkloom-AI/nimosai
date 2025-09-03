@@ -1,31 +1,35 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AccountSetupWizard from '@/components/domain/auth/AccountSetupWizard';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Onboarding = () => {
   const navigate = useNavigate();
-  const { completeOnboarding } = useAuth();
+  const { user, loading, accountSetupComplete, studioSetupComplete } = useAuth();
 
-  const handleOnboardingComplete = async () => {
-    await completeOnboarding();
-    navigate('/dashboard');
-  };
+  useEffect(() => {
+    if (!loading && user) {
+      if (accountSetupComplete === false) {
+        navigate('/onboarding/account');
+      } else if (studioSetupComplete === false) {
+        navigate('/onboarding/studio');
+      } else if (accountSetupComplete === true && studioSetupComplete === true) {
+        navigate('/dashboard');
+      }
+    }
+  }, [user, loading, accountSetupComplete, studioSetupComplete, navigate]);
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">Welcome to Nimos!</h1>
-            <p className="text-muted-foreground">Let's set up your wellness studio to get started.</p>
-          </div>
-          
-          <AccountSetupWizard onComplete={handleOnboardingComplete} />
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background to-muted flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  return null;
 };
 
 export default Onboarding;

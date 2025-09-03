@@ -8,20 +8,22 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, loading, onboardingComplete } = useAuth();
+  const { user, loading, accountSetupComplete, studioSetupComplete } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!loading) {
       if (!user) {
         navigate('/auth');
-      } else if (onboardingComplete === false) {
-        navigate('/onboarding');
+      } else if (accountSetupComplete === false) {
+        navigate('/onboarding/account');
+      } else if (studioSetupComplete === false) {
+        navigate('/onboarding/studio');
       }
     }
-  }, [user, loading, onboardingComplete, navigate]);
+  }, [user, loading, accountSetupComplete, studioSetupComplete, navigate]);
 
-  if (loading || onboardingComplete === null) {
+  if (loading || accountSetupComplete === null || studioSetupComplete === null) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background to-muted flex items-center justify-center">
         <div className="text-center">
@@ -32,7 +34,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  if (!user || onboardingComplete === false) {
+  if (!user || accountSetupComplete === false || studioSetupComplete === false) {
     return null;
   }
 

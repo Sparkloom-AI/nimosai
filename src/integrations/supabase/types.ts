@@ -643,6 +643,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_setup_complete: boolean
           avatar_url: string | null
           country: string | null
           country_code: string | null
@@ -658,6 +659,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          account_setup_complete?: boolean
           avatar_url?: string | null
           country?: string | null
           country_code?: string | null
@@ -673,6 +675,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          account_setup_complete?: boolean
           avatar_url?: string | null
           country?: string | null
           country_code?: string | null
