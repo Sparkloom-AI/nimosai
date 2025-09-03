@@ -14,12 +14,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   useEffect(() => {
     if (!loading) {
       if (!user) {
+        // No user authenticated, redirect to auth
         navigate('/auth');
       } else if (accountSetupComplete === false) {
+        // Account setup incomplete, redirect to auth (register step)
         navigate('/auth');
       } else if (studioSetupComplete === false) {
+        // Account setup complete but studio setup incomplete
         navigate('/onboarding/studio');
       }
+      // If both are true, allow access to protected routes
     }
   }, [user, loading, accountSetupComplete, studioSetupComplete, navigate]);
 

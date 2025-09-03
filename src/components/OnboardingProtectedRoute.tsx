@@ -13,11 +13,17 @@ const OnboardingProtectedRoute: React.FC<OnboardingProtectedRouteProps> = ({ chi
   useEffect(() => {
     if (!loading) {
       if (!user) {
+        // No user authenticated, redirect to auth
         navigate('/auth');
       } else if (accountSetupComplete === false) {
-        navigate('/onboarding/account');
-      } else if (studioSetupComplete === false) {
-        navigate('/onboarding/studio');
+        // Account setup incomplete, redirect to auth (register step)
+        navigate('/auth');
+      } else if (accountSetupComplete === true && studioSetupComplete === false) {
+        // This is the correct state for onboarding routes - allow access
+        return;
+      } else if (accountSetupComplete === true && studioSetupComplete === true) {
+        // Both setups complete, redirect to dashboard
+        navigate('/dashboard');
       }
     }
   }, [user, loading, accountSetupComplete, studioSetupComplete, navigate]);
@@ -33,7 +39,9 @@ const OnboardingProtectedRoute: React.FC<OnboardingProtectedRouteProps> = ({ chi
     );
   }
 
-  if (!user || accountSetupComplete === false || studioSetupComplete === false) {
+  // Only block if user is not authenticated or account setup is incomplete
+  // Allow access if account setup is complete but studio setup is incomplete (this is the onboarding state)
+  if (!user || accountSetupComplete === false) {
     return null;
   }
 

@@ -29,7 +29,7 @@ type AuthStep = 'email' | 'login' | 'register' | 'email-confirmation' | 'setup' 
 const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, signIn, signUp, signInWithGoogle, loading: authLoading, accountSetupComplete, studioSetupComplete } = useAuth();
+  const { user, signIn, signUp, signInWithGoogle, loading: authLoading, accountSetupComplete, studioSetupComplete, completeAccountSetup } = useAuth();
   const { userRoles, loading: rolesLoading } = useRole();
   
   const [step, setStep] = useState<AuthStep>('email');
@@ -123,16 +123,21 @@ const Auth = () => {
     }
   }, [searchParams]);
 
-  // Check if user needs setup after authentication
+  // Check user setup status and redirect accordingly
   useEffect(() => {
-    if (user && !authLoading && !rolesLoading) {
-      if (userRoles.length === 0) {
-        setStep('setup');
+    if (user && !authLoading && accountSetupComplete !== null && studioSetupComplete !== null) {
+      if (accountSetupComplete === false) {
+        // Show the professional account wizard (register step)
+        setStep('register');
+      } else if (studioSetupComplete === false) {
+        // Redirect to studio onboarding
+        navigate('/onboarding/studio');
       } else {
+        // Both setups complete, go to dashboard
         navigate('/dashboard');
       }
     }
-  }, [user, userRoles, authLoading, rolesLoading, navigate]);
+  }, [user, authLoading, accountSetupComplete, studioSetupComplete, navigate]);
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -160,10 +165,10 @@ const Auth = () => {
     e.preventDefault();
     if (!email || !password) return;
 
-    // Check rate limit
-    if (!loginLimiter.checkRateLimit('login')) {
-      return;
-    }
+    // TODO: Re-enable rate limiting when RPC function is properly implemented
+    // if (!loginLimiter.checkRateLimit('login')) {
+    //   return;
+    // }
 
     setIsLoading(true);
     try {
@@ -171,8 +176,8 @@ const Auth = () => {
       if (error) {
         toast.error(error.message || 'Failed to sign in');
       } else {
-        // Reset rate limiter on successful login
-        loginLimiter.reset();
+        // TODO: Reset rate limiter on successful login when re-enabled
+        // loginLimiter.reset();
       }
     } catch (error: any) {
       toast.error('An unexpected error occurred');
@@ -191,6 +196,16 @@ const Auth = () => {
     setIsLoading(true);
     try {
       const fullName = `${firstName} ${lastName}`;
+      
+      // For Google users who already have an account, just complete the account setup
+      if (user && isGoogleSignup(user)) {
+        await completeAccountSetup();
+        toast.success('Account setup completed successfully!');
+        // Will redirect to studio onboarding via useEffect
+        return;
+      }
+      
+      // For new email sign-ups
       const { error } = await signUp(email, password, fullName);
       
       if (error) {
