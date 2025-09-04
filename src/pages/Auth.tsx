@@ -14,6 +14,8 @@ import { useIPLocationDetection } from '@/hooks/useIPLocationDetection';
 import { LocationDetectionBanner } from '@/components/domain/auth/LocationDetectionBanner';
 import { MobilePrefixSelector } from '@/components/domain/auth/MobilePrefixSelector';
 import { ExpandableLocationSettings } from '@/components/domain/auth/ExpandableLocationSettings';
+import { RecaptchaWrapper } from '@/components/RecaptchaWrapper';
+import { verifyRecaptcha } from '@/api/recaptcha';
 import { supabase } from '@/integrations/supabase/client';
 import { useLoginRateLimiter, usePasswordResetRateLimiter, useRegistrationRateLimiter } from '@/hooks/useEnhancedRateLimiter';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
@@ -45,6 +47,7 @@ const Auth = () => {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showLocationSettings, setShowLocationSettings] = useState(false);
   const [smartDefaultsApplied, setSmartDefaultsApplied] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
   // Security rate limiters
   const { checkRateLimit: checkLoginLimit } = useLoginRateLimiter();
@@ -191,8 +194,21 @@ const Auth = () => {
       return;
     }
 
+    if (!recaptchaToken) {
+      toast.error('Please complete the reCAPTCHA verification.');
+      return;
+    }
+
     setIsLoading(true);
     try {
+      // Verify reCAPTCHA token first
+      const recaptchaResult = await verifyRecaptcha(recaptchaToken);
+      if (!recaptchaResult.success) {
+        toast.error('reCAPTCHA verification failed. Please try again.');
+        setRecaptchaToken(null); // Reset token
+        return;
+      }
+
       const fullName = `${firstName} ${lastName}`;
       
       // For Google users who already have an account, just complete the account setup
@@ -649,10 +665,17 @@ const Auth = () => {
                   </label>
                 </div>
 
-                {/* 7. Create account button */}
+                {/* 7. reCAPTCHA */}
+                <RecaptchaWrapper
+                  onVerify={setRecaptchaToken}
+                  onExpired={() => setRecaptchaToken(null)}
+                  onError={() => setRecaptchaToken(null)}
+                />
+
+                {/* 8. Create account button */}
                 <Button 
                   type="submit" 
-                  disabled={isLoading || !agreedToTerms} 
+                  disabled={isLoading || !agreedToTerms || !recaptchaToken} 
                   className="w-full h-12 bg-navy text-white hover:bg-navy/90 font-medium"
                 >
                   {isLoading ? (
