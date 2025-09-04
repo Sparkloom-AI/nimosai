@@ -1,4 +1,5 @@
 import { User } from '@supabase/supabase-js';
+import { timezones as dropdownTimezones } from '@/hooks/useIPLocationDetection';
 
 export interface GoogleUserMetadata {
   firstName: string;
@@ -58,9 +59,31 @@ export const getBrowserLocationDefaults = (): SmartLocationDefaults => {
   // Get timezone from browser
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
   
-  // Get language from browser
+  // Convert IANA timezone to dropdown display label when possible
+  const formatTimezoneForDropdown = (ianaTz: string): string => {
+    try {
+      if (!ianaTz) return '';
+      const city = ianaTz.includes('/') ? ianaTz.split('/')[1].replace(/_/g, ' ') : ianaTz;
+      const match = dropdownTimezones.find((tz) => tz.toLowerCase().includes(city.toLowerCase()));
+      return match || '';
+    } catch {
+      return '';
+    }
+  };
+  const displayTimezone = formatTimezoneForDropdown(timezone) || '(GMT -05:00) New York';
+  
+  // Get language from browser and normalize to dropdown language names
   const browserLanguage = navigator.language || 'en';
-  const language = browserLanguage.split('-')[0]; // Extract language code (e.g., 'en' from 'en-US')
+  const langCode = browserLanguage.split('-')[0];
+  const languageMap: { [key: string]: string } = {
+    ar: 'العربية', bg: 'Български', cs: 'Čeština', da: 'Dansk', de: 'Deutsch',
+    el: 'Ελληνικά', en: 'English', es: 'Español', fi: 'Suomi', fr: 'Français',
+    he: 'עברית', hr: 'Hrvatski', hu: 'Magyar', id: 'Indonesia', it: 'Italiano',
+    ja: '日本語', ko: '한국어', lt: 'Lietuvių', nb: 'Norsk Bokmål', nl: 'Nederlands',
+    pl: 'Polski', pt: 'Português (Brasil)', ro: 'Română', ru: 'Русский', sl: 'Slovenščina',
+    sv: 'Svenska', th: 'ไทย', uk: 'Українська', vi: 'Tiếng Việt', zh: '中文'
+  };
+  const language = languageMap[langCode] || 'English';
   
   // Detect country from timezone or language
   let countryCode = 'US';
@@ -125,7 +148,7 @@ export const getBrowserLocationDefaults = (): SmartLocationDefaults => {
     country,
     countryCode,
     phonePrefix,
-    timezone,
+    timezone: displayTimezone,
     currency,
     language
   };
@@ -217,8 +240,10 @@ export const mergeLocationData = (
     country: ipData?.country || browserDefaults.country,
     countryCode: ipData?.countryCode || browserDefaults.countryCode,
     phonePrefix: ipData?.phonePrefix || browserDefaults.phonePrefix,
-    timezone: browserDefaults.timezone, // Always prefer browser timezone
+    // Prefer browser for timezone, but fall back to IP label if browser mapping failed
+    timezone: browserDefaults.timezone || ipData?.timezone,
     currency: ipData?.currency || browserDefaults.currency,
-    language: browserDefaults.language // Always prefer browser language
+    // Prefer browser for language, but fall back to IP label if needed
+    language: browserDefaults.language || ipData?.language
   };
 };
