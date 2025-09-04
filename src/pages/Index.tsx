@@ -18,10 +18,12 @@ const Index = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-calm flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-muted-foreground font-body">Creating your wellness space...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-calm p-8">
+        <div className="max-w-4xl mx-auto text-center space-y-12" style={{ minHeight: '750px' }}>
+          <div className="flex flex-col items-center justify-center h-full space-y-4">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-muted-foreground font-body">Creating your wellness space...</p>
+          </div>
         </div>
       </div>
     );
