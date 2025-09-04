@@ -63,6 +63,26 @@ export const getBrowserLocationDefaults = (): SmartLocationDefaults => {
   const formatTimezoneForDropdown = (ianaTz: string): string => {
     try {
       if (!ianaTz) return '';
+      
+      // Enhanced mapping for better timezone detection
+      const timezoneMapping: { [key: string]: string } = {
+        'Asia/Jakarta': '(GMT +07:00) Jakarta',
+        'Asia/Makassar': '(GMT +08:00) Makassar',
+        'Asia/Jayapura': '(GMT +09:00) Jayapura',
+        'America/New_York': '(GMT -05:00) New York',
+        'Europe/London': '(GMT +00:00) London',
+        'Australia/Sydney': '(GMT +10:00) Sydney',
+        'Europe/Berlin': '(GMT +01:00) Berlin',
+        'Asia/Tokyo': '(GMT +09:00) Tokyo',
+        'Asia/Singapore': '(GMT +08:00) Singapore'
+      };
+      
+      // Direct mapping first
+      if (timezoneMapping[ianaTz]) {
+        return timezoneMapping[ianaTz];
+      }
+      
+      // Fallback to city-based matching
       const city = ianaTz.includes('/') ? ianaTz.split('/')[1].replace(/_/g, ' ') : ianaTz;
       const match = dropdownTimezones.find((tz) => tz.toLowerCase().includes(city.toLowerCase()));
       return match || '';
@@ -70,7 +90,8 @@ export const getBrowserLocationDefaults = (): SmartLocationDefaults => {
       return '';
     }
   };
-  const displayTimezone = formatTimezoneForDropdown(timezone) || '(GMT -05:00) New York';
+  
+  const displayTimezone = formatTimezoneForDropdown(timezone);
   
   // Get language from browser and normalize to dropdown language names
   const browserLanguage = navigator.language || 'en';
@@ -89,23 +110,44 @@ export const getBrowserLocationDefaults = (): SmartLocationDefaults => {
   let countryCode = 'US';
   let country = 'United States';
   
-  // Try to extract country from timezone
+  // Try to extract country from timezone with better mapping
   if (timezone.includes('/')) {
-    const timezoneParts = timezone.split('/');
-    const region = timezoneParts[0];
-    
-    // Map timezone regions to countries
-    const timezoneToCountry: { [key: string]: { code: string; name: string } } = {
-      'Europe': { code: 'DE', name: 'Germany' },
-      'Asia': { code: 'JP', name: 'Japan' },
-      'America': { code: 'US', name: 'United States' },
-      'Australia': { code: 'AU', name: 'Australia' },
-      'Africa': { code: 'ZA', name: 'South Africa' }
+    // Direct timezone to country mapping for better accuracy
+    const timezoneToCountryMap: { [key: string]: { code: string; name: string } } = {
+      'Asia/Jakarta': { code: 'ID', name: 'Indonesia' },
+      'Asia/Makassar': { code: 'ID', name: 'Indonesia' },
+      'Asia/Jayapura': { code: 'ID', name: 'Indonesia' },
+      'America/New_York': { code: 'US', name: 'United States' },
+      'America/Los_Angeles': { code: 'US', name: 'United States' },
+      'America/Chicago': { code: 'US', name: 'United States' },
+      'Europe/London': { code: 'GB', name: 'United Kingdom' },
+      'Australia/Sydney': { code: 'AU', name: 'Australia' },
+      'Europe/Berlin': { code: 'DE', name: 'Germany' },
+      'Asia/Tokyo': { code: 'JP', name: 'Japan' },
+      'Asia/Singapore': { code: 'SG', name: 'Singapore' }
     };
     
-    if (timezoneToCountry[region]) {
-      countryCode = timezoneToCountry[region].code;
-      country = timezoneToCountry[region].name;
+    // Check direct mapping first
+    if (timezoneToCountryMap[timezone]) {
+      countryCode = timezoneToCountryMap[timezone].code;
+      country = timezoneToCountryMap[timezone].name;
+    } else {
+      // Fallback to region-based mapping
+      const timezoneParts = timezone.split('/');
+      const region = timezoneParts[0];
+      
+      const regionToCountry: { [key: string]: { code: string; name: string } } = {
+        'Europe': { code: 'DE', name: 'Germany' },
+        'Asia': { code: 'ID', name: 'Indonesia' }, // Changed default for Asia to Indonesia
+        'America': { code: 'US', name: 'United States' },
+        'Australia': { code: 'AU', name: 'Australia' },
+        'Africa': { code: 'ZA', name: 'South Africa' }
+      };
+      
+      if (regionToCountry[region]) {
+        countryCode = regionToCountry[region].code;
+        country = regionToCountry[region].name;
+      }
     }
   }
   
@@ -144,11 +186,26 @@ export const getBrowserLocationDefaults = (): SmartLocationDefaults => {
   // Get currency and phone prefix based on country
   const { currency, phonePrefix } = getCountryDefaults(countryCode);
   
+  // If no timezone was found via formatting, use country-specific default
+  let finalTimezone = displayTimezone;
+  if (!finalTimezone) {
+    const countryTimezoneDefaults: { [key: string]: string } = {
+      'ID': '(GMT +07:00) Jakarta',
+      'US': '(GMT -05:00) New York', 
+      'GB': '(GMT +00:00) London',
+      'AU': '(GMT +10:00) Sydney',
+      'DE': '(GMT +01:00) Berlin',
+      'JP': '(GMT +09:00) Tokyo',
+      'SG': '(GMT +08:00) Singapore'
+    };
+    finalTimezone = countryTimezoneDefaults[countryCode] || '(GMT +00:00) UTC';
+  }
+  
   return {
     country,
     countryCode,
     phonePrefix,
-    timezone: displayTimezone,
+    timezone: finalTimezone,
     currency,
     language
   };
