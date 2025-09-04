@@ -32,10 +32,10 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-calm p-8">
       <div className="max-w-4xl mx-auto text-center space-y-12" style={{ minHeight: '750px' }}>
-        {/* Logo and branding - Calm & Trustworthy */}
+        {/* Logo and branding - Optimized for LCP with immediate text rendering */}
         <div className="space-y-6 animate-fade-in">
-          <h1 className="text-6xl font-heading font-bold gradient-text">Nimos</h1>
-          <p className="text-xl font-body text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <h1 className="text-6xl font-heading font-bold gradient-text font-loading-fallback">Nimos</h1>
+          <p className="text-xl font-body text-muted-foreground max-w-2xl mx-auto leading-relaxed font-loading-fallback">
             Transform your wellness studio with our calm, WhatsApp-first management platform. 
             Seamlessly connect with clients while maintaining the peace and organization your business deserves.
           </p>

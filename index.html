@@ -20,16 +20,18 @@
     <link rel="preload" href="https://fonts.gstatic.com/s/poppins/v23/pxiByp8kv8JHgFVrLGT9Z1xlFd2JQEk.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="https://fonts.gstatic.com/s/inter/v19/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2" as="font" type="font/woff2" crossorigin>
     
+    <!-- Critical CSS for immediate text rendering without font loading delay -->
+    <style>
+      /* Ensure text renders immediately with system fonts until web fonts load */
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+      .font-loading-fallback { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; }
+    </style>
+    
     <!-- Load Google Fonts with improved async strategy to prevent render blocking -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript>
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap">
     </noscript>
-    
-    <!-- Inline critical font loading script to prevent FOUC -->
-    <script>
-      !function(e){"use strict";var t=function(t,n,r){function o(e){return i.body?e():void setTimeout(function(){o(e)})}function a(){d.addEventListener&&d.removeEventListener("load",a),d.media=r||"all"}var i=e.document,d=i.createElement("link");if(n)d.href=n;else{var s=(i.body||i.getElementsByTagName("head")[0]).childNodes;d.href=s[s.length-1].href}d.rel="stylesheet",d.media="only x",o(function(){i.head.appendChild(d)}),d.addEventListener&&d.addEventListener("load",a),d.onloadcssdefined=a};"undefined"!=typeof exports?exports.loadCSS=t:e.loadCSS=t}("undefined"!=typeof global?global:this);
-    </script>
 
     <meta property="og:title" content="Nimos - WhatsApp-First Salon Management Platform" />
     <meta property="og:description" content="Revolutionize your salon with AI-powered WhatsApp booking, smart scheduling, and comprehensive business management tools." />
