@@ -1,6 +1,25 @@
 
 /* Google Fonts loaded asynchronously via HTML to prevent render blocking */
 
+/* Font fallbacks with size-adjust to prevent layout shifts */
+@font-face {
+  font-family: 'Poppins Fallback';
+  src: local('Arial');
+  size-adjust: 107%;
+  ascent-override: 105%;
+  descent-override: 35%;
+  line-gap-override: 10%;
+}
+
+@font-face {
+  font-family: 'Inter Fallback';
+  src: local('Arial');
+  size-adjust: 90%;
+  ascent-override: 90%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -133,12 +152,12 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
-    font-family: 'Inter', sans-serif; /* Default to Inter for UI */
+    font-family: 'Inter', 'Inter Fallback', sans-serif; /* Default to Inter for UI with fallback */
   }
   
-  /* Typography System */
+  /* Typography System with fallbacks to prevent layout shifts */
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Poppins', 'Poppins Fallback', sans-serif;
     font-weight: 600;
   }
   
@@ -147,11 +166,11 @@
   }
   
   .font-heading {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Poppins', 'Poppins Fallback', sans-serif;
   }
   
   .font-body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', 'Inter Fallback', sans-serif;
   }
   
   /* Wellness-focused gradient backgrounds */
