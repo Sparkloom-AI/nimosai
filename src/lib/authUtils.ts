@@ -240,8 +240,8 @@ export const mergeLocationData = (
     country: ipData?.country || browserDefaults.country,
     countryCode: ipData?.countryCode || browserDefaults.countryCode,
     phonePrefix: ipData?.phonePrefix || browserDefaults.phonePrefix,
-    // Prefer browser for timezone, but fall back to IP label if browser mapping failed
-    timezone: browserDefaults.timezone || ipData?.timezone,
+    // Prefer IP timezone over browser to reflect actual location
+    timezone: ipData?.timezone || browserDefaults.timezone,
     currency: ipData?.currency || browserDefaults.currency,
     // Prefer browser for language, but fall back to IP label if needed
     language: browserDefaults.language || ipData?.language
