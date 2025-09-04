@@ -1,5 +1,5 @@
 
-/* Import Google Fonts for Typography System */
+/* Import Google Fonts for Typography System with font-display swap to prevent layout shifts */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @tailwind base;

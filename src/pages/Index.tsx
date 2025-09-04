@@ -29,7 +29,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-calm p-8">
-      <div className="max-w-4xl mx-auto text-center space-y-12">
+      <div className="max-w-4xl mx-auto text-center space-y-12" style={{ minHeight: '750px' }}>
         {/* Logo and branding - Calm & Trustworthy */}
         <div className="space-y-6 animate-fade-in">
           <h1 className="text-6xl font-heading font-bold gradient-text">Nimos</h1>
