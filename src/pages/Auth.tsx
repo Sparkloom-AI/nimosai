@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import AccountSetupWizard from '@/components/domain/auth/AccountSetupWizard';
@@ -221,14 +220,7 @@ const Auth = () => {
       }
       
       // For new email sign-ups
-      const { error } = await signUp(email, password, fullName, {
-        country: locationData.country,
-        country_code: locationData.countryCode,
-        phone_prefix: locationData.phonePrefix,
-        timezone: locationData.timezone,
-        currency: locationData.currency,
-        language: locationData.language
-      });
+      const { error } = await signUp(email, password, fullName);
       
       if (error) {
         if (error.message.includes('User already registered')) {
@@ -642,54 +634,7 @@ const Auth = () => {
                   </div>
                 </div>
 
-                {/* 4. Timezone */}
-                <div>
-                  <label htmlFor="timezone" className="block text-sm font-medium mb-2 text-foreground">
-                    Time zone
-                  </label>
-                  <Select value={locationData.timezone} onValueChange={(timezone) => 
-                    setLocationData(prev => ({ ...prev, timezone }))
-                  }>
-                    <SelectTrigger id="timezone" className="w-full h-12">
-                      <SelectValue placeholder="Select timezone" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-60">
-                      {[
-                        'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
-                        'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Europe/Rome',
-                        'Asia/Tokyo', 'Asia/Shanghai', 'Asia/Kolkata', 'Australia/Sydney'
-                      ].map((tz) => (
-                        <SelectItem key={tz} value={tz}>
-                          {tz.replace('_', ' ')}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* 5. Language */}
-                <div>
-                  <label htmlFor="language" className="block text-sm font-medium mb-2 text-foreground">
-                    Language
-                  </label>
-                  <Select value={locationData.language} onValueChange={(language) => 
-                    setLocationData(prev => ({ ...prev, language }))
-                  }>
-                    <SelectTrigger id="language" className="w-full h-12">
-                      <SelectValue placeholder="Select language" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-60">
-                      <SelectItem value="English">🇺🇸 English</SelectItem>
-                      <SelectItem value="Spanish">🇪🇸 Spanish</SelectItem>
-                      <SelectItem value="French">🇫🇷 French</SelectItem>
-                      <SelectItem value="German">🇩🇪 German</SelectItem>
-                      <SelectItem value="Italian">🇮🇹 Italian</SelectItem>
-                      <SelectItem value="Portuguese">🇵🇹 Portuguese</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* 6. Location Detection Banner */}
+                {/* 4. Location Detection Banner */}
                 <LocationDetectionBanner
                   detectedCountry={locationData.country}
                   isDetected={detectedLocation.isDetected}
@@ -697,7 +642,7 @@ const Auth = () => {
                   onEditLocation={handleEditLocation}
                 />
 
-                {/* 7. Expandable Location Settings (for advanced users) */}
+                {/* 5. Expandable Location Settings */}
                 {showLocationSettings && (
                   <ExpandableLocationSettings
                     locationData={locationData}

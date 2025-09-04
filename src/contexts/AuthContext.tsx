@@ -11,7 +11,7 @@ interface AuthContextType {
   accountSetupComplete: boolean | null;
   studioSetupComplete: boolean | null;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, fullName?: string, locationData?: any) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
   signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   completeAccountSetup: () => Promise<void>;
@@ -178,7 +178,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUp = async (email: string, password: string, fullName?: string, locationData?: any) => {
+  const signUp = async (email: string, password: string, fullName?: string) => {
     try {
       cleanupAuthState();
       
@@ -189,10 +189,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         password,
         options: {
           emailRedirectTo: redirectUrl,
-          data: {
-            ...(fullName ? { full_name: fullName } : {}),
-            ...(locationData || {})
-          },
+          data: fullName ? { full_name: fullName } : undefined,
         }
       });
 

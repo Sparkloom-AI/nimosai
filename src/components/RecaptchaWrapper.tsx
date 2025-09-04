@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
 
 // Use your site key here - this is public and safe to include in the code
-const RECAPTCHA_SITE_KEY = '6LfBa70rAAAAAFWRGQ8W-AzkLrDxfQRvaE0Kf7JS'; // Your actual site key
+const RECAPTCHA_SITE_KEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'; // Test key - replace with your actual site key
 
 interface RecaptchaWrapperProps {
   onVerify: (token: string | null) => void;

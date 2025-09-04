@@ -59,7 +59,7 @@ serve(async (req) => {
       );
     }
 
-    // Verify the reCAPTCHA token with Google standard API
+    // Verify the reCAPTCHA token with Google
     const verifyUrl = 'https://www.google.com/recaptcha/api/siteverify';
     const verifyParams = new URLSearchParams({
       secret: RECAPTCHA_SECRET_KEY,
