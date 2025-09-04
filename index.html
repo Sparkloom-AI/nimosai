@@ -7,6 +7,10 @@
     <!-- DNS prefetch for faster resource loading -->
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    
+    <!-- Resource hints for critical assets -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <title>Nimos - WhatsApp-First Salon Management Platform</title>
     <meta name="description" content="Revolutionize your salon with AI-powered WhatsApp booking, smart scheduling, and comprehensive business management tools." />
     <meta name="author" content="Nimos" />
@@ -20,11 +24,36 @@
     <link rel="preload" href="https://fonts.gstatic.com/s/poppins/v23/pxiByp8kv8JHgFVrLGT9Z1xlFd2JQEk.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="https://fonts.gstatic.com/s/inter/v19/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2" as="font" type="font/woff2" crossorigin>
     
-    <!-- Critical CSS for immediate text rendering without font loading delay -->
+    <!-- Critical CSS for immediate rendering - inlined to prevent blocking -->
     <style>
       /* Ensure text renders immediately with system fonts until web fonts load */
-      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+      body { 
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        margin: 0;
+        background: hsl(220 14% 96%);
+        color: hsl(0 0% 22.7%);
+      }
       .font-loading-fallback { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; }
+      
+      /* Critical layout styles for immediate FCP */
+      #root { min-height: 100vh; }
+      .min-h-screen { min-height: 100vh; }
+      .flex { display: flex; }
+      .flex-col { flex-direction: column; }
+      .items-center { align-items: center; }
+      .justify-center { justify-content: center; }
+      .text-center { text-align: center; }
+      .max-w-4xl { max-width: 56rem; }
+      .mx-auto { margin-left: auto; margin-right: auto; }
+      .p-8 { padding: 2rem; }
+      .space-y-6 > * + * { margin-top: 1.5rem; }
+      .space-y-12 > * + * { margin-top: 3rem; }
+      .text-6xl { font-size: 3.75rem; line-height: 1; }
+      .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+      .font-bold { font-weight: 700; }
+      .leading-relaxed { line-height: 1.625; }
+      .text-muted-foreground { color: hsl(0 0% 45%); }
+      .max-w-2xl { max-width: 42rem; }
     </style>
     
     <!-- Load Google Fonts with improved async strategy to prevent render blocking -->
