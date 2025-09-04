@@ -59,19 +59,26 @@ serve(async (req) => {
       );
     }
 
-    // Verify the reCAPTCHA token with Google
-    const verifyUrl = 'https://www.google.com/recaptcha/api/siteverify';
+    // Verify the reCAPTCHA token with Google Enterprise API
+    const verifyUrl = 'https://recaptchaenterprise.googleapis.com/v1/projects/nimos-470509/assessments';
     const verifyParams = new URLSearchParams({
-      secret: RECAPTCHA_SECRET_KEY,
-      response: token,
+      key: RECAPTCHA_SECRET_KEY,
     });
 
-    const verifyResponse = await fetch(verifyUrl, {
+    const requestBody = {
+      event: {
+        token: token,
+        expectedAction: 'USER_ACTION',
+        siteKey: '6LfBa70rAAAAAFWRGQ8W-AzkLrDxfQRvaE0Kf7JS',
+      },
+    };
+
+    const verifyResponse = await fetch(`${verifyUrl}?${verifyParams}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json',
       },
-      body: verifyParams,
+      body: JSON.stringify(requestBody),
     });
 
     const verifyResult: RecaptchaResponse = await verifyResponse.json();
