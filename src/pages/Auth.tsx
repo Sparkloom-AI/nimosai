@@ -83,6 +83,11 @@ const Auth = () => {
       if (googleData) {
         setFirstName(googleData.firstName);
         setLastName(googleData.lastName);
+        // Ensure email is set from Google metadata and persisted
+        if (googleData.email && !email) {
+          setEmail(googleData.email);
+          try { localStorage.setItem('pendingSignupEmail', googleData.email); } catch {}
+        }
         
         console.log('Google sign-up detected, applying smart defaults:', {
           name: `${googleData.firstName} ${googleData.lastName}`,
@@ -121,6 +126,27 @@ const Auth = () => {
     }
   }, [searchParams]);
 
+  // Ensure email is present on register step; restore from localStorage or redirect
+  useEffect(() => {
+    if (step === 'register' && !email) {
+      try {
+        const stored = localStorage.getItem('pendingSignupEmail');
+        if (stored) {
+          setEmail(stored);
+        } else {
+          toast.error('Please enter your email to continue.');
+          setStep('email');
+        }
+      } catch {
+        // If storage not available, force back to email step
+        if (!email) {
+          toast.error('Please enter your email to continue.');
+          setStep('email');
+        }
+      }
+    }
+  }, [step, email]);
+
   // Check user setup status and redirect accordingly
   useEffect(() => {
     if (user && !authLoading && accountSetupComplete !== null && studioSetupComplete !== null) {
@@ -151,6 +177,7 @@ const Auth = () => {
       } else {
         setStep('register');
         toast.success('Let\'s get you started! Please complete your account setup.');
+        try { localStorage.setItem('pendingSignupEmail', email); } catch {}
       }
     } catch (error: any) {
       toast.error('Unable to verify email. Please try again.');
@@ -215,6 +242,7 @@ const Auth = () => {
         }
       } else {
         setStep('email-confirmation');
+        try { localStorage.removeItem('pendingSignupEmail'); } catch {}
       }
     } catch (error: any) {
       toast.error('An unexpected error occurred');
