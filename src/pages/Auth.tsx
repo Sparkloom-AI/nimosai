@@ -643,9 +643,9 @@ const Auth = () => {
                   />
                   <label htmlFor="terms" className="text-sm text-muted-foreground">
                     I agree to the{' '}
-                    <a href="#" className="text-primary hover:underline">Privacy Policy</a>,{' '}
-                    <a href="#" className="text-primary hover:underline">Terms of Service</a> and{' '}
-                    <a href="#" className="text-primary hover:underline">Terms of Business</a>.
+                    <Link to="/terms/privacy-policy" target="_blank" className="text-primary hover:underline">Privacy Policy</Link>,{' '}
+                    <Link to="/terms/terms-of-service" target="_blank" className="text-primary hover:underline">Terms of Service</Link> and{' '}
+                    <Link to="/terms/terms-of-business" target="_blank" className="text-primary hover:underline">Terms of Business</Link>.
                   </label>
                 </div>
 
