@@ -11,10 +11,6 @@ import { useSecurityValidation } from '@/hooks/useSecurityValidation';
 
 const businessSetupSchema = z.object({
   businessName: z.string().min(1, 'Business name is required'),
-  website: z.string().optional(),
-  description: z.string().optional(),
-  phone: z.string().optional(),
-  email: z.string().email('Invalid email address').optional().or(z.literal('')),
 });
 
 type BusinessSetupFormData = z.infer<typeof businessSetupSchema>;
@@ -32,10 +28,6 @@ const BusinessSetupForm: React.FC<BusinessSetupFormProps> = ({ onBack, onComplet
     resolver: zodResolver(businessSetupSchema),
     defaultValues: {
       businessName: '',
-      website: '',
-      description: '',
-      phone: '',
-      email: '',
     },
   });
 
@@ -45,10 +37,6 @@ const BusinessSetupForm: React.FC<BusinessSetupFormProps> = ({ onBack, onComplet
       // Security validation for business setup data
       const validationResult = await validateForm({
         businessName: data.businessName,
-        website: data.website || '',
-        description: data.description || '',
-        phone: data.phone || '',
-        email: data.email || ''
       });
 
       if (!validationResult.isValid || !validationResult.sanitizedData) {
@@ -57,10 +45,6 @@ const BusinessSetupForm: React.FC<BusinessSetupFormProps> = ({ onBack, onComplet
 
       onComplete({
         businessName: validationResult.sanitizedData.businessName,
-        website: validationResult.sanitizedData.website,
-        description: validationResult.sanitizedData.description,
-        phone: validationResult.sanitizedData.phone,
-        email: validationResult.sanitizedData.email
       });
     } finally {
       setIsLoading(false);
@@ -108,86 +92,6 @@ const BusinessSetupForm: React.FC<BusinessSetupFormProps> = ({ onBack, onComplet
                       <FormControl>
                         <Input
                           placeholder="Enter your business name"
-                          className="h-12 text-base"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="website"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">
-                        Website <span className="text-muted-foreground">(Optional)</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="www.yoursite.com"
-                          className="h-12 text-base"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">
-                        Description <span className="text-muted-foreground">(Optional)</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Tell us about your business..."
-                          className="h-12 text-base"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">
-                        Phone <span className="text-muted-foreground">(Optional)</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="+1 (555) 123-4567"
-                          className="h-12 text-base"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">
-                        Email <span className="text-muted-foreground">(Optional)</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="business@example.com"
                           className="h-12 text-base"
                           {...field}
                         />
