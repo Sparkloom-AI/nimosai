@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { ResponsiveImage } from '@/components/ui/responsive-image';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRole } from '@/contexts/RoleContext';
@@ -109,21 +110,21 @@ const SettingsWizard: React.FC<SettingsWizardProps> = ({ onClose }) => {
         </div>
 
         {/* Right side - Image */}
-        <div className="hidden lg:block flex-1 bg-muted relative overflow-hidden">
-          <img
+        <div className="hidden lg:block flex-1 bg-muted">
+          <ResponsiveImage
             src="/lovable-uploads/5101447c-92ce-49c1-8837-5de26eeff4b6.png"
             alt="Professional using Nimos"
-            className="absolute inset-0 w-full h-full object-cover"
+            variant="hero"
+            overlay={true}
+            overlayContent={
+              <>
+                <h2 className="text-2xl font-bold mb-2">All Set!</h2>
+                <p className="text-white/90 text-lg">
+                  Your business settings have been updated successfully
+                </p>
+              </>
+            }
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/10 to-accent/20" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-          
-          <div className="absolute bottom-8 left-8 right-8 text-white">
-            <h2 className="text-2xl font-bold mb-2">All Set!</h2>
-            <p className="text-white/90 text-lg">
-              Your business settings have been updated successfully
-            </p>
-          </div>
         </div>
       </div>
     );

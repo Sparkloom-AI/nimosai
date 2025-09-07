@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { ResponsiveImage } from '@/components/ui/responsive-image';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import AccountSetupWizard from '@/components/domain/auth/AccountSetupWizard';
@@ -704,21 +705,21 @@ const Auth = () => {
       </div>
 
       {/* Right side - Image */}
-      <div className="hidden lg:block flex-1 bg-muted relative overflow-hidden">
-        <img
+      <div className="hidden lg:block flex-1 bg-muted">
+        <ResponsiveImage
           src="/lovable-uploads/5101447c-92ce-49c1-8837-5de26eeff4b6.png"
           alt="Professional using Nimos"
-          className="absolute inset-0 w-full h-full object-cover"
+          variant="hero"
+          overlay={true}
+          overlayContent={
+            <>
+              <h2 className="text-2xl font-bold mb-2">WhatsApp-First Studio Management</h2>
+              <p className="text-white/90 text-lg">
+                Manage your salon or wellness studio with the power of WhatsApp. Book appointments, manage staff, and grow your business.
+              </p>
+            </>
+          }
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/10 to-accent/20" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-        
-        <div className="absolute bottom-8 left-8 right-8 text-white">
-          <h2 className="text-2xl font-bold mb-2">WhatsApp-First Studio Management</h2>
-          <p className="text-white/90 text-lg">
-            Manage your salon or wellness studio with the power of WhatsApp. Book appointments, manage staff, and grow your business.
-          </p>
-        </div>
       </div>
     </div>
   );
