@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,62 +8,53 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { ResponsiveImage } from '@/components/ui/responsive-image';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useSecurityValidation } from '@/hooks/useSecurityValidation';
-
 const businessSetupSchema = z.object({
-  businessName: z.string().min(1, 'Business name is required'),
+  businessName: z.string().min(1, 'Business name is required')
 });
-
 type BusinessSetupFormData = z.infer<typeof businessSetupSchema>;
-
 interface BusinessSetupFormProps {
   onBack: () => void;
   onComplete: (data: BusinessSetupFormData) => void;
 }
-
-const BusinessSetupForm: React.FC<BusinessSetupFormProps> = ({ onBack, onComplete }) => {
+const BusinessSetupForm: React.FC<BusinessSetupFormProps> = ({
+  onBack,
+  onComplete
+}) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { validateForm, isValidating } = useSecurityValidation();
-
+  const {
+    validateForm,
+    isValidating
+  } = useSecurityValidation();
   const form = useForm<BusinessSetupFormData>({
     resolver: zodResolver(businessSetupSchema),
     defaultValues: {
-      businessName: '',
-    },
+      businessName: ''
+    }
   });
-
   const onSubmit = async (data: BusinessSetupFormData) => {
     setIsLoading(true);
     try {
       // Security validation for business setup data
       const validationResult = await validateForm({
-        businessName: data.businessName,
+        businessName: data.businessName
       });
-
       if (!validationResult.isValid || !validationResult.sanitizedData) {
         return;
       }
-
       onComplete({
-        businessName: validationResult.sanitizedData.businessName,
+        businessName: validationResult.sanitizedData.businessName
       });
     } finally {
       setIsLoading(false);
     }
   };
-
-  return (
-    <div className="min-h-screen bg-background flex">
+  return <div className="min-h-screen bg-background flex">
       {/* Left side - Form */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-lg">
           {/* Header */}
           <div className="mb-8">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onBack}
-              className="mb-6 p-0 h-auto text-muted-foreground hover:text-foreground"
-            >
+            <Button variant="ghost" size="sm" onClick={onBack} className="mb-6 p-0 h-auto text-muted-foreground hover:text-foreground">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
@@ -84,30 +74,18 @@ const BusinessSetupForm: React.FC<BusinessSetupFormProps> = ({ onBack, onComplet
           <div className="space-y-6">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="businessName"
-                  render={({ field }) => (
-                    <FormItem>
+                <FormField control={form.control} name="businessName" render={({
+                field
+              }) => <FormItem>
                       <FormLabel className="text-sm font-medium">Business name</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="Enter your business name"
-                          className="h-12 text-base"
-                          {...field}
-                        />
+                        <Input placeholder="Enter your business name" className="h-12 text-base" {...field} />
                       </FormControl>
                       <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    </FormItem>} />
 
                 <div className="flex justify-end pt-4">
-                  <Button 
-                    type="submit" 
-                    className="h-12 px-8 bg-foreground text-background hover:bg-foreground/90"
-                    disabled={isLoading || isValidating}
-                  >
+                  <Button type="submit" className="h-12 px-8 bg-foreground text-background hover:bg-foreground/90" disabled={isLoading || isValidating}>
                     Continue
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
@@ -120,23 +98,11 @@ const BusinessSetupForm: React.FC<BusinessSetupFormProps> = ({ onBack, onComplet
 
       {/* Right side - Image */}
       <div className="hidden lg:block flex-1 bg-muted">
-        <ResponsiveImage
-          src="/lovable-uploads/5101447c-92ce-49c1-8837-5de26eeff4b6.png"
-          alt="Professional using Nimos"
-          variant="hero"
-          overlay={true}
-          overlayContent={
-            <>
+        <ResponsiveImage src="/lovable-uploads/5101447c-92ce-49c1-8837-5de26eeff4b6.png" alt="Professional using Nimos" variant="hero" overlay={true} overlayContent={<>
               <h2 className="text-2xl font-bold mb-2">Set Up Your Business</h2>
-              <p className="text-white/90 text-lg">
-                Get your salon or wellness studio ready to manage clients through WhatsApp
-              </p>
-            </>
-          }
-        />
+              
+            </>} />
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default BusinessSetupForm;
