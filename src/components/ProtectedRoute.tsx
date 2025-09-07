@@ -13,6 +13,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   useEffect(() => {
     if (!loading) {
+      console.log('ProtectedRoute check:', { user: !!user, accountSetupComplete, studioSetupComplete });
+      
       if (!user) {
         // No user authenticated, redirect to auth
         navigate('/auth');

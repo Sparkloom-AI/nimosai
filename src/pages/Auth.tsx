@@ -129,24 +129,30 @@ const Auth = () => {
 
   // Ensure email is present on register step; restore from localStorage or redirect
   useEffect(() => {
+    // Skip this check if user is already authenticated and setup is complete
+    if (user && accountSetupComplete === true && studioSetupComplete === true) {
+      return;
+    }
+    
     if (step === 'register' && !email) {
       try {
         const stored = localStorage.getItem('pendingSignupEmail');
         if (stored) {
           setEmail(stored);
-        } else {
+        } else if (!user) {
+          // Only show error and redirect if user is not authenticated
           toast.error('Please enter your email to continue.');
           setStep('email');
         }
       } catch {
-        // If storage not available, force back to email step
-        if (!email) {
+        // If storage not available, force back to email step only if not authenticated
+        if (!email && !user) {
           toast.error('Please enter your email to continue.');
           setStep('email');
         }
       }
     }
-  }, [step, email]);
+  }, [step, email, user, accountSetupComplete, studioSetupComplete]);
 
   // Check user setup status and redirect accordingly
   useEffect(() => {
@@ -159,6 +165,10 @@ const Auth = () => {
         navigate('/onboarding/studio');
       } else {
         // Both setups complete, go to dashboard
+        // Clear any stored email data before navigating
+        try {
+          localStorage.removeItem('pendingSignupEmail');
+        } catch {}
         navigate('/dashboard');
       }
     }

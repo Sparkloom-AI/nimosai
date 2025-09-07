@@ -8,8 +8,18 @@ const OnboardingStudio = () => {
     completeStudioSetup
   } = useAuth();
   const handleOnboardingComplete = async () => {
-    await completeStudioSetup();
-    navigate('/dashboard');
+    try {
+      await completeStudioSetup();
+      // Clear any stored email data
+      try {
+        localStorage.removeItem('pendingSignupEmail');
+      } catch {}
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Failed to complete studio setup:', error);
+      // Still navigate to dashboard as fallback
+      navigate('/dashboard');
+    }
   };
   return <div className="min-h-screen bg-gradient-to-br from-background to-muted">
       <div className="container mx-auto px-4 py-8">
