@@ -5,10 +5,13 @@ import { useAuth } from '@/contexts/AuthContext';
 const OnboardingStudio = () => {
   const navigate = useNavigate();
   const {
-    completeStudioSetup
+    completeStudioSetup,
+    completeAccountSetup
   } = useAuth();
   const handleOnboardingComplete = async () => {
     try {
+      // Ensure both flags are set so protected routes allow dashboard
+      await completeAccountSetup();
       await completeStudioSetup();
       // Clear any stored email data
       try {
