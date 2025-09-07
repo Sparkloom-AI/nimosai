@@ -60,7 +60,7 @@ const BusinessSetupForm: React.FC<BusinessSetupFormProps> = ({
             </Button>
             
             <div className="mb-6">
-              <p className="text-sm text-muted-foreground mb-2">Account setup</p>
+              
               <h1 className="text-3xl font-bold mb-4">
                 What's your business name?
               </h1>
