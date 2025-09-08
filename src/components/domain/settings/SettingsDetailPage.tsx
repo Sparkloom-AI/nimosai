@@ -130,6 +130,7 @@ export const SettingsDetailPage = ({
             {ValidStepComponent && (
               <ValidStepComponent 
                 {...validCurrentStep?.props}
+                stepId={validActiveStep}
                 onNext={handleNext}
                 onPrevious={handlePrevious}
                 hasNext={hasNext}
