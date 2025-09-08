@@ -24,8 +24,14 @@ export const SettingsDetailPage = ({
   const currentStep = section.steps[currentStepIndex];
   const StepComponent = currentStep?.component;
 
+  // Ensure we always have a valid active step - default to first step if none provided
+  const validActiveStep = activeStep || section.steps[0]?.id;
+  const validCurrentStepIndex = section.steps.findIndex(s => s.id === validActiveStep);
+  const validCurrentStep = section.steps[validCurrentStepIndex];
+  const ValidStepComponent = validCurrentStep?.component;
+
   const handleNext = () => {
-    const nextStepIndex = currentStepIndex + 1;
+    const nextStepIndex = validCurrentStepIndex + 1;
     if (nextStepIndex < section.steps.length) {
       onStepChange(section.steps[nextStepIndex].id);
     } else {
@@ -34,13 +40,13 @@ export const SettingsDetailPage = ({
   };
 
   const handlePrevious = () => {
-    if (currentStepIndex > 0) {
-      onStepChange(section.steps[currentStepIndex - 1].id);
+    if (validCurrentStepIndex > 0) {
+      onStepChange(section.steps[validCurrentStepIndex - 1].id);
     }
   };
 
-  const hasNext = currentStepIndex < section.steps.length - 1;
-  const hasPrevious = currentStepIndex > 0;
+  const hasNext = validCurrentStepIndex < section.steps.length - 1;
+  const hasPrevious = validCurrentStepIndex > 0;
 
   return (
     <div className="flex h-full min-h-screen">
@@ -78,7 +84,7 @@ export const SettingsDetailPage = ({
                 size="sm"
                 className={cn(
                   "w-full justify-start h-9 px-3",
-                  step.id === activeStep && "bg-muted text-foreground"
+                  step.id === validActiveStep && "bg-muted text-foreground"
                 )}
                 onClick={() => onStepChange(step.id)}
               >
@@ -106,12 +112,12 @@ export const SettingsDetailPage = ({
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-semibold">{section.title}</h1>
-              {currentStep && (
+              {validCurrentStep && (
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-sm text-muted-foreground">
-                    Step {currentStepIndex + 1} of {section.steps.length}:
+                    Step {validCurrentStepIndex + 1} of {section.steps.length}:
                   </span>
-                  <span className="text-sm font-medium">{currentStep.title}</span>
+                  <span className="text-sm font-medium">{validCurrentStep.title}</span>
                 </div>
               )}
             </div>
@@ -121,9 +127,9 @@ export const SettingsDetailPage = ({
         {/* Step Content */}
         <div className="flex-1 p-6">
           <div className="max-w-4xl mx-auto">
-            {StepComponent && (
-              <StepComponent 
-                {...currentStep?.props}
+            {ValidStepComponent && (
+              <ValidStepComponent 
+                {...validCurrentStep?.props}
                 onNext={handleNext}
                 onPrevious={handlePrevious}
                 hasNext={hasNext}
