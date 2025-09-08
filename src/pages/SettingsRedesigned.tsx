@@ -1,20 +1,24 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Building2, MapPin, Calendar, Users, Settings, CreditCard, Bell, Zap, Cog, Shield } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { ArrowRight, Building2, MapPin, Calendar, Users, Settings, CreditCard, Bell, Zap, Cog, Shield, Search, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { SettingsWizardLayout, SettingsSection } from '@/components/domain/settings/SettingsWizardLayout';
 import { BusinessProfileSection } from '@/components/domain/settings/wizard/BusinessProfileSection';
 import { LocationsSection } from '@/components/domain/locations/LocationsSection';
 import { AppointmentsSettings } from '@/components/domain/settings/AppointmentsSettings';
+import { SettingsDetailPage } from '@/components/domain/settings/SettingsDetailPage';
+import { cn } from '@/lib/utils';
 
-type ViewType = 'dashboard' | 'wizard';
+type ViewType = 'dashboard' | 'detail';
 
 const SettingsRedesigned = () => {
   const [view, setView] = useState<ViewType>('dashboard');
   const [activeSection, setActiveSection] = useState('business-profile');
   const [activeStep, setActiveStep] = useState('name-logo');
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleSectionComplete = useCallback((sectionId: string) => {
     setCompletedSections(prev => new Set([...prev, sectionId]));
@@ -32,6 +36,24 @@ const SettingsRedesigned = () => {
           title: 'Name & Logo',
           component: BusinessProfileSection,
           completed: false
+        },
+        {
+          id: 'description-categories',
+          title: 'Description & Categories',
+          component: BusinessProfileSection,
+          completed: false
+        },
+        {
+          id: 'contact-info',
+          title: 'Contact Information',
+          component: BusinessProfileSection,
+          completed: false
+        },
+        {
+          id: 'social-media',
+          title: 'Social Media',
+          component: BusinessProfileSection,
+          completed: false
         }
       ],
       completed: completedSections.has('business-profile')
@@ -44,7 +66,19 @@ const SettingsRedesigned = () => {
       steps: [
         {
           id: 'locations',
-          title: 'Locations',
+          title: 'Manage Locations',
+          component: LocationsSection,
+          completed: false
+        },
+        {
+          id: 'address-timezone',
+          title: 'Address & Time Zone',
+          component: LocationsSection,
+          completed: false
+        },
+        {
+          id: 'business-hours',
+          title: 'Business Hours',
           component: LocationsSection,
           completed: false
         }
@@ -58,8 +92,26 @@ const SettingsRedesigned = () => {
       icon: Calendar,
       steps: [
         {
-          id: 'appointments',
-          title: 'Appointment Settings',
+          id: 'availability',
+          title: 'Availability Settings',
+          component: AppointmentsSettings,
+          completed: false
+        },
+        {
+          id: 'team-group-bookings',
+          title: 'Team & Group Bookings',
+          component: AppointmentsSettings,
+          completed: false
+        },
+        {
+          id: 'cancellation-policy',
+          title: 'Cancellation Policy',
+          component: AppointmentsSettings,
+          completed: false
+        },
+        {
+          id: 'rescheduling-policy',
+          title: 'Rescheduling Policy',
           component: AppointmentsSettings,
           completed: false
         }
@@ -77,6 +129,18 @@ const SettingsRedesigned = () => {
           title: 'Currency & Tax',
           component: () => <div className="p-8 text-center text-muted-foreground">Coming Soon</div>,
           completed: false
+        },
+        {
+          id: 'payment-providers',
+          title: 'Payment Providers',
+          component: () => <div className="p-8 text-center text-muted-foreground">Coming Soon</div>,
+          completed: false
+        },
+        {
+          id: 'deposit-prepayment',
+          title: 'Deposit & Prepayment Rules',
+          component: () => <div className="p-8 text-center text-muted-foreground">Coming Soon</div>,
+          completed: false
         }
       ],
       completed: completedSections.has('payments-pricing')
@@ -88,8 +152,20 @@ const SettingsRedesigned = () => {
       icon: Bell,
       steps: [
         {
-          id: 'notifications',
-          title: 'Notification Settings',
+          id: 'client-notifications',
+          title: 'Client Notifications',
+          component: () => <div className="p-8 text-center text-muted-foreground">Coming Soon</div>,
+          completed: false
+        },
+        {
+          id: 'team-notifications',
+          title: 'Team Notifications',
+          component: () => <div className="p-8 text-center text-muted-foreground">Coming Soon</div>,
+          completed: false
+        },
+        {
+          id: 'communication-channels',
+          title: 'Communication Channels',
           component: () => <div className="p-8 text-center text-muted-foreground">Coming Soon</div>,
           completed: false
         }
@@ -107,6 +183,12 @@ const SettingsRedesigned = () => {
           title: 'Team Members',
           component: () => <div className="p-8 text-center text-muted-foreground">Coming Soon</div>,
           completed: false
+        },
+        {
+          id: 'roles-permissions',
+          title: 'Roles & Permissions',
+          component: () => <div className="p-8 text-center text-muted-foreground">Coming Soon</div>,
+          completed: false
         }
       ],
       completed: completedSections.has('team-permissions')
@@ -118,8 +200,26 @@ const SettingsRedesigned = () => {
       icon: Zap,
       steps: [
         {
+          id: 'social-media-links',
+          title: 'Social Media Links',
+          component: () => <div className="p-8 text-center text-muted-foreground">Coming Soon</div>,
+          completed: false
+        },
+        {
           id: 'calendar-sync',
           title: 'Calendar Sync',
+          component: () => <div className="p-8 text-center text-muted-foreground">Coming Soon</div>,
+          completed: false
+        },
+        {
+          id: 'api-webhooks',
+          title: 'API & Webhooks',
+          component: () => <div className="p-8 text-center text-muted-foreground">Coming Soon</div>,
+          completed: false
+        },
+        {
+          id: 'third-party',
+          title: 'Third-Party Integrations',
           component: () => <div className="p-8 text-center text-muted-foreground">Coming Soon</div>,
           completed: false
         }
@@ -137,21 +237,49 @@ const SettingsRedesigned = () => {
           title: 'Language Defaults',
           component: () => <div className="p-8 text-center text-muted-foreground">Coming Soon</div>,
           completed: false
+        },
+        {
+          id: 'data-management',
+          title: 'Data Management',
+          component: () => <div className="p-8 text-center text-muted-foreground">Coming Soon</div>,
+          completed: false
+        },
+        {
+          id: 'legal-settings',
+          title: 'Legal Settings',
+          component: () => <div className="p-8 text-center text-muted-foreground">Coming Soon</div>,
+          completed: false
         }
       ],
       completed: completedSections.has('advanced-settings')
     }
   ];
 
-  if (view === 'wizard') {
+  // Filter sections based on search query
+  const filteredSections = useMemo(() => {
+    if (!searchQuery.trim()) return settingsSections;
+    
+    return settingsSections.filter(section => {
+      const titleMatch = section.title.toLowerCase().includes(searchQuery.toLowerCase());
+      const descriptionMatch = section.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const stepMatch = section.steps.some(step => 
+        step.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      
+      return titleMatch || descriptionMatch || stepMatch;
+    });
+  }, [searchQuery, settingsSections]);
+
+  const currentSection = settingsSections.find(s => s.id === activeSection);
+
+  if (view === 'detail' && currentSection) {
     return (
       <DashboardLayout>
-        <SettingsWizardLayout
-          sections={settingsSections}
-          activeSection={activeSection}
+        <SettingsDetailPage
+          section={currentSection}
           activeStep={activeStep}
-          onSectionChange={setActiveSection}
           onStepChange={setActiveStep}
+          onBack={() => setView('dashboard')}
           onComplete={handleSectionComplete}
         />
       </DashboardLayout>
@@ -161,15 +289,29 @@ const SettingsRedesigned = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6 p-6">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-          <p className="text-muted-foreground">
-            Configure your business settings with our step-by-step guided setup
-          </p>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+            <p className="text-muted-foreground">
+              Configure your business settings with our step-by-step guided setup
+            </p>
+          </div>
+          
+          {/* Search Bar */}
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search settings…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-background"
+            />
+          </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {settingsSections.map((section) => {
+          {filteredSections.map((section) => {
             const Icon = section.icon;
             const isCompleted = section.completed;
             const completedSteps = section.steps.filter(step => step.completed).length;
@@ -181,7 +323,7 @@ const SettingsRedesigned = () => {
                 onClick={() => {
                   setActiveSection(section.id);
                   setActiveStep(section.steps[0].id);
-                  setView('wizard');
+                  setView('detail');
                 }}
               >
                 <CardHeader className="pb-3">
