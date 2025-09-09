@@ -34,32 +34,19 @@ export const BusinessProfileSection = ({
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Building2 className="h-5 w-5" />
-            Business Profile
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Configure your business identity, contact details, and social media presence
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <StepComponent />
+      <StepComponent />
 
-          {/* Inline wizard controls to move sequentially through subcategories */}
-          <div className="flex justify-between pt-2">
-            <Button variant="outline" onClick={onPrevious} disabled={!hasPrevious}>
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-            <Button onClick={onNext} disabled={!hasNext}>
-              Next
-              <ChevronRight className="h-4 w-4 ml-2" />
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Navigation controls at bottom */}
+      <div className="flex justify-between pt-6 border-t">
+        <Button variant="outline" onClick={onPrevious} disabled={!hasPrevious}>
+          <ChevronLeft className="h-4 w-4 mr-2" />
+          Previous
+        </Button>
+        <Button onClick={onNext} disabled={!hasNext}>
+          Next
+          <ChevronRight className="h-4 w-4 ml-2" />
+        </Button>
+      </div>
     </div>
   );
 };
