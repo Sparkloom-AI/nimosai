@@ -87,82 +87,67 @@ export const BusinessNameLogoStep = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Building2 className="h-5 w-5" />
-            Business Name & Logo
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Set your business name and upload your logo
-          </p>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Business Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter your business name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Business Name</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter your business name" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-              <div className="space-y-4">
-                <label className="text-sm font-medium">Business Logo</label>
-                <div className="flex items-center gap-4">
-                  {logoPreview ? (
-                    <div className="w-20 h-20 rounded-lg border-2 border-dashed border-muted-foreground/25 flex items-center justify-center overflow-hidden">
-                      <img
-                        src={logoPreview}
-                        alt="Logo preview"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ) : (
-                    <div className="w-20 h-20 rounded-lg border-2 border-dashed border-muted-foreground/25 flex items-center justify-center">
-                      <Upload className="h-8 w-8 text-muted-foreground" />
-                    </div>
-                  )}
-                  
-                  <div className="flex-1">
-                    <input
-                      id="logo-upload"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleLogoChange}
-                      className="hidden"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => document.getElementById('logo-upload')?.click()}
-                    >
-                      <Upload className="h-4 w-4 mr-2" />
-                      Upload Logo
-                    </Button>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Recommended: 200x200px, PNG or JPG
-                    </p>
-                  </div>
-                </div>
+        <div className="space-y-4">
+          <label className="text-sm font-medium">Business Logo</label>
+          <div className="flex items-center gap-4">
+            {logoPreview ? (
+              <div className="w-20 h-20 rounded-lg border-2 border-dashed border-muted-foreground/25 flex items-center justify-center overflow-hidden">
+                <img
+                  src={logoPreview}
+                  alt="Logo preview"
+                  className="w-full h-full object-cover"
+                />
               </div>
-
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save Changes
+            ) : (
+              <div className="w-20 h-20 rounded-lg border-2 border-dashed border-muted-foreground/25 flex items-center justify-center">
+                <Upload className="h-8 w-8 text-muted-foreground" />
+              </div>
+            )}
+            
+            <div className="flex-1">
+              <input
+                id="logo-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleLogoChange}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => document.getElementById('logo-upload')?.click()}
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Upload Logo
               </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-    </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Recommended: 200x200px, PNG or JPG
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <Button type="submit" disabled={loading}>
+          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Save Changes
+        </Button>
+      </form>
+    </Form>
   );
 };

@@ -107,23 +107,6 @@ export const SettingsDetailPage = ({
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <div className="border-b bg-background px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-semibold">{section.title}</h1>
-              {validCurrentStep && (
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-sm text-muted-foreground">
-                    Step {validCurrentStepIndex + 1} of {section.steps.length}:
-                  </span>
-                  <span className="text-sm font-medium">{validCurrentStep.title}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
         {/* Step Content */}
         <div className="flex-1 p-6">
           <div className="max-w-4xl mx-auto">
@@ -140,6 +123,33 @@ export const SettingsDetailPage = ({
           </div>
         </div>
 
+        {/* Navigation Footer */}
+        <div className="border-t bg-background px-6 py-4">
+          <div className="max-w-4xl mx-auto flex justify-between">
+            <Button
+              variant="outline"
+              onClick={handlePrevious}
+              disabled={!hasPrevious}
+            >
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Previous
+            </Button>
+            
+            <Button
+              onClick={handleNext}
+              disabled={!hasNext && section.completed}
+            >
+              {hasNext ? (
+                <>
+                  Next
+                  <ChevronRight className="h-4 w-4 ml-2" />
+                </>
+              ) : (
+                'Complete Section'
+              )}
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
