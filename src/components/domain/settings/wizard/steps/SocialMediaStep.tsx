@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -79,79 +79,64 @@ export const SocialMediaStep = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Instagram className="h-5 w-5" />
-            Social Media
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Connect your social media profiles to help customers find you
-          </p>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="facebook_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      <Facebook className="h-4 w-4 text-blue-600" />
-                      Facebook
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://facebook.com/yourbusiness" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="facebook_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="flex items-center gap-2">
+                <Facebook className="h-4 w-4 text-blue-600" />
+                Facebook
+              </FormLabel>
+              <FormControl>
+                <Input placeholder="https://facebook.com/yourbusiness" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-              <FormField
-                control={form.control}
-                name="instagram_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      <Instagram className="h-4 w-4 text-pink-600" />
-                      Instagram
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://instagram.com/yourbusiness" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+        <FormField
+          control={form.control}
+          name="instagram_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="flex items-center gap-2">
+                <Instagram className="h-4 w-4 text-pink-600" />
+                Instagram
+              </FormLabel>
+              <FormControl>
+                <Input placeholder="https://instagram.com/yourbusiness" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-              <FormField
-                control={form.control}
-                name="tiktok_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      <TikTokIcon />
-                      TikTok
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://tiktok.com/@yourbusiness" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+        <FormField
+          control={form.control}
+          name="tiktok_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="flex items-center gap-2">
+                <TikTokIcon />
+                TikTok
+              </FormLabel>
+              <FormControl>
+                <Input placeholder="https://tiktok.com/@yourbusiness" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save Changes
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-    </div>
+        <Button type="submit" disabled={loading}>
+          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Save Changes
+        </Button>
+      </form>
+    </Form>
   );
 };

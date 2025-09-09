@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, MessageSquare, Sparkles, Plus, X } from 'lucide-react';
+import { Loader2, Sparkles, Plus, X } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { studiosApi } from '@/api/studios';
 import { businessCategoriesApi } from '@/api/businessCategories';
@@ -162,122 +162,107 @@ export const BusinessDescriptionCategoriesStep = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5" />
-            Description & Categories
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Describe your business and select relevant categories
-          </p>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center justify-between">
-                      Business Description
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={generateDescription}
-                        disabled={generatingDescription}
-                        className="ml-2"
-                      >
-                        {generatingDescription ? (
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        ) : (
-                          <Sparkles className="h-4 w-4 mr-2" />
-                        )}
-                        {generatingDescription ? 'Generating...' : 'Generate with AI'}
-                      </Button>
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Tell customers about your business..."
-                        rows={4}
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="flex items-center justify-between">
+                Business Description
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={generateDescription}
+                  disabled={generatingDescription}
+                  className="ml-2"
+                >
+                  {generatingDescription ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Sparkles className="h-4 w-4 mr-2" />
+                  )}
+                  {generatingDescription ? 'Generating...' : 'Generate with AI'}
+                </Button>
+              </FormLabel>
+              <FormControl>
+                <Textarea 
+                  placeholder="Tell customers about your business..."
+                  rows={4}
+                  {...field} 
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium">Primary Category</label>
-                  <Select value={primaryCategory} onValueChange={setPrimaryCategory}>
-                    <SelectTrigger className="mt-2">
-                      <SelectValue placeholder="Select primary category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {businessCategories.map((category) => (
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm font-medium">Primary Category</label>
+            <Select value={primaryCategory} onValueChange={setPrimaryCategory}>
+              <SelectTrigger className="mt-2">
+                <SelectValue placeholder="Select primary category" />
+              </SelectTrigger>
+              <SelectContent>
+                {businessCategories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">Additional Categories (optional)</label>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {selectedCategories.map((categoryId) => {
+                const category = businessCategories.find(c => c.id === categoryId);
+                return category ? (
+                  <Badge key={categoryId} variant="secondary" className="flex items-center gap-1">
+                    {category.name}
+                    <X 
+                      className="h-3 w-3 cursor-pointer" 
+                      onClick={() => toggleCategory(categoryId)}
+                    />
+                  </Badge>
+                ) : null;
+              })}
+              
+              {selectedCategories.length < 3 && (
+                <Select value="" onValueChange={toggleCategory}>
+                  <SelectTrigger className="w-auto">
+                    <div className="flex items-center gap-1">
+                      <Plus className="h-3 w-3" />
+                      <SelectValue placeholder="Add category" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {businessCategories
+                      .filter(category => 
+                        category.id !== primaryCategory && 
+                        !selectedCategories.includes(category.id)
+                      )
+                      .map((category) => (
                         <SelectItem key={category.id} value={category.id}>
                           {category.name}
                         </SelectItem>
                       ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          </div>
+        </div>
 
-                <div>
-                  <label className="text-sm font-medium">Additional Categories (optional)</label>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {selectedCategories.map((categoryId) => {
-                      const category = businessCategories.find(c => c.id === categoryId);
-                      return category ? (
-                        <Badge key={categoryId} variant="secondary" className="flex items-center gap-1">
-                          {category.name}
-                          <X 
-                            className="h-3 w-3 cursor-pointer" 
-                            onClick={() => toggleCategory(categoryId)}
-                          />
-                        </Badge>
-                      ) : null;
-                    })}
-                    
-                    {selectedCategories.length < 3 && (
-                      <Select value="" onValueChange={toggleCategory}>
-                        <SelectTrigger className="w-auto">
-                          <div className="flex items-center gap-1">
-                            <Plus className="h-3 w-3" />
-                            <SelectValue placeholder="Add category" />
-                          </div>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {businessCategories
-                            .filter(category => 
-                              category.id !== primaryCategory && 
-                              !selectedCategories.includes(category.id)
-                            )
-                            .map((category) => (
-                              <SelectItem key={category.id} value={category.id}>
-                                {category.name}
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save Changes
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-    </div>
+        <Button type="submit" disabled={loading}>
+          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Save Changes
+        </Button>
+      </form>
+    </Form>
   );
 };
