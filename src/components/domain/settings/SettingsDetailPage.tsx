@@ -36,6 +36,7 @@ export const SettingsDetailPage = ({
       onStepChange(section.steps[nextStepIndex].id);
     } else {
       onComplete(section.id);
+      onBack(); // Redirect back to settings overview
     }
   };
 

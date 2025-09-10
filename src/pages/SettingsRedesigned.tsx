@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,11 @@ const SettingsRedesigned = () => {
   const [activeStep, setActiveStep] = useState('name-logo');
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Reset to dashboard view when accessing /settings route
+  useEffect(() => {
+    setView('dashboard');
+  }, []);
 
   const handleSectionComplete = useCallback((sectionId: string) => {
     setCompletedSections(prev => new Set([...prev, sectionId]));
