@@ -9,7 +9,6 @@ import { useQuery } from '@tanstack/react-query';
 import { locationsApi } from '@/api/locations';
 import { useRole } from '@/contexts/RoleContext';
 import { MapPin, Globe, Loader2 } from 'lucide-react';
-import { useIPLocationDetection } from '@/hooks/useIPLocationDetection';
 import { StepActions } from '@/components/domain/settings/StepActions';
 
 interface AddressTimezoneStepProps {
@@ -31,7 +30,6 @@ export const AddressTimezoneStep = ({
   const { currentStudioId } = useRole();
   const [selectedLocationId, setSelectedLocationId] = useState<string>('');
   const [timezone, setTimezone] = useState<string>('');
-  const detectedLocation = useIPLocationDetection();
 
   const { data: locations = [], isLoading } = useQuery({
     queryKey: ['locations', currentStudioId],
@@ -48,12 +46,6 @@ export const AddressTimezoneStep = ({
       setSelectedLocationId(primaryLocation?.id || locations[0].id);
     }
   }, [locations, selectedLocationId]);
-
-  useEffect(() => {
-    if (detectedLocation.timezone && !timezone) {
-      setTimezone(detectedLocation.timezone);
-    }
-  }, [detectedLocation.timezone, timezone]);
 
   const handleSave = async () => {
     if (!selectedLocationId) {
@@ -205,38 +197,18 @@ export const AddressTimezoneStep = ({
                   <SelectTrigger className="mt-2">
                     <SelectValue placeholder="Select timezone" />
                   </SelectTrigger>
-                <SelectContent className="max-h-60">
-                  {detectedLocation.isDetected && (
-                    <SelectItem value={detectedLocation.timezone}>
-                      {detectedLocation.timezone} (Detected)
-                    </SelectItem>
-                  )}
-                  <SelectItem value="(GMT -12:00) International Date Line West">(GMT -12:00) International Date Line West</SelectItem>
-                  <SelectItem value="(GMT -11:00) Midway Island, Samoa">(GMT -11:00) Midway Island, Samoa</SelectItem>
-                  <SelectItem value="(GMT -10:00) Hawaii">(GMT -10:00) Hawaii</SelectItem>
-                  <SelectItem value="(GMT -09:00) Alaska">(GMT -09:00) Alaska</SelectItem>
-                  <SelectItem value="(GMT -08:00) Pacific Time (US & Canada)">(GMT -08:00) Pacific Time (US & Canada)</SelectItem>
-                  <SelectItem value="(GMT -07:00) Mountain Time (US & Canada)">(GMT -07:00) Mountain Time (US & Canada)</SelectItem>
-                  <SelectItem value="(GMT -06:00) Central Time (US & Canada)">(GMT -06:00) Central Time (US & Canada)</SelectItem>
-                  <SelectItem value="(GMT -05:00) Eastern Time (US & Canada)">(GMT -05:00) Eastern Time (US & Canada)</SelectItem>
-                  <SelectItem value="(GMT -04:00) Atlantic Time (Canada)">(GMT -04:00) Atlantic Time (Canada)</SelectItem>
-                  <SelectItem value="(GMT -03:00) Brasilia">(GMT -03:00) Brasilia</SelectItem>
-                  <SelectItem value="(GMT -02:00) Mid-Atlantic">(GMT -02:00) Mid-Atlantic</SelectItem>
-                  <SelectItem value="(GMT -01:00) Azores">(GMT -01:00) Azores</SelectItem>
-                  <SelectItem value="(GMT +00:00) Greenwich Mean Time">(GMT +00:00) Greenwich Mean Time</SelectItem>
-                  <SelectItem value="(GMT +01:00) Amsterdam, Berlin, Rome">(GMT +01:00) Amsterdam, Berlin, Rome</SelectItem>
-                  <SelectItem value="(GMT +02:00) Athens, Bucharest, Istanbul">(GMT +02:00) Athens, Bucharest, Istanbul</SelectItem>
-                  <SelectItem value="(GMT +03:00) Baghdad, Kuwait, Riyadh">(GMT +03:00) Baghdad, Kuwait, Riyadh</SelectItem>
-                  <SelectItem value="(GMT +04:00) Abu Dhabi, Muscat">(GMT +04:00) Abu Dhabi, Muscat</SelectItem>
-                  <SelectItem value="(GMT +05:00) Islamabad, Karachi, Tashkent">(GMT +05:00) Islamabad, Karachi, Tashkent</SelectItem>
-                  <SelectItem value="(GMT +06:00) Almaty, Dhaka">(GMT +06:00) Almaty, Dhaka</SelectItem>
-                  <SelectItem value="(GMT +07:00) Bangkok, Hanoi, Jakarta">(GMT +07:00) Bangkok, Hanoi, Jakarta</SelectItem>
-                  <SelectItem value="(GMT +08:00) Beijing, Chongqing, Hong Kong">(GMT +08:00) Beijing, Chongqing, Hong Kong</SelectItem>
-                  <SelectItem value="(GMT +09:00) Osaka, Sapporo, Tokyo">(GMT +09:00) Osaka, Sapporo, Tokyo</SelectItem>
-                  <SelectItem value="(GMT +10:00) Canberra, Melbourne, Sydney">(GMT +10:00) Canberra, Melbourne, Sydney</SelectItem>
-                  <SelectItem value="(GMT +11:00) Magadan, Solomon Islands">(GMT +11:00) Magadan, Solomon Islands</SelectItem>
-                  <SelectItem value="(GMT +12:00) Auckland, Wellington">(GMT +12:00) Auckland, Wellington</SelectItem>
-                </SelectContent>
+                  <SelectContent>
+                    <SelectItem value="America/New_York">Eastern Time (ET)</SelectItem>
+                    <SelectItem value="America/Chicago">Central Time (CT)</SelectItem>
+                    <SelectItem value="America/Denver">Mountain Time (MT)</SelectItem>
+                    <SelectItem value="America/Los_Angeles">Pacific Time (PT)</SelectItem>
+                    <SelectItem value="America/Anchorage">Alaska Time (AKT)</SelectItem>
+                    <SelectItem value="Pacific/Honolulu">Hawaii Time (HST)</SelectItem>
+                    <SelectItem value="Europe/London">Greenwich Mean Time (GMT)</SelectItem>
+                    <SelectItem value="Europe/Paris">Central European Time (CET)</SelectItem>
+                    <SelectItem value="Asia/Tokyo">Japan Standard Time (JST)</SelectItem>
+                    <SelectItem value="Australia/Sydney">Australian Eastern Time (AET)</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
 

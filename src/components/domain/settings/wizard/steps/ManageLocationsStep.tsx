@@ -6,8 +6,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { locationsApi } from '@/api/locations';
 import { useRole } from '@/contexts/RoleContext';
 import { LocationCard } from '@/components/domain/locations/LocationCard';
+import { AddLocationModal } from '@/components/domain/locations/AddLocationModal';
 import { EditLocationModal } from '@/components/domain/locations/EditLocationModal';
-import { InlineLocationForm } from './InlineLocationForm';
 import { Location } from '@/types/studio';
 import { MapPin, Plus, Loader2 } from 'lucide-react';
 import { StepActions } from '@/components/domain/settings/StepActions';
@@ -30,7 +30,7 @@ export const ManageLocationsStep = ({
   const { toast } = useToast();
   const { currentStudioId } = useRole();
   const queryClient = useQueryClient();
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
 
   const { data: locations = [], isLoading, error } = useQuery({
@@ -40,12 +40,16 @@ export const ManageLocationsStep = ({
   });
 
   const handleAddLocation = () => {
-    setShowAddForm(true);
+    setShowAddModal(true);
   };
 
   const handleLocationAdded = () => {
     queryClient.invalidateQueries({ queryKey: ['locations', currentStudioId] });
-    setShowAddForm(false);
+    setShowAddModal(false);
+    toast({
+      title: "Success",
+      description: "Location added successfully",
+    });
   };
 
   const handleEditLocation = (location: Location) => {
@@ -181,13 +185,12 @@ export const ManageLocationsStep = ({
         </CardContent>
       </Card>
 
-      {/* Inline Add Form */}
-      {showAddForm && (
-        <InlineLocationForm
-          onClose={() => setShowAddForm(false)}
-          onLocationAdded={handleLocationAdded}
-        />
-      )}
+      {/* Modals */}
+      <AddLocationModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onLocationAdded={handleLocationAdded}
+      />
 
       {editingLocation && (
         <EditLocationModal
