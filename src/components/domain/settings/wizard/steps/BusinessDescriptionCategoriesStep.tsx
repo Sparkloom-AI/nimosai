@@ -40,7 +40,6 @@ export const BusinessDescriptionCategoriesStep = ({
   const { toast } = useToast();
   const { currentStudio, refreshRoles } = useRole();
   const [loading, setLoading] = useState(false);
-  const [completeAfterSave, setCompleteAfterSave] = useState(false);
   const [generatingDescription, setGeneratingDescription] = useState(false);
   const [businessCategories, setBusinessCategories] = useState<BusinessCategory[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -164,11 +163,7 @@ export const BusinessDescriptionCategoriesStep = ({
         title: 'Success',
         description: 'Description and categories updated successfully',
       });
-
-      if (completeAfterSave && onNext) {
-        setCompleteAfterSave(false);
-        onNext();
-      }
+      // Stay on the page after save; navigation is handled by explicit buttons
     } catch (error) {
       console.error('Error updating data:', error);
       toast({
@@ -298,10 +293,7 @@ export const BusinessDescriptionCategoriesStep = ({
             {isLastStep ? (
               <Button
                 type="button"
-                onClick={() => {
-                  setCompleteAfterSave(true);
-                  form.handleSubmit(onSubmit)();
-                }}
+                onClick={onNext}
               >
                 Complete Section
               </Button>

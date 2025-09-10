@@ -35,7 +35,6 @@ export const BusinessNameLogoStep = ({
   const { toast } = useToast();
   const { currentStudio, refreshRoles } = useRole();
   const [loading, setLoading] = useState(false);
-  const [completeAfterSave, setCompleteAfterSave] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>('');
 
@@ -89,12 +88,7 @@ export const BusinessNameLogoStep = ({
         title: 'Success',
         description: 'Business name updated successfully',
       });
-      
-      // If user clicked Complete Section, proceed after save
-      if (completeAfterSave && onNext) {
-        setCompleteAfterSave(false);
-        onNext();
-      }
+      // Stay on the page after save; navigation is handled by explicit buttons
     } catch (error) {
       console.error('Error updating business name:', error);
       toast({
@@ -185,11 +179,7 @@ export const BusinessNameLogoStep = ({
             {isLastStep ? (
               <Button
                 type="button"
-                onClick={() => {
-                  setCompleteAfterSave(true);
-                  // Trigger form submission, then onSubmit will navigate if flag is set
-                  form.handleSubmit(onSubmit)();
-                }}
+                onClick={onNext}
               >
                 Complete Section
               </Button>
