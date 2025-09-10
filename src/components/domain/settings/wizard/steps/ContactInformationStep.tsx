@@ -7,6 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Loader2, Phone, Mail, Globe, ChevronLeft, ChevronRight } from 'lucide-react';
+import { StepActions } from '@/components/domain/settings/StepActions';
 import { useToast } from '@/components/ui/use-toast';
 import { studiosApi } from '@/api/studios';
 import { useRole } from '@/contexts/RoleContext';
@@ -148,36 +149,13 @@ export const ContactInformationStep = ({
           </Button>
           
           {/* Navigation Buttons */}
-          <div className="flex justify-between pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onPrevious}
-              disabled={!hasPrevious}
-            >
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              Previous
-            </Button>
-            {isLastStep ? (
-              <Button
-                type="button"
-                onClick={onNext}
-              >
-                Complete Section
-              </Button>
-            ) : (
-              <Button
-                type="button"
-                onClick={onNext}
-                disabled={!hasNext}
-              >
-                <>
-                  Next
-                  <ChevronRight className="h-4 w-4 ml-2" />
-                </>
-              </Button>
-            )}
-          </div>
+          <StepActions
+            onPrevious={onPrevious}
+            onNext={onNext}
+            hasPrevious={hasPrevious}
+            hasNext={hasNext}
+            isLastStep={isLastStep}
+          />
         </div>
       </form>
     </Form>

@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Sparkles, Plus, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { StepActions } from '@/components/domain/settings/StepActions';
 import { useToast } from '@/components/ui/use-toast';
 import { studiosApi } from '@/api/studios';
 import { businessCategoriesApi } from '@/api/businessCategories';
@@ -280,36 +281,13 @@ export const BusinessDescriptionCategoriesStep = ({
           </Button>
           
           {/* Navigation Buttons */}
-          <div className="flex justify-between pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onPrevious}
-              disabled={!hasPrevious}
-            >
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              Previous
-            </Button>
-            {isLastStep ? (
-              <Button
-                type="button"
-                onClick={onNext}
-              >
-                Complete Section
-              </Button>
-            ) : (
-              <Button
-                type="button"
-                onClick={onNext}
-                disabled={!hasNext}
-              >
-                <>
-                  Next
-                  <ChevronRight className="h-4 w-4 ml-2" />
-                </>
-              </Button>
-            )}
-          </div>
+          <StepActions
+            onPrevious={onPrevious}
+            onNext={onNext}
+            hasPrevious={hasPrevious}
+            hasNext={hasNext}
+            isLastStep={isLastStep}
+          />
         </div>
       </form>
     </Form>

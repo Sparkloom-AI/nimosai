@@ -16,7 +16,14 @@ import ScheduledShifts from "./pages/ScheduledShifts";
 import Locations from "./pages/Locations";
 import Services from "./pages/Services";
 import Packages from "./pages/Packages";
-import Settings from "./pages/Settings";
+import SettingsOverview from "./pages/settings/index";
+import SettingsBusinessProfile from "./pages/settings/business-profile";
+import SettingsLocations from "./pages/settings/locations";
+import SettingsPayments from "./pages/settings/payments";
+import SettingsCommunication from "./pages/settings/communication";
+import SettingsTeam from "./pages/settings/team";
+import SettingsIntegrations from "./pages/settings/integrations";
+import SettingsAdvanced from "./pages/settings/advanced";
 import NotFound from "./pages/NotFound";
 import CookieConsent from "./components/CookieConsent";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -128,7 +135,63 @@ function App() {
                     path="/settings"
                     element={
                       <ProtectedRoute>
-                        <Settings />
+                        <SettingsOverview />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/settings/business-profile"
+                    element={
+                      <ProtectedRoute>
+                        <SettingsBusinessProfile />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/settings/locations"
+                    element={
+                      <ProtectedRoute>
+                        <SettingsLocations />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/settings/payments"
+                    element={
+                      <ProtectedRoute>
+                        <SettingsPayments />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/settings/communication"
+                    element={
+                      <ProtectedRoute>
+                        <SettingsCommunication />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/settings/team"
+                    element={
+                      <ProtectedRoute>
+                        <SettingsTeam />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/settings/integrations"
+                    element={
+                      <ProtectedRoute>
+                        <SettingsIntegrations />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/settings/advanced"
+                    element={
+                      <ProtectedRoute>
+                        <SettingsAdvanced />
                       </ProtectedRoute>
                     }
                   />
