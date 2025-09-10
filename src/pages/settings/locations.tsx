@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { SettingsDetailPage } from '@/components/domain/settings/SettingsDetailPage';
-import { LocationsSection } from '@/components/domain/locations/LocationsSection';
+import { LocationsSection } from '@/components/domain/settings/wizard/LocationsSection';
 import { MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
