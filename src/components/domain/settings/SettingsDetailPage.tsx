@@ -107,49 +107,19 @@ export const SettingsDetailPage = ({
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Step Content */}
-        <div className="flex-1 p-6">
-          <div className="max-w-4xl mx-auto">
-            {ValidStepComponent && (
-              <ValidStepComponent 
-                {...validCurrentStep?.props}
-                stepId={validActiveStep}
-                onNext={handleNext}
-                onPrevious={handlePrevious}
-                hasNext={hasNext}
-                hasPrevious={hasPrevious}
-              />
-            )}
-          </div>
-        </div>
-
-        {/* Navigation Footer */}
-        <div className="border-t bg-background px-6 py-4">
-          <div className="max-w-4xl mx-auto flex justify-between">
-            <Button
-              variant="outline"
-              onClick={handlePrevious}
-              disabled={!hasPrevious}
-            >
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              Previous
-            </Button>
-            
-            <Button
-              onClick={handleNext}
-              disabled={!hasNext && section.completed}
-            >
-              {hasNext ? (
-                <>
-                  Next
-                  <ChevronRight className="h-4 w-4 ml-2" />
-                </>
-              ) : (
-                'Complete Section'
-              )}
-            </Button>
-          </div>
+      <div className="flex-1 p-6">
+        <div className="max-w-4xl mx-auto">
+          {ValidStepComponent && (
+            <ValidStepComponent 
+              {...validCurrentStep?.props}
+              stepId={validActiveStep}
+              onNext={handleNext}
+              onPrevious={handlePrevious}
+              hasNext={hasNext}
+              hasPrevious={hasPrevious}
+              isLastStep={!hasNext}
+            />
+          )}
         </div>
       </div>
     </div>

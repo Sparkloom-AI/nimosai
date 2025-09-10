@@ -20,9 +20,10 @@ const SettingsRedesigned = () => {
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Reset to dashboard view when accessing /settings route
+  // Reset to dashboard view when accessing /settings route or when component mounts
   useEffect(() => {
     setView('dashboard');
+    setActiveStep('name-logo'); // Reset to first step
   }, []);
 
   const handleSectionComplete = useCallback((sectionId: string) => {

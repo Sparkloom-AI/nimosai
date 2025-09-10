@@ -6,7 +6,7 @@ import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Loader2, Facebook, Instagram } from 'lucide-react';
+import { Loader2, Facebook, Instagram, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { studiosApi } from '@/api/studios';
 import { useRole } from '@/contexts/RoleContext';
@@ -25,7 +25,21 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-export const SocialMediaStep = () => {
+interface SocialMediaStepProps {
+  onNext?: () => void;
+  onPrevious?: () => void;
+  hasNext?: boolean;
+  hasPrevious?: boolean;
+  isLastStep?: boolean;
+}
+
+export const SocialMediaStep = ({ 
+  onNext, 
+  onPrevious, 
+  hasNext = true, 
+  hasPrevious = false,
+  isLastStep = false 
+}: SocialMediaStepProps) => {
   const { toast } = useToast();
   const { currentStudio, refreshRoles } = useRole();
   const [loading, setLoading] = useState(false);
@@ -66,6 +80,11 @@ export const SocialMediaStep = () => {
         title: 'Success',
         description: 'Social media links updated successfully',
       });
+
+      // Auto-advance to next step after successful save
+      if (onNext) {
+        onNext();
+      }
     } catch (error) {
       console.error('Error updating social media links:', error);
       toast({
@@ -132,10 +151,40 @@ export const SocialMediaStep = () => {
           )}
         />
 
-        <Button type="submit" disabled={loading}>
-          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Save Changes
-        </Button>
+        <div className="space-y-4">
+          <Button type="submit" disabled={loading}>
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Save Changes
+          </Button>
+          
+          {/* Navigation Buttons */}
+          <div className="flex justify-between pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onPrevious}
+              disabled={!hasPrevious}
+            >
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Previous
+            </Button>
+            
+            <Button
+              type="button"
+              onClick={onNext}
+              disabled={!hasNext}
+            >
+              {isLastStep ? (
+                'Complete Section'
+              ) : (
+                <>
+                  Next
+                  <ChevronRight className="h-4 w-4 ml-2" />
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
       </form>
     </Form>
   );

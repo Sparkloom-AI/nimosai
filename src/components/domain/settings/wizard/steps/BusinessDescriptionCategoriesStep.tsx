@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Sparkles, Plus, X } from 'lucide-react';
+import { Loader2, Sparkles, Plus, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { studiosApi } from '@/api/studios';
 import { businessCategoriesApi } from '@/api/businessCategories';
@@ -22,7 +22,21 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-export const BusinessDescriptionCategoriesStep = () => {
+interface BusinessDescriptionCategoriesStepProps {
+  onNext?: () => void;
+  onPrevious?: () => void;
+  hasNext?: boolean;
+  hasPrevious?: boolean;
+  isLastStep?: boolean;
+}
+
+export const BusinessDescriptionCategoriesStep = ({ 
+  onNext, 
+  onPrevious, 
+  hasNext = true, 
+  hasPrevious = false,
+  isLastStep = false 
+}: BusinessDescriptionCategoriesStepProps) => {
   const { toast } = useToast();
   const { currentStudio, refreshRoles } = useRole();
   const [loading, setLoading] = useState(false);
@@ -149,6 +163,11 @@ export const BusinessDescriptionCategoriesStep = () => {
         title: 'Success',
         description: 'Description and categories updated successfully',
       });
+
+      // Auto-advance to next step after successful save
+      if (onNext) {
+        onNext();
+      }
     } catch (error) {
       console.error('Error updating data:', error);
       toast({
@@ -258,10 +277,40 @@ export const BusinessDescriptionCategoriesStep = () => {
           </div>
         </div>
 
-        <Button type="submit" disabled={loading}>
-          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Save Changes
-        </Button>
+        <div className="space-y-4">
+          <Button type="submit" disabled={loading}>
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Save Changes
+          </Button>
+          
+          {/* Navigation Buttons */}
+          <div className="flex justify-between pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onPrevious}
+              disabled={!hasPrevious}
+            >
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Previous
+            </Button>
+            
+            <Button
+              type="button"
+              onClick={onNext}
+              disabled={!hasNext}
+            >
+              {isLastStep ? (
+                'Complete Section'
+              ) : (
+                <>
+                  Next
+                  <ChevronRight className="h-4 w-4 ml-2" />
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
       </form>
     </Form>
   );
