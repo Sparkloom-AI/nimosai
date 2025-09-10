@@ -19,6 +19,7 @@ import Packages from "./pages/Packages";
 import SettingsOverview from "./pages/settings/index";
 import SettingsBusinessProfile from "./pages/settings/business-profile";
 import SettingsLocations from "./pages/settings/locations";
+import SettingsAppointments from "./pages/settings/appointments";
 import SettingsPayments from "./pages/settings/payments";
 import SettingsCommunication from "./pages/settings/communication";
 import SettingsTeam from "./pages/settings/team";
@@ -152,6 +153,14 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <SettingsLocations />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/settings/appointments"
+                    element={
+                      <ProtectedRoute>
+                        <SettingsAppointments />
                       </ProtectedRoute>
                     }
                   />
