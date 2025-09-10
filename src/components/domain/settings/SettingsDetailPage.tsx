@@ -124,33 +124,6 @@ export const SettingsDetailPage = ({
           </div>
         </div>
 
-        {/* Navigation Footer */}
-        <div className="border-t bg-background px-6 py-4">
-          <div className="max-w-4xl mx-auto flex justify-between">
-            <Button
-              variant="outline"
-              onClick={handlePrevious}
-              disabled={!hasPrevious}
-            >
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              Previous
-            </Button>
-            
-            <Button
-              onClick={handleNext}
-              disabled={!hasNext && section.completed}
-            >
-              {hasNext ? (
-                <>
-                  Next
-                  <ChevronRight className="h-4 w-4 ml-2" />
-                </>
-              ) : (
-                'Complete Section'
-              )}
-            </Button>
-          </div>
-        </div>
       </div>
     </div>
   );
