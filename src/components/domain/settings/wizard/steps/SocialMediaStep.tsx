@@ -43,6 +43,7 @@ export const SocialMediaStep = ({
   const { toast } = useToast();
   const { currentStudio, refreshRoles } = useRole();
   const [loading, setLoading] = useState(false);
+  const [completeAfterSave, setCompleteAfterSave] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -81,8 +82,8 @@ export const SocialMediaStep = ({
         description: 'Social media links updated successfully',
       });
 
-      // Auto-advance to next step after successful save
-      if (onNext) {
+      if (completeAfterSave && onNext) {
+        setCompleteAfterSave(false);
         onNext();
       }
     } catch (error) {
@@ -168,21 +169,28 @@ export const SocialMediaStep = ({
               <ChevronLeft className="h-4 w-4 mr-2" />
               Previous
             </Button>
-            
-            <Button
-              type="button"
-              onClick={onNext}
-              disabled={!hasNext}
-            >
-              {isLastStep ? (
-                'Complete Section'
-              ) : (
+            {isLastStep ? (
+              <Button
+                type="button"
+                onClick={() => {
+                  setCompleteAfterSave(true);
+                  form.handleSubmit(onSubmit)();
+                }}
+              >
+                Complete Section
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                onClick={onNext}
+                disabled={!hasNext}
+              >
                 <>
                   Next
                   <ChevronRight className="h-4 w-4 ml-2" />
                 </>
-              )}
-            </Button>
+              </Button>
+            )}
           </div>
         </div>
       </form>

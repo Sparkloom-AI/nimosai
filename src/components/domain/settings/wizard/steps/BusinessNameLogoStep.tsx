@@ -35,6 +35,7 @@ export const BusinessNameLogoStep = ({
   const { toast } = useToast();
   const { currentStudio, refreshRoles } = useRole();
   const [loading, setLoading] = useState(false);
+  const [completeAfterSave, setCompleteAfterSave] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>('');
 
@@ -88,9 +89,10 @@ export const BusinessNameLogoStep = ({
         title: 'Success',
         description: 'Business name updated successfully',
       });
-
-      // Auto-advance to next step after successful save
-      if (onNext) {
+      
+      // If user clicked Complete Section, proceed after save
+      if (completeAfterSave && onNext) {
+        setCompleteAfterSave(false);
         onNext();
       }
     } catch (error) {
@@ -180,20 +182,29 @@ export const BusinessNameLogoStep = ({
               Previous
             </Button>
             
-            <Button
-              type="button"
-              onClick={onNext}
-              disabled={!hasNext}
-            >
-              {isLastStep ? (
-                'Complete Section'
-              ) : (
+            {isLastStep ? (
+              <Button
+                type="button"
+                onClick={() => {
+                  setCompleteAfterSave(true);
+                  // Trigger form submission, then onSubmit will navigate if flag is set
+                  form.handleSubmit(onSubmit)();
+                }}
+              >
+                Complete Section
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                onClick={onNext}
+                disabled={!hasNext}
+              >
                 <>
                   Next
                   <ChevronRight className="h-4 w-4 ml-2" />
                 </>
-              )}
-            </Button>
+              </Button>
+            )}
           </div>
         </div>
       </form>
