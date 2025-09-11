@@ -1,6 +1,5 @@
 import React from 'react';
 import { ManageLocationsStep } from './steps/ManageLocationsStep';
-import { AddressTimezoneStep } from './steps/AddressTimezoneStep';
 import { BusinessHoursStep } from './steps/BusinessHoursStep';
 
 interface LocationsSectionProps {
@@ -23,7 +22,6 @@ export const LocationsSection = ({
   // Map the sidebar step ids to the internal step components
   const stepComponentMap: Record<string, React.ComponentType<any>> = {
     'locations': ManageLocationsStep,
-    'address-timezone': AddressTimezoneStep,
     'business-hours': BusinessHoursStep,
   };
 

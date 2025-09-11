@@ -16,7 +16,6 @@ const LocationsSettingsPage = () => {
     icon: MapPin,
     steps: [
       { id: 'locations', title: 'Manage Locations', component: LocationsSection, completed: false },
-      { id: 'address-timezone', title: 'Address & Time Zone', component: LocationsSection, completed: false },
       { id: 'business-hours', title: 'Business Hours', component: LocationsSection, completed: false },
     ],
     completed: false,

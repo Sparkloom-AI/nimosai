@@ -77,12 +77,6 @@ const SettingsRedesigned = () => {
           completed: false
         },
         {
-          id: 'address-timezone',
-          title: 'Address & Time Zone',
-          component: LocationsSection,
-          completed: false
-        },
-        {
           id: 'business-hours',
           title: 'Business Hours',
           component: LocationsSection,
