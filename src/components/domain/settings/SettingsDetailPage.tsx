@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SettingsSection } from './SettingsWizardLayout';
@@ -109,17 +109,31 @@ export const SettingsDetailPage = ({
       {/* Main Content Area */}
       <div className="flex-1 p-6">
         <div className="max-w-4xl mx-auto">
-          {ValidStepComponent && (
+          {ValidStepComponent ? (
             <ValidStepComponent 
               key={validActiveStep}
-              {...validCurrentStep?.props}
-              stepId={validActiveStep}
+              {...(validCurrentStep?.props || {})}
+              stepId={validActiveStep || 'unknown'}
               onNext={handleNext}
               onPrevious={handlePrevious}
               hasNext={hasNext}
               hasPrevious={hasPrevious}
               isLastStep={!hasNext}
             />
+          ) : (
+            <Card>
+              <CardContent className="py-8">
+                <div className="text-center">
+                  <h3 className="text-lg font-medium mb-2">Step Not Found</h3>
+                  <p className="text-muted-foreground mb-4">
+                    The requested step "{validActiveStep}" could not be loaded.
+                  </p>
+                  <Button variant="outline" onClick={onBack}>
+                    Back to Settings
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           )}
         </div>
       </div>

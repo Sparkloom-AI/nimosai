@@ -29,7 +29,20 @@ export const BusinessProfileSection = ({
     'social-media': SocialMediaStep,
   };
 
-  const StepComponent = stepComponentMap[stepId] ?? BusinessNameLogoStep;
+  const StepComponent = stepComponentMap[stepId];
+  
+  if (!StepComponent) {
+    console.warn(`BusinessProfileSection: Unknown stepId "${stepId}", falling back to BusinessNameLogoStep`);
+    return (
+      <BusinessNameLogoStep 
+        onNext={onNext}
+        onPrevious={onPrevious}
+        hasNext={hasNext}
+        hasPrevious={hasPrevious}
+        isLastStep={isLastStep}
+      />
+    );
+  }
 
   return (
     <StepComponent 
