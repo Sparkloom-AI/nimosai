@@ -111,6 +111,7 @@ export const SettingsDetailPage = ({
         <div className="max-w-4xl mx-auto">
           {ValidStepComponent && (
             <ValidStepComponent 
+              key={validActiveStep}
               {...validCurrentStep?.props}
               stepId={validActiveStep}
               onNext={handleNext}
