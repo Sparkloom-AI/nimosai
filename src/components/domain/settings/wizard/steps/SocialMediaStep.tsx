@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Loader2, Facebook, Instagram, ChevronLeft, ChevronRight } from 'lucide-react';
 import { StepActions } from '@/components/domain/settings/StepActions';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { studiosApi } from '@/api/studios';
 import { useRole } from '@/contexts/RoleContext';

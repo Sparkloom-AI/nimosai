@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Sparkles, Plus, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { StepActions } from '@/components/domain/settings/StepActions';
 import { useToast } from '@/components/ui/use-toast';
