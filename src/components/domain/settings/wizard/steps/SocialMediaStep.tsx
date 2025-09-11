@@ -95,75 +95,88 @@ export const SocialMediaStep = ({
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="facebook_url"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="flex items-center gap-2">
-                <Facebook className="h-4 w-4 text-blue-600" />
-                Facebook
-              </FormLabel>
-              <FormControl>
-                <Input placeholder="https://facebook.com/yourbusiness" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Facebook className="h-5 w-5" />
+            Social Media
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Connect your social media profiles
+          </p>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="facebook_url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <Facebook className="h-4 w-4 text-blue-600" />
+                      Facebook
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://facebook.com/yourbusiness" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-        <FormField
-          control={form.control}
-          name="instagram_url"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="flex items-center gap-2">
-                <Instagram className="h-4 w-4 text-pink-600" />
-                Instagram
-              </FormLabel>
-              <FormControl>
-                <Input placeholder="https://instagram.com/yourbusiness" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+              <FormField
+                control={form.control}
+                name="instagram_url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <Instagram className="h-4 w-4 text-pink-600" />
+                      Instagram
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://instagram.com/yourbusiness" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-        <FormField
-          control={form.control}
-          name="tiktok_url"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="flex items-center gap-2">
-                <TikTokIcon />
-                TikTok
-              </FormLabel>
-              <FormControl>
-                <Input placeholder="https://tiktok.com/@yourbusiness" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+              <FormField
+                control={form.control}
+                name="tiktok_url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <TikTokIcon />
+                      TikTok
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://tiktok.com/@yourbusiness" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-        <div className="space-y-4">
-          <Button type="submit" disabled={loading}>
-            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Save Changes
-          </Button>
-          
-          {/* Navigation Buttons */}
-          <StepActions
-            onPrevious={onPrevious}
-            onNext={onNext}
-            hasPrevious={hasPrevious}
-            hasNext={hasNext}
-            isLastStep={isLastStep}
-          />
-        </div>
-      </form>
-    </Form>
+              <Button type="submit" disabled={loading}>
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Save Changes
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+
+      {/* Navigation Buttons */}
+      <StepActions
+        onPrevious={onPrevious}
+        onNext={onNext}
+        hasPrevious={hasPrevious}
+        hasNext={hasNext}
+        isLastStep={isLastStep}
+      />
+    </div>
   );
 };
