@@ -15,8 +15,7 @@ import { LanguageSelect } from '@/components/ui/LanguageSelect';
 
 const formSchema = z.object({
   currency: z.string().min(1, 'Currency is required'),
-  default_team_language: z.string().min(1, 'Team language is required'),
-  default_client_language: z.string().min(1, 'Client language is required'),
+  language: z.string().min(1, 'Language is required'),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -45,8 +44,7 @@ export const CurrencyLanguageStep = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       currency: '',
-      default_team_language: '',
-      default_client_language: '',
+      language: '',
     },
   });
 
@@ -54,8 +52,7 @@ export const CurrencyLanguageStep = ({
     if (currentStudio) {
       form.reset({
         currency: currentStudio.currency || '',
-        default_team_language: currentStudio.default_team_language || '',
-        default_client_language: currentStudio.default_client_language || '',
+        language: currentStudio.default_team_language || '',
       });
     }
   }, [currentStudio, form]);
@@ -67,8 +64,8 @@ export const CurrencyLanguageStep = ({
     try {
       await studiosApi.updateStudio(currentStudio.id, {
         currency: data.currency,
-        default_team_language: data.default_team_language,
-        default_client_language: data.default_client_language,
+        default_team_language: data.language,
+        default_client_language: data.language,
       });
 
       await refreshRoles();
@@ -124,33 +121,15 @@ export const CurrencyLanguageStep = ({
 
               <FormField
                 control={form.control}
-                name="default_team_language"
+                name="language"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Team Language</FormLabel>
+                    <FormLabel>Language</FormLabel>
                     <FormControl>
                       <LanguageSelect
                         value={field.value}
                         onValueChange={field.onChange}
-                        placeholder="Select team language"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="default_client_language"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Client Language</FormLabel>
-                    <FormControl>
-                      <LanguageSelect
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        placeholder="Select client language"
+                        placeholder="Select language"
                       />
                     </FormControl>
                     <FormMessage />
