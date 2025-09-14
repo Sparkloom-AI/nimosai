@@ -90,6 +90,10 @@ export const studiosApi = {
     phone?: string;
     email?: string;
     timezone?: string;
+    country?: string;
+    currency?: string;
+    default_team_language?: string;
+    default_client_language?: string;
     additional_category_ids?: string[];
   }): Promise<Studio> {
     console.log('createStudio: Creating studio with data:', studioData);
@@ -116,6 +120,23 @@ export const studiosApi = {
     }
     
     console.log('createStudio: Studio created with ID:', studioId);
+    
+    // If location data is provided, update the studio with location information
+    if (studioData.country || studioData.currency || studioData.default_team_language || studioData.default_client_language) {
+      console.log('createStudio: Updating studio with location data:', {
+        country: studioData.country,
+        currency: studioData.currency,
+        default_team_language: studioData.default_team_language,
+        default_client_language: studioData.default_client_language
+      });
+      
+      await this.updateStudio(studioId, {
+        country: studioData.country,
+        currency: studioData.currency,
+        default_team_language: studioData.default_team_language,
+        default_client_language: studioData.default_client_language,
+      });
+    }
     
     // Fetch the full studio data using the returned ID
     const studio = await this.getStudioById(studioId);

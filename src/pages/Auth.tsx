@@ -325,7 +325,7 @@ const Auth = () => {
 
   // Show setup wizard for new users
   if (step === 'setup') {
-    return <AccountSetupWizard onComplete={handleSetupComplete} />;
+    return <AccountSetupWizard onComplete={handleSetupComplete} locationData={locationData} />;
   }
 
   if (step === 'email-confirmation') {

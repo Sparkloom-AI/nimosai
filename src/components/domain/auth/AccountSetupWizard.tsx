@@ -10,11 +10,21 @@ import { studiosApi } from '@/api/studios';
 import { useRole } from '@/contexts/RoleContext';
 import { supabase } from '@/integrations/supabase/client';
 
-interface AccountSetupWizardProps {
-  onComplete: () => void;
+interface LocationData {
+  country: string;
+  countryCode: string;
+  phonePrefix: string;
+  timezone: string;
+  currency: string;
+  language: string;
 }
 
-const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete }) => {
+interface AccountSetupWizardProps {
+  onComplete: () => void;
+  locationData?: LocationData;
+}
+
+const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete, locationData }) => {
   const [step, setStep] = useState<'business-setup' | 'business-categories' | 'complete'>('business-setup');
   const [businessData, setBusinessData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -60,6 +70,12 @@ const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete }) =
         email: businessData.email,
         business_category_id: businessData.business_category_id,
         additional_category_ids: businessData.additional_category_ids,
+        // Include location data if available
+        country: locationData?.country,
+        timezone: locationData?.timezone,
+        currency: locationData?.currency,
+        default_team_language: locationData?.language,
+        default_client_language: locationData?.language,
       });
 
       console.log('AccountSetupWizard: Studio created successfully:', studio);
