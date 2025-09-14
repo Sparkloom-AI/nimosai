@@ -4,13 +4,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Loader2, DollarSign } from 'lucide-react';
 import { StepActions } from '@/components/domain/settings/StepActions';
 import { useToast } from '@/components/ui/use-toast';
 import { studiosApi } from '@/api/studios';
 import { useRole } from '@/contexts/RoleContext';
+import { CurrencySelect } from '@/components/ui/CurrencySelect';
+import { LanguageSelect } from '@/components/ui/LanguageSelect';
 
 const formSchema = z.object({
   currency: z.string().min(1, 'Currency is required'),
@@ -28,58 +29,6 @@ interface CurrencyLanguageStepProps {
   isLastStep?: boolean;
 }
 
-// Currencies data from LocationSettings
-const worldCurrencies = [
-  'US Dollar - USD',
-  'Euro - EUR',
-  'British Pound - GBP',
-  'Japanese Yen - JPY',
-  'Australian Dollar - AUD',
-  'Canadian Dollar - CAD',
-  'Swiss Franc - CHF',
-  'Chinese Yuan - CNY',
-  'Swedish Krona - SEK',
-  'New Zealand Dollar - NZD',
-  'Mexican Peso - MXN',
-  'Singapore Dollar - SGD',
-  'Hong Kong Dollar - HKD',
-  'Norwegian Krone - NOK',
-  'South Korean Won - KRW',
-  'Turkish Lira - TRY',
-  'Russian Ruble - RUB',
-  'Indian Rupee - INR',
-  'Brazilian Real - BRL',
-  'South African Rand - ZAR',
-  'Indonesian Rupiah - IDR',
-  'Malaysian Ringgit - MYR',
-  'Thai Baht - THB',
-  'Vietnamese Dong - VND',
-  'Philippine Peso - PHP',
-  'Argentine Peso - ARS',
-  'Chilean Peso - CLP',
-  'Colombian Peso - COP',
-  'Peruvian Sol - PEN',
-  'Egyptian Pound - EGP',
-  'Nigerian Naira - NGN',
-];
-
-// Languages data from LocationSettings
-const languages = [
-  'English',
-  'Deutsch',
-  'français',
-  'italiano',
-  'español',
-  'Nederlands',
-  '日本語',
-  '中文',
-  '한국어',
-  'Tiếng Việt',
-  'português (Brasil)',
-  'русский',
-  'العربية',
-  'Indonesia',
-];
 
 export const CurrencyLanguageStep = ({ 
   onNext, 
@@ -161,20 +110,13 @@ export const CurrencyLanguageStep = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Currency</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select currency" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="max-h-60">
-                        {worldCurrencies.map((currency) => (
-                          <SelectItem key={currency} value={currency}>
-                            {currency}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <CurrencySelect
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        placeholder="Select currency"
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -186,20 +128,13 @@ export const CurrencyLanguageStep = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Team Language</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select team language" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="max-h-60">
-                        {languages.map((language) => (
-                          <SelectItem key={language} value={language}>
-                            {language}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <LanguageSelect
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        placeholder="Select team language"
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -211,20 +146,13 @@ export const CurrencyLanguageStep = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Client Language</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select client language" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="max-h-60">
-                        {languages.map((language) => (
-                          <SelectItem key={language} value={language}>
-                            {language}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <LanguageSelect
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        placeholder="Select client language"
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
