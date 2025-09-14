@@ -3,6 +3,8 @@ import { BusinessNameLogoStep } from './steps/BusinessNameLogoStep';
 import { BusinessDescriptionCategoriesStep } from './steps/BusinessDescriptionCategoriesStep';
 import { ContactInformationStep } from './steps/ContactInformationStep';
 import { SocialMediaStep } from './steps/SocialMediaStep';
+import { CountryTimezoneStep } from './steps/CountryTimezoneStep';
+import { CurrencyLanguageStep } from './steps/CurrencyLanguageStep';
 
 interface BusinessProfileSectionProps {
   stepId?: string;
@@ -27,6 +29,8 @@ export const BusinessProfileSection = ({
     'description-categories': BusinessDescriptionCategoriesStep,
     'contact-info': ContactInformationStep,
     'social-media': SocialMediaStep,
+    'country-timezone': CountryTimezoneStep,
+    'currency-language': CurrencyLanguageStep,
   };
 
   const StepComponent = stepComponentMap[stepId];

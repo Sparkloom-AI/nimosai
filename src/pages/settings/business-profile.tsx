@@ -19,6 +19,8 @@ const BusinessProfileSettingsPage = () => {
       { id: 'description-categories', title: 'Description & Categories', component: BusinessProfileSection, completed: false },
       { id: 'contact-info', title: 'Contact Information', component: BusinessProfileSection, completed: false },
       { id: 'social-media', title: 'Social Media', component: BusinessProfileSection, completed: false },
+      { id: 'country-timezone', title: 'Country & Time Zone', component: BusinessProfileSection, completed: false },
+      { id: 'currency-language', title: 'Currency & Language', component: BusinessProfileSection, completed: false },
     ],
     completed: false,
   }), []);
