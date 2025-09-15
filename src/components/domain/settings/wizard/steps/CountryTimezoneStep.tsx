@@ -48,13 +48,24 @@ export const CountryTimezoneStep = ({
   });
 
   useEffect(() => {
+    console.log('CountryTimezoneStep: currentStudio changed:', currentStudio);
     if (currentStudio) {
+      console.log('CountryTimezoneStep: Resetting form with data:', {
+        country: currentStudio.country,
+        timezone: currentStudio.timezone
+      });
       form.reset({
         country: currentStudio.country || '',
         timezone: currentStudio.timezone || '',
       });
     }
   }, [currentStudio, form]);
+
+  // Add a useEffect to refresh data when component mounts
+  useEffect(() => {
+    console.log('CountryTimezoneStep: Component mounted, refreshing roles');
+    refreshRoles();
+  }, []);
 
   const onSubmit = async (data: FormData) => {
     if (!currentStudio) return;
