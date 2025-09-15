@@ -234,10 +234,11 @@ const Auth = () => {
       if (user && isGoogleSignup(user)) {
         await completeAccountSetup();
         toast.success('Account setup completed successfully!');
+        // Will redirect to studio onboarding via useEffect
         return;
       }
       
-      // For new email sign-ups - ONLY handle authentication
+      // For new email sign-ups
       const { error } = await signUp(email, password, fullName);
       
       if (error) {
@@ -248,7 +249,28 @@ const Auth = () => {
           toast.error(error.message || 'Failed to create account');
         }
       } else {
-        // Success - redirect to profile setup
+        // Save location data to profiles table after successful signup
+        try {
+          const { data: { user: newUser } } = await supabase.auth.getUser();
+          if (newUser && locationData) {
+            await profilesApi.createOrUpdateProfile({
+              id: newUser.id,
+              email: newUser.email || email,
+              full_name: fullName,
+              country: locationData.country,
+              country_code: locationData.countryCode,
+              currency: locationData.currency,
+              language: locationData.language,
+              phone_prefix: locationData.phonePrefix,
+              timezone: locationData.timezone,
+            });
+            console.log('Location data saved to profiles:', locationData);
+          }
+        } catch (profileError) {
+          console.error('Failed to save location data to profiles:', profileError);
+          // Don't block the signup flow if profile update fails
+        }
+        
         setStep('email-confirmation');
         try { localStorage.removeItem('pendingSignupEmail'); } catch {}
       }
