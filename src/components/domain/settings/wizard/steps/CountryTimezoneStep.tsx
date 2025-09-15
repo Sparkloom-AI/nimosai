@@ -36,8 +36,9 @@ export const CountryTimezoneStep = ({
   isLastStep = false 
 }: CountryTimezoneStepProps) => {
   const { toast } = useToast();
-  const { currentStudio, loading, refreshRoles } = useRole();
+  const { currentStudio, loading, refreshRoles, refreshStudio } = useRole();
   const [submitting, setSubmitting] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -47,14 +48,36 @@ export const CountryTimezoneStep = ({
     },
   });
 
+  // Load data when component mounts
   useEffect(() => {
-    if (currentStudio) {
+    const loadData = async () => {
+      console.log('CountryTimezoneStep: Component mounted, loading data');
+      if (currentStudio) {
+        console.log('CountryTimezoneStep: currentStudio already available:', currentStudio);
+        setDataLoaded(true);
+      } else {
+        console.log('CountryTimezoneStep: No currentStudio, refreshing roles');
+        await refreshRoles();
+        setDataLoaded(true);
+      }
+    };
+    
+    loadData();
+  }, []);
+
+  // Reset form when currentStudio data changes
+  useEffect(() => {
+    if (currentStudio && dataLoaded) {
+      console.log('CountryTimezoneStep: Resetting form with data:', {
+        country: currentStudio.country,
+        timezone: currentStudio.timezone
+      });
       form.reset({
         country: currentStudio.country || '',
         timezone: currentStudio.timezone || '',
       });
     }
-  }, [currentStudio, form]);
+  }, [currentStudio, form, dataLoaded]);
 
   const onSubmit = async (data: FormData) => {
     if (!currentStudio) return;
@@ -66,7 +89,7 @@ export const CountryTimezoneStep = ({
         timezone: data.timezone,
       });
 
-      await refreshRoles();
+      await refreshStudio();
       
       toast({
         title: 'Success',
@@ -87,7 +110,7 @@ export const CountryTimezoneStep = ({
   // Sort timezones by GMT offset
   const sortedTimezones = timezones.map(tz => ({ name: tz, gmtOffset: 0 })).sort((a, b) => a.gmtOffset - b.gmtOffset);
 
-  if (loading || !currentStudio) {
+  if (loading || !dataLoaded) {
     return (
       <div className="space-y-6">
         <Card>

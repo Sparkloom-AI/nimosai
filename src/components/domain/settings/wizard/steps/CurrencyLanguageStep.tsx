@@ -36,8 +36,9 @@ export const CurrencyLanguageStep = ({
   isLastStep = false 
 }: CurrencyLanguageStepProps) => {
   const { toast } = useToast();
-  const { currentStudio, loading, refreshRoles } = useRole();
+  const { currentStudio, loading, refreshRoles, refreshStudio } = useRole();
   const [submitting, setSubmitting] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -47,14 +48,36 @@ export const CurrencyLanguageStep = ({
     },
   });
 
+  // Load data when component mounts
   useEffect(() => {
-    if (currentStudio) {
+    const loadData = async () => {
+      console.log('CurrencyLanguageStep: Component mounted, loading data');
+      if (currentStudio) {
+        console.log('CurrencyLanguageStep: currentStudio already available:', currentStudio);
+        setDataLoaded(true);
+      } else {
+        console.log('CurrencyLanguageStep: No currentStudio, refreshing roles');
+        await refreshRoles();
+        setDataLoaded(true);
+      }
+    };
+    
+    loadData();
+  }, []);
+
+  // Reset form when currentStudio data changes
+  useEffect(() => {
+    if (currentStudio && dataLoaded) {
+      console.log('CurrencyLanguageStep: Resetting form with data:', {
+        currency: currentStudio.currency,
+        language: currentStudio.default_team_language
+      });
       form.reset({
         currency: currentStudio.currency || '',
         language: currentStudio.default_team_language || '',
       });
     }
-  }, [currentStudio, form]);
+  }, [currentStudio, form, dataLoaded]);
 
   const onSubmit = async (data: FormData) => {
     if (!currentStudio) return;
@@ -67,7 +90,7 @@ export const CurrencyLanguageStep = ({
         default_client_language: data.language,
       });
 
-      await refreshRoles();
+      await refreshStudio();
       
       toast({
         title: 'Success',
@@ -85,7 +108,7 @@ export const CurrencyLanguageStep = ({
     }
   };
 
-  if (loading || !currentStudio) {
+  if (loading || !dataLoaded) {
     return (
       <div className="space-y-6">
         <Card>
