@@ -24,7 +24,7 @@ type AuthStep = 'email' | 'login' | 'register' | 'email-confirmation' | 'setup' 
 const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, signIn, signUp, signInWithGoogle, loading: authLoading, accountSetupComplete, studioSetupComplete, completeAccountSetup } = useAuth();
+  const { user, signIn, signUp, signInWithGoogle, loading: authLoading, accountSetupComplete, profileSetupComplete, studioSetupComplete, completeAccountSetup } = useAuth();
   const { userRoles, loading: rolesLoading } = useRole();
   
   const [step, setStep] = useState<AuthStep>('email');
@@ -112,15 +112,18 @@ const Auth = () => {
 
   // Check user setup status and redirect accordingly
   useEffect(() => {
-    if (user && !authLoading && accountSetupComplete !== null && studioSetupComplete !== null) {
+    if (user && !authLoading && accountSetupComplete !== null && profileSetupComplete !== null && studioSetupComplete !== null) {
       if (accountSetupComplete === false) {
         // Show the professional account wizard (register step)
         setStep('register');
+      } else if (profileSetupComplete === false) {
+        // Redirect to profile onboarding
+        navigate('/onboarding/profile');
       } else if (studioSetupComplete === false) {
         // Redirect to studio onboarding
         navigate('/onboarding/studio');
       } else {
-        // Both setups complete, go to dashboard
+        // All setups complete, go to dashboard
         // Clear any stored email data before navigating
         try {
           localStorage.removeItem('pendingSignupEmail');
@@ -128,7 +131,7 @@ const Auth = () => {
         navigate('/dashboard');
       }
     }
-  }, [user, authLoading, accountSetupComplete, studioSetupComplete, navigate]);
+  }, [user, authLoading, accountSetupComplete, profileSetupComplete, studioSetupComplete, navigate]);
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

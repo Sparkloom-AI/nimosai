@@ -31,6 +31,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Onboarding from "./pages/Onboarding";
 
 import OnboardingStudio from "./pages/OnboardingStudio";
+import OnboardingProfile from "./pages/OnboardingProfile";
 import TermsLayout from "./components/layout/TermsLayout";
 import TermsOverview from "./pages/terms/Overview";
 import TermsOfUse from "./pages/terms/TermsOfUse";
@@ -56,7 +57,7 @@ function App() {
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<Auth />} />
           <Route path="/onboarding" element={<Onboarding />} />
-          
+          <Route path="/onboarding/profile" element={<OnboardingProfile />} />
           <Route path="/onboarding/studio" element={<OnboardingStudio />} />
                   <Route path="/forgot-password" element={<ForgotPasswordForm />} />
                   <Route path="/terms" element={<TermsLayout />}>

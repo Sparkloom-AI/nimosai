@@ -27,7 +27,7 @@ interface LocationData {
 
 const OnboardingProfile = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, completeProfileSetup } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -130,6 +130,8 @@ const OnboardingProfile = () => {
         phone_prefix: locationData.phonePrefix,
         timezone: locationData.timezone,
       });
+      
+      await completeProfileSetup();
       
       toast.success('Profile updated successfully!');
       navigate('/onboarding/studio');

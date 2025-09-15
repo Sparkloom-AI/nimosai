@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Loader2, Globe } from 'lucide-react';
 import { StepActions } from '@/components/domain/settings/StepActions';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { studiosApi } from '@/api/studios';
 import { useRole } from '@/contexts/RoleContext';
 import { countries, timezones } from '@/hooks/useIPLocationDetection';
@@ -102,17 +102,10 @@ export const CountryTimezoneStep = ({
         timezone: data.timezone,
       });
       
-      toast({
-        title: 'Success',
-        description: 'Country and timezone updated successfully',
-      });
+      toast.success('Country and timezone updated successfully');
     } catch (error) {
       console.error('Error updating country and timezone:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to update country and timezone',
-        variant: 'destructive',
-      });
+      toast.error('Failed to update country and timezone');
     } finally {
       setSubmitting(false);
     }
