@@ -57,7 +57,7 @@ function App() {
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<Auth />} />
           <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/onboarding/profile" element={<OnboardingProfile />} />
+          <Route path="/onboarding/profile" element={<OnboardingStudio />} />
           <Route path="/onboarding/studio" element={<OnboardingStudio />} />
                   <Route path="/forgot-password" element={<ForgotPasswordForm />} />
                   <Route path="/terms" element={<TermsLayout />}>

@@ -8,10 +8,8 @@ const Onboarding = () => {
 
   useEffect(() => {
     if (!loading && user) {
-      if (accountSetupComplete === false) {
+      if (accountSetupComplete === false || profileSetupComplete === false) {
         navigate('/onboarding/account');
-      } else if (profileSetupComplete === false) {
-        navigate('/onboarding/profile');
       } else if (studioSetupComplete === false) {
         navigate('/onboarding/studio');
       } else if (accountSetupComplete === true && profileSetupComplete === true && studioSetupComplete === true) {
