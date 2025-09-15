@@ -70,12 +70,8 @@ const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete, loc
         email: businessData.email,
         business_category_id: businessData.business_category_id,
         additional_category_ids: businessData.additional_category_ids,
-        // Include location data if available
-        country: locationData?.country,
-        timezone: locationData?.timezone,
-        currency: locationData?.currency,
-        default_team_language: locationData?.language,
-        default_client_language: locationData?.language,
+        // Location data will be handled in profile setup
+        // No location data passed from auth anymore
       });
 
       console.log('AccountSetupWizard: Studio created successfully:', studio);

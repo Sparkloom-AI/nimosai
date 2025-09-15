@@ -182,7 +182,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       cleanupAuthState();
       
-      const redirectUrl = `${window.location.origin}/onboarding/studio`;
+      const redirectUrl = `${window.location.origin}/onboarding/profile`;
       
       const { data, error } = await supabase.auth.signUp({
         email,
