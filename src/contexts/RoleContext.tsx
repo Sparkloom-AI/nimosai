@@ -59,6 +59,22 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setCurrentStudioId(studioRole.studio_id);
         }
       }
+
+      // If we have a current studio ID, refresh the studio data
+      if (currentStudioId) {
+        try {
+          // Get current role for this studio
+          const role = await rolesApi.getUserRoleForStudio(user.id, currentStudioId);
+          setCurrentRole(role);
+          setPermissions(role ? ROLE_PERMISSIONS[role] : null);
+
+          // Get current studio details
+          const studio = await studiosApi.getStudioById(currentStudioId);
+          setCurrentStudio(studio);
+        } catch (error) {
+          console.error('Failed to refresh current studio data:', error);
+        }
+      }
     } catch (error) {
       console.error('Failed to fetch user roles:', error);
       setUserRoles([]);
