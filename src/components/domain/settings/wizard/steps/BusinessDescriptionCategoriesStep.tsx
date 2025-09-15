@@ -40,8 +40,8 @@ export const BusinessDescriptionCategoriesStep = ({
   isLastStep = false 
 }: BusinessDescriptionCategoriesStepProps) => {
   const { toast } = useToast();
-  const { currentStudio, refreshRoles } = useRole();
-  const [loading, setLoading] = useState(false);
+  const { currentStudio, loading, refreshRoles } = useRole();
+  const [submitting, setSubmitting] = useState(false);
   const [generatingDescription, setGeneratingDescription] = useState(false);
   const [businessCategories, setBusinessCategories] = useState<BusinessCategory[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -143,7 +143,7 @@ export const BusinessDescriptionCategoriesStep = ({
   const onSubmit = async (data: FormData) => {
     if (!currentStudio) return;
 
-    setLoading(true);
+    setSubmitting(true);
     try {
       // Update studio description
       await studiosApi.updateStudio(currentStudio.id, {
@@ -174,9 +174,42 @@ export const BusinessDescriptionCategoriesStep = ({
         variant: 'destructive',
       });
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
+
+  if (loading || !currentStudio) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5" />
+              Description & Categories
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Loading business description and categories...
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="animate-pulse space-y-4">
+              <div className="h-20 bg-muted rounded"></div>
+              <div className="h-4 bg-muted rounded"></div>
+              <div className="h-4 bg-muted rounded w-3/4"></div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <StepActions
+          onPrevious={onPrevious}
+          onNext={onNext}
+          hasPrevious={hasPrevious}
+          hasNext={hasNext}
+          isLastStep={isLastStep}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -287,8 +320,8 @@ export const BusinessDescriptionCategoriesStep = ({
                 </div>
               </div>
 
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button type="submit" disabled={submitting}>
+                {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Save Changes
               </Button>
             </form>
@@ -296,7 +329,6 @@ export const BusinessDescriptionCategoriesStep = ({
         </CardContent>
       </Card>
 
-      {/* Navigation Buttons */}
       <StepActions
         onPrevious={onPrevious}
         onNext={onNext}
