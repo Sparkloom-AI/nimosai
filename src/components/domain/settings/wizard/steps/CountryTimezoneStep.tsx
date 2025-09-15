@@ -12,6 +12,8 @@ import { useToast } from '@/components/ui/use-toast';
 import { studiosApi } from '@/api/studios';
 import { useRole } from '@/contexts/RoleContext';
 import { countries, timezones } from '@/hooks/useIPLocationDetection';
+import { profilesApi } from '@/api/profiles';
+import { useAuth } from '@/contexts/AuthContext';
 
 const formSchema = z.object({
   country: z.string().min(1, 'Country is required'),
@@ -35,8 +37,8 @@ export const CountryTimezoneStep = ({
   hasPrevious = false,
   isLastStep = false 
 }: CountryTimezoneStepProps) => {
-  const { toast } = useToast();
   const { currentStudio, loading, refreshRoles, refreshStudio } = useRole();
+  const { user } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
 
@@ -65,31 +67,40 @@ export const CountryTimezoneStep = ({
     loadData();
   }, []);
 
-  // Reset form when currentStudio data changes
+  // Reset form when profile data is available
   useEffect(() => {
-    if (currentStudio && dataLoaded) {
-      console.log('CountryTimezoneStep: Resetting form with data:', {
-        country: currentStudio.country,
-        timezone: currentStudio.timezone
-      });
-      form.reset({
-        country: currentStudio.country || '',
-        timezone: currentStudio.timezone || '',
-      });
-    }
-  }, [currentStudio, form, dataLoaded]);
+    const loadProfileData = async () => {
+      if (user && dataLoaded) {
+        try {
+          const profile = await profilesApi.getCurrentProfile();
+          if (profile) {
+            console.log('CountryTimezoneStep: Resetting form with profile data:', {
+              country: profile.country,
+              timezone: profile.timezone
+            });
+            form.reset({
+              country: profile.country || '',
+              timezone: profile.timezone || '',
+            });
+          }
+        } catch (error) {
+          console.error('Failed to load profile data:', error);
+        }
+      }
+    };
+    
+    loadProfileData();
+  }, [user, dataLoaded, form]);
 
   const onSubmit = async (data: FormData) => {
-    if (!currentStudio) return;
+    if (!user) return;
 
     setSubmitting(true);
     try {
-      await studiosApi.updateStudio(currentStudio.id, {
+      await profilesApi.updateProfile({
         country: data.country,
         timezone: data.timezone,
       });
-
-      await refreshStudio();
       
       toast({
         title: 'Success',
