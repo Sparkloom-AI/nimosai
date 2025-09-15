@@ -53,58 +53,26 @@ const OnboardingProfile = () => {
     }
   }, [user, navigate]);
 
-  // Load existing profile data and apply smart defaults
+  // Apply smart defaults on component mount (like /auth did)
   useEffect(() => {
-    const loadProfileData = async () => {
-      if (!user) return;
+    if (smartDefaultsApplied) return;
 
-      try {
-        // Load existing profile data
-        const profile = await profilesApi.getCurrentProfile();
-        if (profile) {
-          setLocationData({
-            country: profile.country || '',
-            countryCode: profile.country_code || '',
-            phonePrefix: profile.phone_prefix || '',
-            timezone: profile.timezone || '',
-            currency: profile.currency || '',
-            language: profile.language || 'English'
-          });
-        } else {
-          // No existing profile, apply smart defaults
-          applySmartDefaults();
-        }
-      } catch (error) {
-        console.error('Failed to load profile:', error);
-        // Apply smart defaults as fallback
-        applySmartDefaults();
-      } finally {
-        setIsLoadingProfile(false);
-      }
-    };
+    // Get browser-based defaults first
+    const browserDefaults = getBrowserLocationDefaults();
+    
+    // Merge IP detection with browser defaults when available
+    if (detectedLocation.isDetected && !detectedLocation.isLoading) {
+      const mergedLocation = mergeLocationData(detectedLocation, browserDefaults);
+      setLocationData(mergedLocation);
+    } else {
+      // Use browser defaults immediately
+      setLocationData(browserDefaults);
+    }
+    
+    setSmartDefaultsApplied(true);
+  }, [detectedLocation.isDetected, detectedLocation.isLoading, smartDefaultsApplied]);
 
-    const applySmartDefaults = () => {
-      if (smartDefaultsApplied) return;
-
-      // Get browser-based defaults first
-      const browserDefaults = getBrowserLocationDefaults();
-      
-      // Merge IP detection with browser defaults when available
-      if (detectedLocation.isDetected && !detectedLocation.isLoading) {
-        const mergedLocation = mergeLocationData(detectedLocation, browserDefaults);
-        setLocationData(mergedLocation);
-      } else {
-        // Use browser defaults immediately
-        setLocationData(browserDefaults);
-      }
-      
-      setSmartDefaultsApplied(true);
-    };
-
-    loadProfileData();
-  }, [user, detectedLocation.isDetected, detectedLocation.isLoading, smartDefaultsApplied]);
-
-  // Update location data when IP detection completes
+  // Update location data when IP detection completes (if not already set)
   useEffect(() => {
     if (detectedLocation.isDetected && !detectedLocation.isLoading && smartDefaultsApplied && !locationData.country) {
       const browserDefaults = getBrowserLocationDefaults();
@@ -112,6 +80,52 @@ const OnboardingProfile = () => {
       setLocationData(mergedLocation);
     }
   }, [detectedLocation.isDetected, detectedLocation.isLoading, smartDefaultsApplied, locationData.country]);
+
+  // Load existing profile data (but don't override smart defaults if profile is empty)
+  useEffect(() => {
+    const loadProfileData = async () => {
+      if (!user) return;
+
+      try {
+        // Load existing profile data
+        const profile = await profilesApi.getCurrentProfile();
+        if (profile && (profile.country || profile.timezone || profile.currency || profile.language)) {
+          // Only use profile data if it has actual values (not just defaults)
+          setLocationData({
+            country: profile.country || locationData.country,
+            countryCode: profile.country_code || locationData.countryCode,
+            phonePrefix: profile.phone_prefix || locationData.phonePrefix,
+            timezone: profile.timezone || locationData.timezone,
+            currency: profile.currency || locationData.currency,
+            language: profile.language || locationData.language
+          });
+          
+          // Extract phone number from phone_prefix if it exists
+          if (profile.phone_prefix) {
+            // If phone_prefix contains a full number, extract just the number part
+            const phonePrefix = locationData.phonePrefix || profile.phone_prefix;
+            if (phonePrefix && phonePrefix.length > 4) {
+              // Assume the prefix is the first 1-4 characters (like +62, +1, etc.)
+              const prefixMatch = phonePrefix.match(/^(\+\d{1,4})/);
+              if (prefixMatch) {
+                const prefix = prefixMatch[1];
+                const number = phonePrefix.substring(prefix.length);
+                setLocationData(prev => ({ ...prev, phonePrefix: prefix }));
+                setPhoneNumber(number);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load profile:', error);
+        // Keep smart defaults if profile loading fails
+      } finally {
+        setIsLoadingProfile(false);
+      }
+    };
+
+    loadProfileData();
+  }, [user]);
 
   const handleEditLocation = () => {
     setShowLocationSettings(!showLocationSettings);
@@ -122,12 +136,15 @@ const OnboardingProfile = () => {
     
     setIsLoading(true);
     try {
+      // Combine phone prefix and number
+      const fullPhoneNumber = phoneNumber ? `${locationData.phonePrefix}${phoneNumber}` : locationData.phonePrefix;
+      
       await profilesApi.updateProfile({
         country: locationData.country,
         country_code: locationData.countryCode,
         currency: locationData.currency,
         language: locationData.language,
-        phone_prefix: locationData.phonePrefix,
+        phone_prefix: fullPhoneNumber,
         timezone: locationData.timezone,
       });
       
