@@ -28,7 +28,6 @@ interface CountryTimezoneStepProps {
   isLastStep?: boolean;
 }
 
-
 export const CountryTimezoneStep = ({ 
   onNext, 
   onPrevious, 
@@ -37,8 +36,8 @@ export const CountryTimezoneStep = ({
   isLastStep = false 
 }: CountryTimezoneStepProps) => {
   const { toast } = useToast();
-  const { currentStudio, refreshRoles } = useRole();
-  const [loading, setLoading] = useState(false);
+  const { currentStudio, loading, refreshRoles } = useRole();
+  const [submitting, setSubmitting] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -60,7 +59,7 @@ export const CountryTimezoneStep = ({
   const onSubmit = async (data: FormData) => {
     if (!currentStudio) return;
 
-    setLoading(true);
+    setSubmitting(true);
     try {
       await studiosApi.updateStudio(currentStudio.id, {
         country: data.country,
@@ -81,12 +80,44 @@ export const CountryTimezoneStep = ({
         variant: 'destructive',
       });
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
   // Sort timezones by GMT offset
   const sortedTimezones = timezones.map(tz => ({ name: tz, gmtOffset: 0 })).sort((a, b) => a.gmtOffset - b.gmtOffset);
+
+  if (loading || !currentStudio) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Globe className="h-5 w-5" />
+              Country & Time Zone
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Loading country and timezone settings...
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="animate-pulse space-y-4">
+              <div className="h-4 bg-muted rounded"></div>
+              <div className="h-4 bg-muted rounded w-3/4"></div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <StepActions
+          onPrevious={onPrevious}
+          onNext={onNext}
+          hasPrevious={hasPrevious}
+          hasNext={hasNext}
+          isLastStep={isLastStep}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -156,8 +187,8 @@ export const CountryTimezoneStep = ({
                 )}
               />
 
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button type="submit" disabled={submitting}>
+                {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Save Changes
               </Button>
             </form>
@@ -165,7 +196,6 @@ export const CountryTimezoneStep = ({
         </CardContent>
       </Card>
 
-      {/* Navigation Buttons */}
       <StepActions
         onPrevious={onPrevious}
         onNext={onNext}

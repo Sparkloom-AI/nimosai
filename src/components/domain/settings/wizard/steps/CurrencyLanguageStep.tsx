@@ -28,7 +28,6 @@ interface CurrencyLanguageStepProps {
   isLastStep?: boolean;
 }
 
-
 export const CurrencyLanguageStep = ({ 
   onNext, 
   onPrevious, 
@@ -37,8 +36,8 @@ export const CurrencyLanguageStep = ({
   isLastStep = false 
 }: CurrencyLanguageStepProps) => {
   const { toast } = useToast();
-  const { currentStudio, refreshRoles } = useRole();
-  const [loading, setLoading] = useState(false);
+  const { currentStudio, loading, refreshRoles } = useRole();
+  const [submitting, setSubmitting] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -60,7 +59,7 @@ export const CurrencyLanguageStep = ({
   const onSubmit = async (data: FormData) => {
     if (!currentStudio) return;
 
-    setLoading(true);
+    setSubmitting(true);
     try {
       await studiosApi.updateStudio(currentStudio.id, {
         currency: data.currency,
@@ -82,9 +81,41 @@ export const CurrencyLanguageStep = ({
         variant: 'destructive',
       });
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
+
+  if (loading || !currentStudio) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <DollarSign className="h-5 w-5" />
+              Currency & Language
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Loading currency and language settings...
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="animate-pulse space-y-4">
+              <div className="h-4 bg-muted rounded"></div>
+              <div className="h-4 bg-muted rounded w-3/4"></div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <StepActions
+          onPrevious={onPrevious}
+          onNext={onNext}
+          hasPrevious={hasPrevious}
+          hasNext={hasNext}
+          isLastStep={isLastStep}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -137,8 +168,8 @@ export const CurrencyLanguageStep = ({
                 )}
               />
 
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button type="submit" disabled={submitting}>
+                {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Save Changes
               </Button>
             </form>
@@ -146,7 +177,6 @@ export const CurrencyLanguageStep = ({
         </CardContent>
       </Card>
 
-      {/* Navigation Buttons */}
       <StepActions
         onPrevious={onPrevious}
         onNext={onNext}
