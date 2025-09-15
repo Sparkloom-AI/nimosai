@@ -160,18 +160,17 @@ const OnboardingProfile = () => {
     }
   };
 
-  const handleSkip = () => {
-    navigate('/onboarding/studio');
-  };
-
   if (!user) {
     return null;
   }
 
   if (isLoadingProfile) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex items-center space-x-2">
+          <Loader2 className="w-6 h-6 animate-spin" />
+          <span>Loading profile...</span>
+        </div>
       </div>
     );
   }
@@ -180,7 +179,7 @@ const OnboardingProfile = () => {
     <div className="min-h-screen bg-background flex">
       {/* Left side - Form */}
       <div className="flex-1 flex items-center justify-center p-8">
-        <div className="w-full max-w-lg">
+        <div className="w-full max-w-2xl">
           {/* Header */}
           <div className="mb-8">
             <Button 
@@ -252,7 +251,7 @@ const OnboardingProfile = () => {
                 disabled={isLoading}
                 className="h-12 px-8 bg-foreground text-background hover:bg-foreground/90"
               >
-                {isLoading ? 'Saving...' : 'Continue'}
+                {isLoading ? 'Saving...' : 'Save & Continue'}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </div>
