@@ -48,24 +48,13 @@ export const CurrencyLanguageStep = ({
   });
 
   useEffect(() => {
-    console.log('CurrencyLanguageStep: currentStudio changed:', currentStudio);
     if (currentStudio) {
-      console.log('CurrencyLanguageStep: Resetting form with data:', {
-        currency: currentStudio.currency,
-        language: currentStudio.default_team_language
-      });
       form.reset({
         currency: currentStudio.currency || '',
         language: currentStudio.default_team_language || '',
       });
     }
   }, [currentStudio, form]);
-
-  // Add a useEffect to refresh data when component mounts
-  useEffect(() => {
-    console.log('CurrencyLanguageStep: Component mounted, refreshing roles');
-    refreshRoles();
-  }, []);
 
   const onSubmit = async (data: FormData) => {
     if (!currentStudio) return;
