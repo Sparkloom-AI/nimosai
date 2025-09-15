@@ -17,7 +17,6 @@ interface RoleContextType {
   hasRole: (role: AppRole, studioId?: string) => boolean;
   canManageStudio: (studioId: string) => boolean;
   refreshRoles: () => Promise<void>;
-  refreshStudio: () => Promise<void>;
 }
 
 const RoleContext = createContext<RoleContextType | undefined>(undefined);
@@ -38,22 +37,6 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [currentRole, setCurrentRole] = useState<AppRole | null>(null);
   const [permissions, setPermissions] = useState<RolePermissions | null>(null);
   const [loading, setLoading] = useState(true);
-
-  // Separate function to refresh just the studio data
-  const refreshStudio = async () => {
-    if (!user?.id || !currentStudioId) {
-      return;
-    }
-
-    try {
-      console.log('RoleContext: refreshStudio called for ID:', currentStudioId);
-      const studio = await studiosApi.getStudioById(currentStudioId);
-      console.log('RoleContext: Studio data refreshed:', studio);
-      setCurrentStudio(studio);
-    } catch (error) {
-      console.error('Failed to refresh studio data:', error);
-    }
-  };
 
   const refreshRoles = async () => {
     if (!user?.id) {
@@ -173,7 +156,6 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
     hasRole,
     canManageStudio,
     refreshRoles,
-    refreshStudio,
   };
 
   return (

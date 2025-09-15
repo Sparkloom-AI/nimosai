@@ -9,14 +9,12 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   accountSetupComplete: boolean | null;
-  profileSetupComplete: boolean | null;
   studioSetupComplete: boolean | null;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
   signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   completeAccountSetup: () => Promise<void>;
-  completeProfileSetup: () => Promise<void>;
   completeStudioSetup: () => Promise<void>;
 }
 
@@ -49,7 +47,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [accountSetupComplete, setAccountSetupComplete] = useState<boolean | null>(null);
-  const [profileSetupComplete, setProfileSetupComplete] = useState<boolean | null>(null);
   const [studioSetupComplete, setStudioSetupComplete] = useState<boolean | null>(null);
 
   // Fetch profile data when user changes
@@ -57,12 +54,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const { data: profile } = await supabase
         .from('profiles')
-        .select('account_setup_complete, profile_setup_complete, onboarding_complete')
+        .select('account_setup_complete, onboarding_complete')
         .eq('id', userId)
         .single();
       
       setAccountSetupComplete(profile?.account_setup_complete ?? false);
-      setProfileSetupComplete(profile?.profile_setup_complete ?? false);
       setStudioSetupComplete(profile?.onboarding_complete ?? false);
     } catch (error) {
       console.warn('Failed to fetch profile data:', error);
@@ -85,7 +81,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }, 0);
         } else {
           setAccountSetupComplete(null);
-          setProfileSetupComplete(null);
           setStudioSetupComplete(null);
         }
         
@@ -102,7 +97,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         fetchProfileData(session.user.id);
       } else {
         setAccountSetupComplete(null);
-        setProfileSetupComplete(null);
         setStudioSetupComplete(null);
       }
       
@@ -188,7 +182,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       cleanupAuthState();
       
-      const redirectUrl = `${window.location.origin}/onboarding/profile`;
+      const redirectUrl = `${window.location.origin}/onboarding/studio`;
       
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -264,21 +258,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const completeProfileSetup = async () => {
-    if (!user) return;
-    
-    try {
-      await supabase
-        .from('profiles')
-        .update({ profile_setup_complete: true })
-        .eq('id', user.id);
-      
-      setProfileSetupComplete(true);
-    } catch (error) {
-      console.warn('Failed to complete profile setup:', error);
-    }
-  };
-
   const completeStudioSetup = async () => {
     if (!user) return;
     
@@ -299,14 +278,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     session,
     loading,
     accountSetupComplete,
-    profileSetupComplete,
     studioSetupComplete,
     signIn,
     signUp,
     signInWithGoogle,
     signOut,
     completeAccountSetup,
-    completeProfileSetup,
     completeStudioSetup,
   };
 

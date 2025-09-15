@@ -11,20 +11,26 @@ import { Eye, EyeOff, Mail, Lock, ArrowLeft, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import AccountSetupWizard from '@/components/domain/auth/AccountSetupWizard';
 import { authApi } from '@/api/auth';
+import { useIPLocationDetection } from '@/hooks/useIPLocationDetection';
+import { LocationDetectionBanner } from '@/components/domain/auth/LocationDetectionBanner';
+import { MobilePrefixSelector } from '@/components/domain/auth/MobilePrefixSelector';
+import { ExpandableLocationSettings } from '@/components/domain/auth/ExpandableLocationSettings';
+import { supabase } from '@/integrations/supabase/client';
 import { useLoginRateLimiter, usePasswordResetRateLimiter, useRegistrationRateLimiter } from '@/hooks/useEnhancedRateLimiter';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import { 
   extractGoogleUserMetadata, 
-  isGoogleSignup
+  isGoogleSignup, 
+  getBrowserLocationDefaults, 
+  mergeLocationData 
 } from '@/lib/authUtils';
-import { supabase } from '@/integrations/supabase/client';
 
 type AuthStep = 'email' | 'login' | 'register' | 'email-confirmation' | 'setup' | 'reset-password';
 
 const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, signIn, signUp, signInWithGoogle, loading: authLoading, accountSetupComplete, profileSetupComplete, studioSetupComplete, completeAccountSetup } = useAuth();
+  const { user, signIn, signUp, signInWithGoogle, loading: authLoading, accountSetupComplete, studioSetupComplete, completeAccountSetup } = useAuth();
   const { userRoles, loading: rolesLoading } = useRole();
   
   const [step, setStep] = useState<AuthStep>('email');
@@ -33,10 +39,12 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [emailCheckLoading, setEmailCheckLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [showLocationSettings, setShowLocationSettings] = useState(false);
   const [smartDefaultsApplied, setSmartDefaultsApplied] = useState(false);
 
   // Security rate limiters
@@ -51,10 +59,24 @@ const Auth = () => {
     enabled: !!user
   });
 
-  // Smart defaults for Google sign-ups
+  // Location detection
+  const detectedLocation = useIPLocationDetection();
+  const [locationData, setLocationData] = useState({
+    country: '',
+    countryCode: '',
+    phonePrefix: '',
+    timezone: '',
+    currency: '',
+    language: 'English'
+  });
+
+  // Smart defaults for Google sign-ups and location detection
   useEffect(() => {
     if (step !== 'register' || smartDefaultsApplied) return;
 
+    // Get browser-based defaults first
+    const browserDefaults = getBrowserLocationDefaults();
+    
     // If user signed up with Google, extract their metadata
     if (user && isGoogleSignup(user)) {
       const googleData = extractGoogleUserMetadata(user);
@@ -76,8 +98,26 @@ const Auth = () => {
       }
     }
     
+    // Merge IP detection with browser defaults when available
+    if (detectedLocation.isDetected && !detectedLocation.isLoading) {
+      const mergedLocation = mergeLocationData(detectedLocation, browserDefaults);
+      setLocationData(mergedLocation);
+    } else {
+      // Use browser defaults immediately
+      setLocationData(browserDefaults);
+    }
+    
     setSmartDefaultsApplied(true);
-  }, [step, user, smartDefaultsApplied]);
+  }, [step, user, detectedLocation.isDetected, detectedLocation.isLoading, smartDefaultsApplied]);
+
+  // Update location data when IP detection completes
+  useEffect(() => {
+    if (detectedLocation.isDetected && !detectedLocation.isLoading && smartDefaultsApplied && step === 'register') {
+      const browserDefaults = getBrowserLocationDefaults();
+      const mergedLocation = mergeLocationData(detectedLocation, browserDefaults);
+      setLocationData(mergedLocation);
+    }
+  }, [detectedLocation.isDetected, detectedLocation.isLoading, smartDefaultsApplied, step]);
 
   // Check for password reset mode
   useEffect(() => {
@@ -112,18 +152,15 @@ const Auth = () => {
 
   // Check user setup status and redirect accordingly
   useEffect(() => {
-    if (user && !authLoading && accountSetupComplete !== null && profileSetupComplete !== null && studioSetupComplete !== null) {
+    if (user && !authLoading && accountSetupComplete !== null && studioSetupComplete !== null) {
       if (accountSetupComplete === false) {
         // Show the professional account wizard (register step)
         setStep('register');
-      } else if (profileSetupComplete === false) {
-        // Redirect to profile onboarding
-        navigate('/onboarding/profile');
       } else if (studioSetupComplete === false) {
         // Redirect to studio onboarding
         navigate('/onboarding/studio');
       } else {
-        // All setups complete, go to dashboard
+        // Both setups complete, go to dashboard
         // Clear any stored email data before navigating
         try {
           localStorage.removeItem('pendingSignupEmail');
@@ -131,7 +168,7 @@ const Auth = () => {
         navigate('/dashboard');
       }
     }
-  }, [user, authLoading, accountSetupComplete, profileSetupComplete, studioSetupComplete, navigate]);
+  }, [user, authLoading, accountSetupComplete, studioSetupComplete, navigate]);
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -267,10 +304,15 @@ const Auth = () => {
     setPassword('');
     setFirstName('');
     setLastName('');
+    setPhoneNumber('');
     setShowPassword(false);
     setAgreedToTerms(false);
+    setShowLocationSettings(false);
   };
 
+  const handleEditLocation = () => {
+    setShowLocationSettings(!showLocationSettings);
+  };
 
   // Show loading spinner while checking auth state
   if (authLoading || rolesLoading) {
@@ -283,7 +325,7 @@ const Auth = () => {
 
   // Show setup wizard for new users
   if (step === 'setup') {
-    return <AccountSetupWizard onComplete={handleSetupComplete} />;
+    return <AccountSetupWizard onComplete={handleSetupComplete} locationData={locationData} />;
   }
 
   if (step === 'email-confirmation') {
@@ -588,6 +630,44 @@ const Auth = () => {
                 </div>
 
                 {/* 3. Mobile number */}
+                <div>
+                  <label htmlFor="mobile" className="block text-sm font-medium mb-2 text-foreground">
+                    Mobile number
+                  </label>
+                  <div className="flex">
+                    <MobilePrefixSelector
+                      value={locationData.phonePrefix}
+                      onValueChange={(prefix) => 
+                        setLocationData(prev => ({ ...prev, phonePrefix: prefix }))
+                      }
+                      className="rounded-r-none border-r-0 h-12"
+                    />
+                    <Input
+                      id="mobile"
+                      type="tel"
+                      placeholder="Enter your mobile number"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      className="flex-1 rounded-l-none h-12"
+                    />
+                  </div>
+                </div>
+
+                {/* 4. Location Detection Banner */}
+                <LocationDetectionBanner
+                  detectedCountry={locationData.country}
+                  isDetected={detectedLocation.isDetected}
+                  isLoading={detectedLocation.isLoading}
+                  onEditLocation={handleEditLocation}
+                />
+
+                {/* 5. Expandable Location Settings */}
+                {showLocationSettings && (
+                  <ExpandableLocationSettings
+                    locationData={locationData}
+                    onLocationDataChange={setLocationData}
+                  />
+                )}
 
                 {/* 6. Terms and conditions */}
                 <div className="flex items-center space-x-2 py-2">

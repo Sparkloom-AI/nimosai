@@ -66,15 +66,7 @@ export type Database = {
           studio_id?: string
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "fk_appointment_booking_rules_studio_id"
-            columns: ["studio_id"]
-            isOneToOne: false
-            referencedRelation: "studios"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       appointment_history: {
         Row: {
@@ -647,15 +639,7 @@ export type Database = {
           studio_id?: string
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "packages_studio_id_fkey"
-            columns: ["studio_id"]
-            isOneToOne: false
-            referencedRelation: "studios"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -671,7 +655,6 @@ export type Database = {
           language: string | null
           onboarding_complete: boolean
           phone_prefix: string | null
-          profile_setup_complete: boolean
           timezone: string | null
           updated_at: string
         }
@@ -688,7 +671,6 @@ export type Database = {
           language?: string | null
           onboarding_complete?: boolean
           phone_prefix?: string | null
-          profile_setup_complete?: boolean
           timezone?: string | null
           updated_at?: string
         }
@@ -705,7 +687,6 @@ export type Database = {
           language?: string | null
           onboarding_complete?: boolean
           phone_prefix?: string | null
-          profile_setup_complete?: boolean
           timezone?: string | null
           updated_at?: string
         }

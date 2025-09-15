@@ -12,8 +12,6 @@ import { studiosApi } from '@/api/studios';
 import { useRole } from '@/contexts/RoleContext';
 import { CurrencySelect } from '@/components/ui/CurrencySelect';
 import { LanguageSelect } from '@/components/ui/LanguageSelect';
-import { profilesApi } from '@/api/profiles';
-import { useAuth } from '@/contexts/AuthContext';
 
 const formSchema = z.object({
   currency: z.string().min(1, 'Currency is required'),
@@ -38,10 +36,8 @@ export const CurrencyLanguageStep = ({
   isLastStep = false 
 }: CurrencyLanguageStepProps) => {
   const { toast } = useToast();
-  const { currentStudio, loading, refreshRoles, refreshStudio } = useRole();
+  const { currentStudio, loading, refreshRoles } = useRole();
   const [submitting, setSubmitting] = useState(false);
-  const [dataLoaded, setDataLoaded] = useState(false);
-  const { user } = useAuth();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -51,57 +47,38 @@ export const CurrencyLanguageStep = ({
     },
   });
 
-  // Load data when component mounts
   useEffect(() => {
-    const loadData = async () => {
-      console.log('CurrencyLanguageStep: Component mounted, loading data');
-      if (currentStudio) {
-        console.log('CurrencyLanguageStep: currentStudio already available:', currentStudio);
-        setDataLoaded(true);
-      } else {
-        console.log('CurrencyLanguageStep: No currentStudio, refreshing roles');
-        await refreshRoles();
-        setDataLoaded(true);
-      }
-    };
-    
-    loadData();
+    console.log('CurrencyLanguageStep: currentStudio changed:', currentStudio);
+    if (currentStudio) {
+      console.log('CurrencyLanguageStep: Resetting form with data:', {
+        currency: currentStudio.currency,
+        language: currentStudio.default_team_language
+      });
+      form.reset({
+        currency: currentStudio.currency || '',
+        language: currentStudio.default_team_language || '',
+      });
+    }
+  }, [currentStudio, form]);
+
+  // Add a useEffect to refresh data when component mounts
+  useEffect(() => {
+    console.log('CurrencyLanguageStep: Component mounted, refreshing roles');
+    refreshRoles();
   }, []);
 
-  // Reset form when profile data is available
-  useEffect(() => {
-    const loadProfileData = async () => {
-      if (user && dataLoaded) {
-        try {
-          const profile = await profilesApi.getCurrentProfile();
-          if (profile) {
-            console.log('CurrencyLanguageStep: Resetting form with profile data:', {
-              currency: profile.currency,
-              language: profile.language
-            });
-            form.reset({
-              currency: profile.currency || '',
-              language: profile.language || '',
-            });
-          }
-        } catch (error) {
-          console.error('Failed to load profile data:', error);
-        }
-      }
-    };
-    
-    loadProfileData();
-  }, [user, dataLoaded, form]);
-
   const onSubmit = async (data: FormData) => {
-    if (!user) return;
+    if (!currentStudio) return;
 
     setSubmitting(true);
     try {
-      await profilesApi.updateProfile({
+      await studiosApi.updateStudio(currentStudio.id, {
         currency: data.currency,
-        language: data.language,
+        default_team_language: data.language,
+        default_client_language: data.language,
       });
+
+      await refreshRoles();
       
       toast({
         title: 'Success',
@@ -119,7 +96,7 @@ export const CurrencyLanguageStep = ({
     }
   };
 
-  if (loading || !dataLoaded) {
+  if (loading || !currentStudio) {
     return (
       <div className="space-y-6">
         <Card>

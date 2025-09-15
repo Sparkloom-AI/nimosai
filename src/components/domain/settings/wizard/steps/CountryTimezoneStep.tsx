@@ -8,12 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Loader2, Globe } from 'lucide-react';
 import { StepActions } from '@/components/domain/settings/StepActions';
-import { toast } from 'sonner';
+import { useToast } from '@/components/ui/use-toast';
 import { studiosApi } from '@/api/studios';
 import { useRole } from '@/contexts/RoleContext';
 import { countries, timezones } from '@/hooks/useIPLocationDetection';
-import { profilesApi } from '@/api/profiles';
-import { useAuth } from '@/contexts/AuthContext';
 
 const formSchema = z.object({
   country: z.string().min(1, 'Country is required'),
@@ -37,10 +35,9 @@ export const CountryTimezoneStep = ({
   hasPrevious = false,
   isLastStep = false 
 }: CountryTimezoneStepProps) => {
-  const { currentStudio, loading, refreshRoles, refreshStudio } = useRole();
-  const { user } = useAuth();
+  const { toast } = useToast();
+  const { currentStudio, loading, refreshRoles } = useRole();
   const [submitting, setSubmitting] = useState(false);
-  const [dataLoaded, setDataLoaded] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -50,62 +47,49 @@ export const CountryTimezoneStep = ({
     },
   });
 
-  // Load data when component mounts
   useEffect(() => {
-    const loadData = async () => {
-      console.log('CountryTimezoneStep: Component mounted, loading data');
-      if (currentStudio) {
-        console.log('CountryTimezoneStep: currentStudio already available:', currentStudio);
-        setDataLoaded(true);
-      } else {
-        console.log('CountryTimezoneStep: No currentStudio, refreshing roles');
-        await refreshRoles();
-        setDataLoaded(true);
-      }
-    };
-    
-    loadData();
+    console.log('CountryTimezoneStep: currentStudio changed:', currentStudio);
+    if (currentStudio) {
+      console.log('CountryTimezoneStep: Resetting form with data:', {
+        country: currentStudio.country,
+        timezone: currentStudio.timezone
+      });
+      form.reset({
+        country: currentStudio.country || '',
+        timezone: currentStudio.timezone || '',
+      });
+    }
+  }, [currentStudio, form]);
+
+  // Add a useEffect to refresh data when component mounts
+  useEffect(() => {
+    console.log('CountryTimezoneStep: Component mounted, refreshing roles');
+    refreshRoles();
   }, []);
 
-  // Reset form when profile data is available
-  useEffect(() => {
-    const loadProfileData = async () => {
-      if (user && dataLoaded) {
-        try {
-          const profile = await profilesApi.getCurrentProfile();
-          if (profile) {
-            console.log('CountryTimezoneStep: Resetting form with profile data:', {
-              country: profile.country,
-              timezone: profile.timezone
-            });
-            form.reset({
-              country: profile.country || '',
-              timezone: profile.timezone || '',
-            });
-          }
-        } catch (error) {
-          console.error('Failed to load profile data:', error);
-        }
-      }
-    };
-    
-    loadProfileData();
-  }, [user, dataLoaded, form]);
-
   const onSubmit = async (data: FormData) => {
-    if (!user) return;
+    if (!currentStudio) return;
 
     setSubmitting(true);
     try {
-      await profilesApi.updateProfile({
+      await studiosApi.updateStudio(currentStudio.id, {
         country: data.country,
         timezone: data.timezone,
       });
+
+      await refreshRoles();
       
-      toast.success('Country and timezone updated successfully');
+      toast({
+        title: 'Success',
+        description: 'Country and timezone updated successfully',
+      });
     } catch (error) {
       console.error('Error updating country and timezone:', error);
-      toast.error('Failed to update country and timezone');
+      toast({
+        title: 'Error',
+        description: 'Failed to update country and timezone',
+        variant: 'destructive',
+      });
     } finally {
       setSubmitting(false);
     }
@@ -114,7 +98,7 @@ export const CountryTimezoneStep = ({
   // Sort timezones by GMT offset
   const sortedTimezones = timezones.map(tz => ({ name: tz, gmtOffset: 0 })).sort((a, b) => a.gmtOffset - b.gmtOffset);
 
-  if (loading || !dataLoaded) {
+  if (loading || !currentStudio) {
     return (
       <div className="space-y-6">
         <Card>
