@@ -7,14 +7,14 @@ import { ExpandableLocationSettings } from '@/components/domain/auth/ExpandableL
 import { MobilePrefixSelector } from '@/components/domain/auth/MobilePrefixSelector';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { useIPLocationDetection } from '@/hooks/useIPLocationDetection';
 import { 
   getBrowserLocationDefaults, 
   mergeLocationData 
 } from '@/lib/authUtils';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowLeft, ArrowRight } from 'lucide-react';
+import { ResponsiveImage } from '@/components/ui/responsive-image';
 
 interface LocationData {
   country: string;
@@ -177,76 +177,103 @@ const OnboardingProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
-          <Card>
-            <CardHeader>
-              <CardTitle>Complete Your Profile</CardTitle>
+    <div className="min-h-screen bg-background flex">
+      {/* Left side - Form */}
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="w-full max-w-lg">
+          {/* Header */}
+          <div className="mb-8">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate('/auth')} 
+              className="mb-6 p-0 h-auto text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+            
+            <div className="mb-6">
+              <p className="text-sm text-muted-foreground mb-2">Account setup</p>
+              <h1 className="text-3xl font-bold mb-4">
+                Complete Your Profile
+              </h1>
               <p className="text-muted-foreground">
                 Help us personalize your experience by setting your location preferences.
               </p>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Mobile number */}
-              <div>
-                <label htmlFor="mobile" className="block text-sm font-medium mb-2 text-foreground">
-                  Mobile number
-                </label>
-                <div className="flex">
-                  <MobilePrefixSelector
-                    value={locationData.phonePrefix}
-                    onValueChange={(prefix) => 
-                      setLocationData(prev => ({ ...prev, phonePrefix: prefix }))
-                    }
-                    className="rounded-r-none border-r-0 h-12"
-                  />
-                  <Input
-                    id="mobile"
-                    type="tel"
-                    placeholder="Enter your mobile number"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    className="flex-1 rounded-l-none h-12"
-                  />
-                </div>
-              </div>
+            </div>
+          </div>
 
-              {/* Location Detection Banner */}
-              <LocationDetectionBanner
-                detectedCountry={locationData.country}
-                isDetected={detectedLocation.isDetected}
-                isLoading={detectedLocation.isLoading}
-                onEditLocation={handleEditLocation}
-              />
-
-              {/* Expandable Location Settings */}
-              {showLocationSettings && (
-                <ExpandableLocationSettings
-                  locationData={locationData}
-                  onLocationDataChange={setLocationData}
+          {/* Form */}
+          <div className="space-y-6">
+            {/* Mobile number */}
+            <div>
+              <label htmlFor="mobile" className="block text-sm font-medium mb-2 text-foreground">
+                Mobile number
+              </label>
+              <div className="flex">
+                <MobilePrefixSelector
+                  value={locationData.phonePrefix}
+                  onValueChange={(prefix) => 
+                    setLocationData(prev => ({ ...prev, phonePrefix: prefix }))
+                  }
+                  className="rounded-r-none border-r-0 h-12"
                 />
-              )}
-              
-              <div className="flex gap-4">
-                <Button 
-                  onClick={handleSaveProfile}
-                  disabled={isLoading}
-                  className="flex-1"
-                >
-                  {isLoading ? 'Saving...' : 'Save & Continue'}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={handleSkip}
-                  disabled={isLoading}
-                >
-                  Skip for Now
-                </Button>
+                <Input
+                  id="mobile"
+                  type="tel"
+                  placeholder="Enter your mobile number"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className="flex-1 rounded-l-none h-12"
+                />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+
+            {/* Location Detection Banner */}
+            <LocationDetectionBanner
+              detectedCountry={locationData.country}
+              isDetected={detectedLocation.isDetected}
+              isLoading={detectedLocation.isLoading}
+              onEditLocation={handleEditLocation}
+            />
+
+            {/* Expandable Location Settings */}
+            {showLocationSettings && (
+              <ExpandableLocationSettings
+                locationData={locationData}
+                onLocationDataChange={setLocationData}
+              />
+            )}
+            
+            <div className="flex justify-end pt-4">
+              <Button 
+                onClick={handleSaveProfile}
+                disabled={isLoading}
+                className="h-12 px-8 bg-foreground text-background hover:bg-foreground/90"
+              >
+                {isLoading ? 'Saving...' : 'Continue'}
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </div>
+          </div>
         </div>
+      </div>
+
+      {/* Right side - Image */}
+      <div className="hidden lg:block flex-1 bg-muted">
+        <ResponsiveImage 
+          src="/lovable-uploads/5101447c-92ce-49c1-8837-5de26eeff4b6.png" 
+          alt="Professional setting up profile" 
+          variant="hero" 
+          overlay={true} 
+          overlayContent={
+            <>
+              <h2 className="text-2xl font-bold mb-2">Set Up Your Profile</h2>
+              <p className="text-lg opacity-90">Configure your location preferences for a personalized experience.</p>
+            </>
+          } 
+        />
       </div>
     </div>
   );
