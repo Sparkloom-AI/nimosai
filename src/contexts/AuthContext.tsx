@@ -4,26 +4,19 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-interface LocationData {
-  country: string;
-  countryCode: string;
-  phonePrefix: string;
-  timezone: string;
-  currency: string;
-  language: string;
-}
-
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
   accountSetupComplete: boolean | null;
+  profileSetupComplete: boolean | null;
   studioSetupComplete: boolean | null;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, fullName?: string, locationData?: LocationData) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
   signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   completeAccountSetup: () => Promise<void>;
+  completeProfileSetup: () => Promise<void>;
   completeStudioSetup: () => Promise<void>;
 }
 
@@ -56,6 +49,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [accountSetupComplete, setAccountSetupComplete] = useState<boolean | null>(null);
+  const [profileSetupComplete, setProfileSetupComplete] = useState<boolean | null>(null);
   const [studioSetupComplete, setStudioSetupComplete] = useState<boolean | null>(null);
 
   // Fetch profile data when user changes
@@ -63,11 +57,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const { data: profile } = await supabase
         .from('profiles')
-        .select('account_setup_complete, onboarding_complete')
+        .select('account_setup_complete, profile_setup_complete, onboarding_complete')
         .eq('id', userId)
         .single();
       
       setAccountSetupComplete(profile?.account_setup_complete ?? false);
+      setProfileSetupComplete(profile?.profile_setup_complete ?? false);
       setStudioSetupComplete(profile?.onboarding_complete ?? false);
     } catch (error) {
       console.warn('Failed to fetch profile data:', error);
@@ -90,6 +85,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }, 0);
         } else {
           setAccountSetupComplete(null);
+          setProfileSetupComplete(null);
           setStudioSetupComplete(null);
         }
         
@@ -106,6 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         fetchProfileData(session.user.id);
       } else {
         setAccountSetupComplete(null);
+        setProfileSetupComplete(null);
         setStudioSetupComplete(null);
       }
       
@@ -187,34 +184,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUp = async (email: string, password: string, fullName?: string, locationData?: LocationData) => {
+  const signUp = async (email: string, password: string, fullName?: string) => {
     try {
       cleanupAuthState();
       
-      const redirectUrl = `${window.location.origin}/onboarding/studio`;
-      
-      // Prepare user metadata with location data
-      const userMetadata: any = {};
-      if (fullName) {
-        userMetadata.full_name = fullName;
-      }
-      
-      // Add location data to user metadata if provided
-      if (locationData) {
-        userMetadata.country = locationData.country;
-        userMetadata.country_code = locationData.countryCode;
-        userMetadata.phone_prefix = locationData.phonePrefix;
-        userMetadata.timezone = locationData.timezone;
-        userMetadata.currency = locationData.currency;
-        userMetadata.language = locationData.language;
-      }
+      const redirectUrl = `${window.location.origin}/onboarding/profile`;
       
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: redirectUrl,
-          data: Object.keys(userMetadata).length > 0 ? userMetadata : undefined,
+          data: fullName ? { full_name: fullName } : undefined,
         }
       });
 
@@ -283,6 +264,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const completeProfileSetup = async () => {
+    if (!user) return;
+    
+    try {
+      await supabase
+        .from('profiles')
+        .update({ profile_setup_complete: true })
+        .eq('id', user.id);
+      
+      setProfileSetupComplete(true);
+    } catch (error) {
+      console.warn('Failed to complete profile setup:', error);
+    }
+  };
+
   const completeStudioSetup = async () => {
     if (!user) return;
     
@@ -303,12 +299,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     session,
     loading,
     accountSetupComplete,
+    profileSetupComplete,
     studioSetupComplete,
     signIn,
     signUp,
     signInWithGoogle,
     signOut,
     completeAccountSetup,
+    completeProfileSetup,
     completeStudioSetup,
   };
 

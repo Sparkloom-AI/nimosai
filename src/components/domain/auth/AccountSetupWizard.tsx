@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import BusinessSetupForm from './BusinessSetupForm';
 import BusinessCategoryForm from './BusinessCategoryForm';
 import BusinessSetupComplete from './BusinessSetupComplete';
+import { ProfileStep } from '../settings/wizard/steps/ProfileStep';
 import { studiosApi } from '@/api/studios';
 import { useRole } from '@/contexts/RoleContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,11 +26,15 @@ interface AccountSetupWizardProps {
 }
 
 const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete, locationData }) => {
-  const [step, setStep] = useState<'business-setup' | 'business-categories' | 'complete'>('business-setup');
+  const [step, setStep] = useState<'profile' | 'business-setup' | 'business-categories' | 'complete'>('profile');
   const [businessData, setBusinessData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { refreshRoles, setCurrentStudioId } = useRole();
 
+
+  const handleProfileComplete = () => {
+    setStep('business-setup');
+  };
 
   const handleBusinessSetupComplete = (data: any) => {
     setBusinessData(data);
@@ -70,12 +75,8 @@ const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete, loc
         email: businessData.email,
         business_category_id: businessData.business_category_id,
         additional_category_ids: businessData.additional_category_ids,
-        // Include location data if available
-        country: locationData?.country,
-        timezone: locationData?.timezone,
-        currency: locationData?.currency,
-        default_team_language: locationData?.language,
-        default_client_language: locationData?.language,
+        // Location data will be handled in profile setup
+        // No location data passed from auth anymore
       });
 
       console.log('AccountSetupWizard: Studio created successfully:', studio);
@@ -112,6 +113,8 @@ const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete, loc
   const handleBack = () => {
     if (step === 'business-categories') {
       setStep('business-setup');
+    } else if (step === 'business-setup') {
+      setStep('profile');
     }
   };
 
@@ -133,10 +136,20 @@ const AccountSetupWizard: React.FC<AccountSetupWizardProps> = ({ onComplete, loc
     );
   }
 
+  if (step === 'business-setup') {
+    return (
+      <BusinessSetupForm
+        onBack={handleBack}
+        onComplete={handleBusinessSetupComplete}
+      />
+    );
+  }
+
   return (
-    <BusinessSetupForm
-      onBack={handleBack}
-      onComplete={handleBusinessSetupComplete}
+    <ProfileStep
+      onNext={handleProfileComplete}
+      hasNext={true}
+      hasPrevious={false}
     />
   );
 };

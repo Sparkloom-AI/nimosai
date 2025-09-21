@@ -4,19 +4,19 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const Onboarding = () => {
   const navigate = useNavigate();
-  const { user, loading, accountSetupComplete, studioSetupComplete } = useAuth();
+  const { user, loading, accountSetupComplete, profileSetupComplete, studioSetupComplete } = useAuth();
 
   useEffect(() => {
     if (!loading && user) {
-      if (accountSetupComplete === false) {
+      if (accountSetupComplete === false || profileSetupComplete === false) {
         navigate('/onboarding/account');
       } else if (studioSetupComplete === false) {
         navigate('/onboarding/studio');
-      } else if (accountSetupComplete === true && studioSetupComplete === true) {
+      } else if (accountSetupComplete === true && profileSetupComplete === true && studioSetupComplete === true) {
         navigate('/dashboard');
       }
     }
-  }, [user, loading, accountSetupComplete, studioSetupComplete, navigate]);
+  }, [user, loading, accountSetupComplete, profileSetupComplete, studioSetupComplete, navigate]);
 
   if (loading) {
     return (
