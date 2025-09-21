@@ -237,8 +237,8 @@ const Auth = () => {
         return;
       }
       
-      // For new email sign-ups
-      const { error } = await signUp(email, password, fullName);
+      // For new email sign-ups - pass location data to signUp
+      const { error } = await signUp(email, password, fullName, locationData);
       
       if (error) {
         if (error.message.includes('User already registered')) {

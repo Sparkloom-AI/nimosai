@@ -4,6 +4,15 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+interface LocationData {
+  country: string;
+  countryCode: string;
+  phonePrefix: string;
+  timezone: string;
+  currency: string;
+  language: string;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -11,7 +20,7 @@ interface AuthContextType {
   accountSetupComplete: boolean | null;
   studioSetupComplete: boolean | null;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName?: string, locationData?: LocationData) => Promise<{ error: any }>;
   signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   completeAccountSetup: () => Promise<void>;
@@ -178,18 +187,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUp = async (email: string, password: string, fullName?: string) => {
+  const signUp = async (email: string, password: string, fullName?: string, locationData?: LocationData) => {
     try {
       cleanupAuthState();
       
       const redirectUrl = `${window.location.origin}/onboarding/studio`;
+      
+      // Prepare user metadata with location data
+      const userMetadata: any = {};
+      if (fullName) {
+        userMetadata.full_name = fullName;
+      }
+      
+      // Add location data to user metadata if provided
+      if (locationData) {
+        userMetadata.country = locationData.country;
+        userMetadata.country_code = locationData.countryCode;
+        userMetadata.phone_prefix = locationData.phonePrefix;
+        userMetadata.timezone = locationData.timezone;
+        userMetadata.currency = locationData.currency;
+        userMetadata.language = locationData.language;
+      }
       
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: redirectUrl,
-          data: fullName ? { full_name: fullName } : undefined,
+          data: Object.keys(userMetadata).length > 0 ? userMetadata : undefined,
         }
       });
 
