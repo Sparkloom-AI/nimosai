@@ -35,7 +35,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { teamApi } from '@/api/team';
 import { useRole } from '@/contexts/RoleContext';
 import AddTeamMemberModal from '@/components/domain/team/AddTeamMemberModal';
-import EditTeamMemberModal from '@/components/domain/team/EditTeamMemberModal';
+
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
@@ -44,8 +44,7 @@ const Team = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMember, setEditingMember] = useState(null);
 
   const { data: teamMembers, isLoading, refetch } = useQuery({
@@ -76,7 +75,17 @@ const Team = () => {
 
   const handleEdit = (member: any) => {
     setEditingMember(member);
-    setIsEditModalOpen(true);
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setEditingMember(null);
+  };
+
+  const handleModalSuccess = () => {
+    refetch();
+    setEditingMember(null);
   };
 
   const handleViewSchedule = (member: any) => {
@@ -117,7 +126,10 @@ const Team = () => {
               Manage your team members, their roles, and schedules
             </p>
           </div>
-          <Button onClick={() => setIsAddModalOpen(true)}>
+          <Button onClick={() => {
+            setEditingMember(null);
+            setIsModalOpen(true);
+          }}>
             <Plus className="h-4 w-4 mr-2" />
             Add Team Member
           </Button>
@@ -196,7 +208,10 @@ const Team = () => {
                   {searchQuery ? 'Try adjusting your search criteria' : 'Get started by adding your first team member'}
                 </p>
                 {!searchQuery && (
-                  <Button onClick={() => setIsAddModalOpen(true)}>
+                  <Button onClick={() => {
+                    setEditingMember(null);
+                    setIsModalOpen(true);
+                  }}>
                     <Plus className="h-4 w-4 mr-2" />
                     Add Team Member
                   </Button>
@@ -318,19 +333,12 @@ const Team = () => {
           </CardContent>
         </Card>
 
-        {/* Add Team Member Modal */}
+        {/* Team Member Modal */}
         <AddTeamMemberModal 
-          isOpen={isAddModalOpen} 
-          onOpenChange={setIsAddModalOpen}
-          onSuccess={refetch}
-        />
-
-        {/* Edit Team Member Modal */}
-        <EditTeamMemberModal 
-          isOpen={isEditModalOpen} 
-          onOpenChange={setIsEditModalOpen}
-          member={editingMember}
-          onSuccess={refetch}
+          isOpen={isModalOpen} 
+          onOpenChange={handleModalClose}
+          onSuccess={handleModalSuccess}
+          editingMember={editingMember}
         />
       </div>
     </DashboardLayout>

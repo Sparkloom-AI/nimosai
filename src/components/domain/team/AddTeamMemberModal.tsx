@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,9 +21,10 @@ interface AddTeamMemberModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
+  editingMember?: any; // TeamMember for edit mode
 }
 
-const AddTeamMemberModal = ({ isOpen, onOpenChange, onSuccess }: AddTeamMemberModalProps) => {
+const AddTeamMemberModal = ({ isOpen, onOpenChange, onSuccess, editingMember }: AddTeamMemberModalProps) => {
   const { currentStudioId } = useRole();
   const queryClient = useQueryClient();
   const { validateForm, isValidating } = useSecurityValidation();
@@ -78,6 +79,30 @@ const AddTeamMemberModal = ({ isOpen, onOpenChange, onSuccess }: AddTeamMemberMo
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
 
+  // Pre-populate form when editing
+  useEffect(() => {
+    if (editingMember) {
+      setFormData({
+        first_name: editingMember.first_name || '',
+        last_name: editingMember.last_name || '',
+        email: editingMember.email || '',
+        phone: editingMember.phone || '',
+        avatar_url: editingMember.avatar_url || '',
+        job_title: editingMember.job_title || '',
+        calendar_color: editingMember.calendar_color || '#3B82F6',
+        notes: editingMember.notes || '',
+        start_date: editingMember.start_date ? editingMember.start_date.split('T')[0] : new Date().toISOString().split('T')[0],
+        end_date: editingMember.end_date ? editingMember.end_date.split('T')[0] : '',
+        employment_type: editingMember.employment_type || 'full_time',
+        team_member_id: editingMember.team_member_id || '',
+        is_bookable: editingMember.is_bookable ?? true,
+        permission_level: editingMember.permission_level || 'low',
+        hourly_rate: editingMember.hourly_rate || 0,
+        commission_rate: editingMember.commission_rate || 0,
+      });
+    }
+  }, [editingMember]);
+
   // Fetch services and locations
   const { data: services = [] } = useQuery({
     queryKey: ['services', currentStudioId],
@@ -91,9 +116,11 @@ const AddTeamMemberModal = ({ isOpen, onOpenChange, onSuccess }: AddTeamMemberMo
     enabled: !!currentStudioId
   });
 
-  // Create team member mutation
+  // Create/Update team member mutation
   const createTeamMember = useMutation({
-    mutationFn: teamApi.createTeamMember,
+    mutationFn: editingMember 
+      ? (data: any) => teamApi.updateTeamMember(editingMember.id, data)
+      : teamApi.createTeamMember,
     onSuccess: async (newTeamMember) => {
       // Add addresses
       for (const address of addresses) {
@@ -139,14 +166,14 @@ const AddTeamMemberModal = ({ isOpen, onOpenChange, onSuccess }: AddTeamMemberMo
       }
 
       queryClient.invalidateQueries({ queryKey: ['team-members'] });
-      toast.success('Team member created successfully');
+      toast.success(editingMember ? 'Team member updated successfully' : 'Team member created successfully');
       onSuccess();
       onOpenChange(false);
       resetForm();
     },
     onError: (error) => {
-      console.error('Error creating team member:', error);
-      toast.error('Failed to create team member');
+      console.error('Error with team member:', error);
+      toast.error(editingMember ? 'Failed to update team member' : 'Failed to create team member');
     }
   });
 
@@ -298,7 +325,7 @@ const AddTeamMemberModal = ({ isOpen, onOpenChange, onSuccess }: AddTeamMemberMo
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add Team Member</DialogTitle>
+          <DialogTitle>{editingMember ? 'Edit Team Member' : 'Add Team Member'}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit}>
@@ -578,7 +605,10 @@ const AddTeamMemberModal = ({ isOpen, onOpenChange, onSuccess }: AddTeamMemberMo
               Cancel
             </Button>
             <Button type="submit" disabled={createTeamMember.isPending}>
-              {createTeamMember.isPending ? 'Creating...' : 'Create Team Member'}
+              {createTeamMember.isPending 
+                ? (editingMember ? 'Updating...' : 'Creating...') 
+                : (editingMember ? 'Update Team Member' : 'Create Team Member')
+              }
             </Button>
           </div>
         </form>
