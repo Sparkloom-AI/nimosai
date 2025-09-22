@@ -6,7 +6,7 @@ import { CalendarDays } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { teamApi } from '@/api/team';
 import { shiftsApi } from '@/api/shifts';
-import { useAuth } from '@/contexts/AuthContext';
+import { useRole } from '@/contexts/RoleContext';
 import { format, startOfWeek, addDays, addWeeks, subWeeks } from 'date-fns';
 import { toast } from 'sonner';
 import SetRegularShiftsModal from '@/components/domain/team/SetRegularShiftsModal';
@@ -16,7 +16,7 @@ import ScheduledShiftsHeader from '@/components/domain/team/ScheduledShiftsHeade
 import EditShiftModal from '@/components/domain/team/EditShiftModal';
 
 const ScheduledShifts = () => {
-  const { user } = useAuth();
+  const { currentStudioId } = useRole();
   const queryClient = useQueryClient();
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [selectedTeamMember, setSelectedTeamMember] = useState<string | null>(null);
@@ -27,16 +27,16 @@ const ScheduledShifts = () => {
 
   // Fetch team members
   const { data: teamMembers, isLoading: isLoadingTeam } = useQuery({
-    queryKey: ['team-members', user?.id],
-    queryFn: () => user?.id ? teamApi.getTeamMembers(user.id) : Promise.resolve([]),
-    enabled: !!user?.id,
+    queryKey: ['team-members', currentStudioId],
+    queryFn: () => currentStudioId ? teamApi.getTeamMembers(currentStudioId) : Promise.resolve([]),
+    enabled: !!currentStudioId,
   });
 
   // Fetch locations
   const { data: locations = [] } = useQuery({
-    queryKey: ['locations', user?.id],
-    queryFn: () => user?.id ? teamApi.getLocations(user.id) : Promise.resolve([]),
-    enabled: !!user?.id,
+    queryKey: ['locations', currentStudioId],
+    queryFn: () => currentStudioId ? teamApi.getLocations(currentStudioId) : Promise.resolve([]),
+    enabled: !!currentStudioId,
   });
 
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
@@ -45,13 +45,13 @@ const ScheduledShifts = () => {
 
   // Fetch shifts for the current week
   const { data: shifts = [], isLoading: isLoadingShifts } = useQuery({
-    queryKey: ['shifts', user?.id, format(weekStart, 'yyyy-MM-dd'), format(weekEnd, 'yyyy-MM-dd')],
-    queryFn: () => user?.id ? shiftsApi.getShiftsForWeek(
-      user.id,
+    queryKey: ['shifts', currentStudioId, format(weekStart, 'yyyy-MM-dd'), format(weekEnd, 'yyyy-MM-dd')],
+    queryFn: () => currentStudioId ? shiftsApi.getShiftsForWeek(
+      currentStudioId,
       format(weekStart, 'yyyy-MM-dd'),
       format(weekEnd, 'yyyy-MM-dd')
     ) : Promise.resolve([]),
-    enabled: !!user?.id,
+    enabled: !!currentStudioId,
   });
 
   // Mutations
@@ -187,7 +187,10 @@ const ScheduledShifts = () => {
     <DashboardLayout>
       <div className="p-6 space-y-6">
         {/* Header */}
-        <ScheduledShiftsHeader />
+        <ScheduledShiftsHeader 
+          onAddShift={handleEditShift}
+          onSetRegularShifts={() => setIsRegularShiftsModalOpen(true)}
+        />
 
         {/* Week Navigation */}
         <WeekNavigation 

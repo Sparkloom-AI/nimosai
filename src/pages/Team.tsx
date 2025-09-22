@@ -35,13 +35,17 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { teamApi } from '@/api/team';
 import { useRole } from '@/contexts/RoleContext';
 import AddTeamMemberModal from '@/components/domain/team/AddTeamMemberModal';
+import EditTeamMemberModal from '@/components/domain/team/EditTeamMemberModal';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 const Team = () => {
   const { currentStudioId } = useRole();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingMember, setEditingMember] = useState(null);
 
   const { data: teamMembers, isLoading, refetch } = useQuery({
@@ -72,9 +76,13 @@ const Team = () => {
 
   const handleEdit = (member: any) => {
     setEditingMember(member);
-    // TODO: Implement edit modal or navigation
-    console.log('Edit member:', member);
-    toast.info('Edit functionality coming soon!');
+    setIsEditModalOpen(true);
+  };
+
+  const handleViewSchedule = (member: any) => {
+    navigate('/scheduled-shifts', { 
+      state: { selectedTeamMember: member.id } 
+    });
   };
 
   const getInitials = (firstName: string, lastName: string) => {
@@ -288,7 +296,7 @@ const Team = () => {
                               <Edit className="h-4 w-4 mr-2" />
                               Edit
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleViewSchedule(member)}>
                               <MapPin className="h-4 w-4 mr-2" />
                               View Schedule
                             </DropdownMenuItem>
@@ -314,6 +322,14 @@ const Team = () => {
         <AddTeamMemberModal 
           isOpen={isAddModalOpen} 
           onOpenChange={setIsAddModalOpen}
+          onSuccess={refetch}
+        />
+
+        {/* Edit Team Member Modal */}
+        <EditTeamMemberModal 
+          isOpen={isEditModalOpen} 
+          onOpenChange={setIsEditModalOpen}
+          member={editingMember}
           onSuccess={refetch}
         />
       </div>

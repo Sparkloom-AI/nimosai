@@ -15,7 +15,12 @@ import {
   CalendarDays
 } from 'lucide-react';
 
-const ScheduledShiftsHeader = () => {
+interface ScheduledShiftsHeaderProps {
+  onAddShift?: (shiftData?: any) => void;
+  onSetRegularShifts?: () => void;
+}
+
+const ScheduledShiftsHeader = ({ onAddShift, onSetRegularShifts }: ScheduledShiftsHeaderProps) => {
   return (
     <div className="flex justify-between items-center">
       <div>
@@ -52,11 +57,11 @@ const ScheduledShiftsHeader = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAddShift?.()}>
               <Plus className="h-4 w-4 mr-2" />
               Add Shift
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onSetRegularShifts?.()}>
               <Edit className="h-4 w-4 mr-2" />
               Set Regular Shifts
             </DropdownMenuItem>
