@@ -31,7 +31,7 @@ import {
   Phone,
   MapPin
 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { teamApi } from '@/api/team';
 import { useRole } from '@/contexts/RoleContext';
 import AddTeamMemberModal from '@/components/domain/team/AddTeamMemberModal';
@@ -39,8 +39,10 @@ import { toast } from 'sonner';
 
 const Team = () => {
   const { currentStudioId } = useRole();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState(null);
 
   const { data: teamMembers, isLoading, refetch } = useQuery({
     queryKey: ['team-members', currentStudioId],
@@ -61,11 +63,18 @@ const Team = () => {
     try {
       await teamApi.deleteTeamMember(id);
       toast.success('Team member deleted successfully');
-      refetch();
+      queryClient.invalidateQueries({ queryKey: ['team-members'] });
     } catch (error) {
       toast.error('Failed to delete team member');
       console.error('Delete error:', error);
     }
+  };
+
+  const handleEdit = (member: any) => {
+    setEditingMember(member);
+    // TODO: Implement edit modal or navigation
+    console.log('Edit member:', member);
+    toast.info('Edit functionality coming soon!');
   };
 
   const getInitials = (firstName: string, lastName: string) => {
@@ -275,7 +284,7 @@ const Team = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEdit(member)}>
                               <Edit className="h-4 w-4 mr-2" />
                               Edit
                             </DropdownMenuItem>
