@@ -192,12 +192,6 @@ const WeeklyScheduleTable = ({
                             <Edit className="h-4 w-4 mr-2" />
                             Set regular shifts
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            Unassign from location
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            Edit team member
-                          </DropdownMenuItem>
                           <DropdownMenuItem 
                             className="text-destructive"
                             onClick={() => handleDeleteAllShifts(member.id)}
