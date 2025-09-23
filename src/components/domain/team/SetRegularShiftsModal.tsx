@@ -230,12 +230,7 @@ const SetRegularShiftsModal = ({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle>Set {teamMemberName}'s regular shifts</DialogTitle>
-            <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          <DialogTitle>Set {teamMemberName}'s regular shifts</DialogTitle>
           <p className="text-sm text-muted-foreground">
             Set weekly, biweekly or custom shifts. Changes saved will apply to all upcoming shifts for the selected period.
           </p>
