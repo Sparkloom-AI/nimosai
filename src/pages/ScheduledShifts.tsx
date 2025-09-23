@@ -14,6 +14,7 @@ import WeeklyScheduleTable from '@/components/domain/team/WeeklyScheduleTable';
 import WeekNavigation from '@/components/domain/team/WeekNavigation';
 import ScheduledShiftsHeader from '@/components/domain/team/ScheduledShiftsHeader';
 import EditShiftModal from '@/components/domain/team/EditShiftModal';
+import AddShiftModal from '@/components/domain/team/AddShiftModal';
 
 const ScheduledShifts = () => {
   const { currentStudioId } = useRole();
@@ -23,7 +24,9 @@ const ScheduledShifts = () => {
   const [selectedTeamMemberName, setSelectedTeamMemberName] = useState<string>('');
   const [isRegularShiftsModalOpen, setIsRegularShiftsModalOpen] = useState(false);
   const [isEditShiftModalOpen, setIsEditShiftModalOpen] = useState(false);
+  const [isAddShiftModalOpen, setIsAddShiftModalOpen] = useState(false);
   const [editingShift, setEditingShift] = useState<any>(null);
+  const [addShiftData, setAddShiftData] = useState<{ teamMemberId?: string; date?: Date }>({});
 
   // Fetch team members
   const { data: teamMembers, isLoading: isLoadingTeam } = useQuery({
@@ -115,6 +118,11 @@ const ScheduledShifts = () => {
     setIsRegularShiftsModalOpen(true);
   };
 
+  const handleAddShift = (shiftData?: { teamMemberId?: string; date?: Date }) => {
+    setAddShiftData(shiftData || {});
+    setIsAddShiftModalOpen(true);
+  };
+
   const handleEditShift = (shiftData: any) => {
     setEditingShift(shiftData);
     setIsEditShiftModalOpen(true);
@@ -143,6 +151,24 @@ const ScheduledShifts = () => {
         is_recurring: false,
       });
     }
+  };
+
+  const handleAddNewShift = (shiftData: {
+    teamMemberId: string;
+    locationId: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+  }) => {
+    createShiftMutation.mutate({
+      team_member_id: shiftData.teamMemberId,
+      location_id: shiftData.locationId,
+      shift_date: shiftData.date,
+      start_time: shiftData.startTime,
+      end_time: shiftData.endTime,
+      status: 'scheduled',
+      is_recurring: false,
+    });
   };
 
   const handleDeleteShift = (shiftId: string) => {
@@ -188,7 +214,7 @@ const ScheduledShifts = () => {
       <div className="p-6 space-y-6">
         {/* Header */}
         <ScheduledShiftsHeader 
-          onAddShift={handleEditShift}
+          onAddShift={handleAddShift}
           onSetRegularShifts={() => setIsRegularShiftsModalOpen(true)}
         />
 
@@ -206,6 +232,8 @@ const ScheduledShifts = () => {
             shifts={shifts}
             onSetRegularShifts={handleSetRegularShifts}
             onEditShift={handleEditShift}
+            onAddShift={handleAddShift}
+            onDeleteShift={handleDeleteShift}
             onDeleteAllShifts={handleDeleteAllShifts}
           />
         ) : (
@@ -220,23 +248,6 @@ const ScheduledShifts = () => {
           </Card>
         )}
 
-        {/* Info Banner */}
-        <Card className="bg-blue-50 border-blue-200 dark:bg-blue-950/20 dark:border-blue-800">
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center mt-0.5 flex-shrink-0">
-                <span className="text-white text-xs font-bold">i</span>
-              </div>
-              <p className="text-sm text-blue-800 dark:text-blue-200">
-                The team roster shows your availability for bookings and is not linked to your business opening hours. To set your opening hours,{' '}
-                <span className="text-blue-600 dark:text-blue-400 underline cursor-pointer hover:text-blue-700 dark:hover:text-blue-300">
-                  click here
-                </span>
-                .
-              </p>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Set Regular Shifts Modal */}
         <SetRegularShiftsModal 
@@ -246,6 +257,17 @@ const ScheduledShifts = () => {
           teamMemberName={selectedTeamMemberName}
           onShiftsSaved={handleShiftsSaved}
           locations={locations}
+        />
+
+        {/* Add Shift Modal */}
+        <AddShiftModal
+          isOpen={isAddShiftModalOpen}
+          onOpenChange={setIsAddShiftModalOpen}
+          onSave={handleAddNewShift}
+          teamMembers={teamMembers || []}
+          locations={locations}
+          preselectedTeamMember={addShiftData.teamMemberId}
+          preselectedDate={addShiftData.date}
         />
 
         {/* Edit Shift Modal */}

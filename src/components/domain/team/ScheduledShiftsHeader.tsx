@@ -32,25 +32,6 @@ const ScheduledShiftsHeader = ({ onAddShift, onSetRegularShifts }: ScheduledShif
       <div className="flex items-center gap-3">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline">
-              Options
-              <ChevronRight className="h-4 w-4 ml-2" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>
-              <Settings className="h-4 w-4 mr-2" />
-              Shift Settings
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <CalendarDays className="h-4 w-4 mr-2" />
-              Business Hours
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
               Add

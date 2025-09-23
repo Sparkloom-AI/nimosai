@@ -53,6 +53,8 @@ interface WeeklyScheduleTableProps {
     endTime?: string;
     locationId?: string;
   }) => void;
+  onAddShift: (shiftData: { teamMemberId: string; date: Date }) => void;
+  onDeleteShift: (shiftId: string) => void;
   onDeleteAllShifts: (teamMemberId: string, startDate: string, endDate: string) => void;
 }
 
@@ -62,6 +64,8 @@ const WeeklyScheduleTable = ({
   shifts, 
   onSetRegularShifts, 
   onEditShift,
+  onAddShift,
+  onDeleteShift,
   onDeleteAllShifts 
 }: WeeklyScheduleTableProps) => {
   const getInitials = (firstName: string, lastName: string) => {
@@ -244,17 +248,9 @@ const WeeklyScheduleTable = ({
                                 <Plus className="h-4 w-4 mr-2" />
                                 Add time off
                               </DropdownMenuItem>
-                              <DropdownMenuItem 
+                               <DropdownMenuItem 
                                 className="text-destructive"
-                                onClick={() => onEditShift({
-                                  id: shift.id,
-                                  teamMemberId: member.id,
-                                  teamMemberName: `${member.first_name} ${member.last_name}`,
-                                  date: day,
-                                  startTime: shift.start_time,
-                                  endTime: shift.end_time,
-                                  locationId: shift.location_id
-                                })}
+                                onClick={() => onDeleteShift(shift.id)}
                               >
                                 <X className="h-4 w-4 mr-2" />
                                 Delete this shift
@@ -266,9 +262,8 @@ const WeeklyScheduleTable = ({
                             variant="ghost" 
                             size="sm" 
                             className="text-xs text-muted-foreground hover:text-primary"
-                            onClick={() => onEditShift({
+                            onClick={() => onAddShift({
                               teamMemberId: member.id,
-                              teamMemberName: `${member.first_name} ${member.last_name}`,
                               date: day
                             })}
                           >
