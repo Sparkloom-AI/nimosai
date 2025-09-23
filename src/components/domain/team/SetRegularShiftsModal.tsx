@@ -19,6 +19,7 @@ interface SetRegularShiftsModalProps {
   teamMemberName?: string;
   onShiftsSaved: () => void;
   locations: Array<{ id: string; name: string }>;
+  teamMembers: Array<{ id: string; first_name: string; last_name: string }>;
 }
 
 interface DayShift {
@@ -56,8 +57,10 @@ const SetRegularShiftsModal = ({
   teamMemberId, 
   teamMemberName = 'Team Member',
   onShiftsSaved,
-  locations 
+  locations,
+  teamMembers 
 }: SetRegularShiftsModalProps) => {
+  const [selectedTeamMemberId, setSelectedTeamMemberId] = useState<string>('');
   const [scheduleType, setScheduleType] = useState('every-week');
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endType, setEndType] = useState('never');
@@ -79,6 +82,13 @@ const SetRegularShiftsModal = ({
       sunday: { enabled: false, shifts: [] },
     };
   });
+
+  // Initialize selected team member when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedTeamMemberId(teamMemberId || '');
+    }
+  }, [isOpen, teamMemberId]);
 
   // Update default location when locations change
   useEffect(() => {
@@ -165,7 +175,7 @@ const SetRegularShiftsModal = ({
               }
               
               shifts.push({
-                team_member_id: teamMemberId!,
+                team_member_id: selectedTeamMemberId || teamMemberId!,
                 location_id: shift.locationId,
                 shift_date: format(dayDate, 'yyyy-MM-dd'),
                 start_time: shift.startTime,
@@ -186,8 +196,10 @@ const SetRegularShiftsModal = ({
   };
 
   const handleSave = async () => {
-    if (!teamMemberId) {
-      toast.error('No team member selected');
+    const currentTeamMemberId = selectedTeamMemberId || teamMemberId;
+    
+    if (!currentTeamMemberId) {
+      toast.error('Please select a team member');
       return;
     }
     
@@ -230,7 +242,7 @@ const SetRegularShiftsModal = ({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Set {teamMemberName}'s regular shifts</DialogTitle>
+          <DialogTitle>Set regular shifts</DialogTitle>
           <p className="text-sm text-muted-foreground">
             Set weekly, biweekly or custom shifts. Changes saved will apply to all upcoming shifts for the selected period.
           </p>
@@ -239,6 +251,23 @@ const SetRegularShiftsModal = ({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           {/* Left Panel - Schedule Configuration */}
           <div className="space-y-6">
+            {/* Team Member Selection */}
+            <div className="space-y-3">
+              <label className="text-sm font-medium">Team Member</label>
+              <Select value={selectedTeamMemberId} onValueChange={setSelectedTeamMemberId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select team member" />
+                </SelectTrigger>
+                <SelectContent>
+                  {teamMembers.map((member) => (
+                    <SelectItem key={member.id} value={member.id}>
+                      {member.first_name} {member.last_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Schedule Type */}
             <div className="space-y-3">
               <label className="text-sm font-medium">Schedule type</label>

@@ -257,6 +257,7 @@ const ScheduledShifts = () => {
           teamMemberName={selectedTeamMemberName}
           onShiftsSaved={handleShiftsSaved}
           locations={locations}
+          teamMembers={teamMembers || []}
         />
 
         {/* Add Shift Modal */}
