@@ -65,41 +65,46 @@ const SetRegularShiftsModal = ({
   const [showCalendar, setShowCalendar] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
-  const defaultLocationId = locations[0]?.id || '';
+  const defaultLocationId = locations.length > 0 ? locations[0].id : '';
   
-  const [weeklySchedule, setWeeklySchedule] = useState<WeeklySchedule>({
-    monday: { enabled: true, shifts: [{ startTime: '10:00', endTime: '19:00', locationId: defaultLocationId }] },
-    tuesday: { enabled: false, shifts: [] },
-    wednesday: { enabled: true, shifts: [{ startTime: '10:00', endTime: '19:00', locationId: defaultLocationId }] },
-    thursday: { enabled: true, shifts: [{ startTime: '10:00', endTime: '19:00', locationId: defaultLocationId }] },
-    friday: { enabled: true, shifts: [{ startTime: '10:00', endTime: '19:00', locationId: defaultLocationId }] },
-    saturday: { enabled: false, shifts: [] },
-    sunday: { enabled: false, shifts: [] },
+  const [weeklySchedule, setWeeklySchedule] = useState<WeeklySchedule>(() => {
+    const locationId = locations.length > 0 ? locations[0].id : '';
+    return {
+      monday: { enabled: true, shifts: [{ startTime: '10:00', endTime: '19:00', locationId }] },
+      tuesday: { enabled: false, shifts: [] },
+      wednesday: { enabled: true, shifts: [{ startTime: '10:00', endTime: '19:00', locationId }] },
+      thursday: { enabled: true, shifts: [{ startTime: '10:00', endTime: '19:00', locationId }] },
+      friday: { enabled: true, shifts: [{ startTime: '10:00', endTime: '19:00', locationId }] },
+      saturday: { enabled: false, shifts: [] },
+      sunday: { enabled: false, shifts: [] },
+    };
   });
 
   // Update default location when locations change
   useEffect(() => {
-    if (defaultLocationId) {
+    if (locations.length > 0 && locations[0].id) {
+      const newDefaultLocationId = locations[0].id;
       setWeeklySchedule(prev => {
         const updated = { ...prev };
         Object.keys(updated).forEach(dayKey => {
           updated[dayKey].shifts = updated[dayKey].shifts.map(shift => ({
             ...shift,
-            locationId: shift.locationId || defaultLocationId
+            locationId: shift.locationId || newDefaultLocationId
           }));
         });
         return updated;
       });
     }
-  }, [defaultLocationId]);
+  }, [locations]);
 
   const toggleDay = (dayKey: string) => {
+    const locationId = locations.length > 0 ? locations[0].id : '';
     setWeeklySchedule(prev => ({
       ...prev,
       [dayKey]: {
         ...prev[dayKey],
         enabled: !prev[dayKey].enabled,
-        shifts: !prev[dayKey].enabled ? [{ startTime: '10:00', endTime: '19:00', locationId: defaultLocationId }] : []
+        shifts: !prev[dayKey].enabled ? [{ startTime: '10:00', endTime: '19:00', locationId }] : []
       }
     }));
   };
@@ -117,11 +122,12 @@ const SetRegularShiftsModal = ({
   };
 
   const addShift = (dayKey: string) => {
+    const locationId = locations.length > 0 ? locations[0].id : '';
     setWeeklySchedule(prev => ({
       ...prev,
       [dayKey]: {
         ...prev[dayKey],
-        shifts: [...prev[dayKey].shifts, { startTime: '10:00', endTime: '19:00', locationId: defaultLocationId }]
+        shifts: [...prev[dayKey].shifts, { startTime: '10:00', endTime: '19:00', locationId }]
       }
     }));
   };
@@ -152,6 +158,12 @@ const SetRegularShiftsModal = ({
           
           if (dayDate >= startDate && dayDate <= maxDate) {
             weeklySchedule[day.key].shifts.forEach(shift => {
+              // Ensure location ID is valid
+              if (!shift.locationId || shift.locationId === '') {
+                console.warn('Skipping shift with invalid location ID:', shift);
+                return;
+              }
+              
               shifts.push({
                 team_member_id: teamMemberId!,
                 location_id: shift.locationId,
@@ -174,7 +186,15 @@ const SetRegularShiftsModal = ({
   };
 
   const handleSave = async () => {
-    if (!teamMemberId) return;
+    if (!teamMemberId) {
+      toast.error('No team member selected');
+      return;
+    }
+    
+    if (!defaultLocationId) {
+      toast.error('At least one location is required to create shifts');
+      return;
+    }
     
     setIsLoading(true);
     try {
@@ -186,6 +206,14 @@ const SetRegularShiftsModal = ({
         return;
       }
 
+      // Validate all shifts have valid location IDs
+      const invalidShifts = shiftsToCreate.filter(shift => !shift.location_id || shift.location_id === '');
+      if (invalidShifts.length > 0) {
+        toast.error('All shifts must have a valid location assigned');
+        return;
+      }
+
+      console.log('Creating shifts:', shiftsToCreate);
       await shiftsApi.createRegularShifts(shiftsToCreate);
       toast.success(`Created ${shiftsToCreate.length} shifts successfully`);
       onShiftsSaved();
