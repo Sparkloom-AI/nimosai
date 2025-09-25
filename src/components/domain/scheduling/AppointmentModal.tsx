@@ -148,7 +148,7 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-primary" />
+            <CalendarIcon className="h-5 w-5 text-primary" />
             {appointment ? 'Edit Appointment' : 'New Appointment'}
           </DialogTitle>
         </DialogHeader>
