@@ -125,7 +125,6 @@ const ClientModal: React.FC<ClientModalProps> = ({
 
       await onSave(clientData);
       onClose();
-      toast.success(client ? 'Client updated successfully' : 'Client created successfully');
     } catch (error) {
       console.error('Error saving client:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to save client');
