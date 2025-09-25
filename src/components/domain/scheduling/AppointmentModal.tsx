@@ -378,6 +378,10 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
                           onSelect={field.onChange}
                           disabled={(date) => date < new Date()}
                           initialFocus
+                          classNames={{
+                            caption: "hidden",
+                            nav: "hidden"
+                          }}
                         />
                       </PopoverContent>
                     </Popover>
