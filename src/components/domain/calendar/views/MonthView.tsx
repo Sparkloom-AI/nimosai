@@ -8,9 +8,12 @@ interface MonthViewProps {
   dateRange: { start: Date; end: Date };
   searchQuery: string;
   selectedTeamMembers: string[];
+  onNewAppointment?: (date?: Date, teamMemberId?: string) => void;
+  isLoading?: boolean;
+  appointments?: any[];
 }
 
-const MonthView = ({ currentDate }: MonthViewProps) => {
+const MonthView = ({ currentDate, onNewAppointment, appointments = [] }: MonthViewProps) => {
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
   const calendarStart = startOfWeek(monthStart, { weekStartsOn: 0 });
@@ -19,39 +22,8 @@ const MonthView = ({ currentDate }: MonthViewProps) => {
   const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
   const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  // Mock appointments data
-  const appointments = [
-    {
-      id: '1',
-      title: 'Haircut - Sarah Johnson',
-      date: new Date(2025, 7, 25),
-      startTime: '09:00',
-      endTime: '10:00',
-      color: '#007AFF',
-      teamMember: 'Alice Smith'
-    },
-    {
-      id: '2',
-      title: 'Color Treatment',
-      date: new Date(2025, 7, 25),
-      startTime: '14:30',
-      endTime: '16:30',
-      color: '#FF3B30',
-      teamMember: 'Bob Wilson'
-    },
-    {
-      id: '3',
-      title: 'Manicure',
-      date: new Date(2025, 7, 26),
-      startTime: '11:00',
-      endTime: '12:00',
-      color: '#34C759',
-      teamMember: 'Carol Brown'
-    },
-  ];
-
   const getAppointmentsForDay = (date: Date) => {
-    return appointments.filter(apt => isSameDay(apt.date, date));
+    return appointments.filter(apt => isSameDay(new Date(apt.appointment_date), date));
   };
 
   return (
@@ -83,6 +55,7 @@ const MonthView = ({ currentDate }: MonthViewProps) => {
                 "hover:bg-muted/50 cursor-pointer transition-colors",
                 !isCurrentMonth && "bg-muted/30"
               )}
+              onClick={() => onNewAppointment?.(day)}
             >
               {/* Date number */}
               <div className="flex items-center justify-between mb-2">
@@ -103,10 +76,15 @@ const MonthView = ({ currentDate }: MonthViewProps) => {
                   <div
                     key={appointment.id}
                     className="text-xs p-1 rounded truncate cursor-pointer hover:opacity-80"
-                    style={{ backgroundColor: appointment.color + '20', color: appointment.color }}
+                    style={{
+                      backgroundColor: appointment.team_member?.calendar_color ? appointment.team_member.calendar_color + '20' : '#007AFF20',
+                      color: appointment.team_member?.calendar_color || '#007AFF'
+                    }}
                   >
-                    <div className="font-medium truncate">{appointment.startTime}</div>
-                    <div className="truncate opacity-90">{appointment.title}</div>
+                    <div className="font-medium truncate">{appointment.start_time}</div>
+                    <div className="truncate opacity-90">
+                      {appointment.service?.name} - {appointment.client?.first_name} {appointment.client?.last_name}
+                    </div>
                   </div>
                 ))}
                 {dayAppointments.length > 3 && (

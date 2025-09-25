@@ -9,48 +9,20 @@ interface WeekViewProps {
   searchQuery: string;
   selectedTeamMembers: string[];
   viewType: 'week' | '3-day';
+  onNewAppointment?: (date?: Date, teamMemberId?: string) => void;
+  isLoading?: boolean;
+  appointments?: any[];
 }
 
-const WeekView = ({ currentDate, dateRange, viewType }: WeekViewProps) => {
+const WeekView = ({ currentDate, dateRange, viewType, onNewAppointment, appointments = [] }: WeekViewProps) => {
   const days = viewType === 'week' 
     ? Array.from({ length: 7 }, (_, i) => addDays(dateRange.start, i))
     : Array.from({ length: 3 }, (_, i) => addDays(currentDate, i));
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
-  // Mock appointments data
-  const appointments = [
-    {
-      id: '1',
-      title: 'Haircut - Sarah Johnson',
-      date: new Date(2025, 7, 25),
-      startHour: 9,
-      duration: 1,
-      color: '#007AFF',
-      teamMember: 'Alice Smith'
-    },
-    {
-      id: '2',
-      title: 'Color Treatment - Mike Davis',
-      date: new Date(2025, 7, 25),
-      startHour: 14.5,
-      duration: 2,
-      color: '#FF3B30',
-      teamMember: 'Bob Wilson'
-    },
-    {
-      id: '3',
-      title: 'Manicure - Lisa Wong',
-      date: new Date(2025, 7, 26),
-      startHour: 11,
-      duration: 1,
-      color: '#34C759',
-      teamMember: 'Carol Brown'
-    },
-  ];
-
   const getAppointmentsForDay = (date: Date) => {
-    return appointments.filter(apt => isSameDay(apt.date, date));
+    return appointments.filter(apt => isSameDay(new Date(apt.appointment_date), date));
   };
 
   return (
@@ -99,25 +71,31 @@ const WeekView = ({ currentDate, dateRange, viewType }: WeekViewProps) => {
                   <div
                     key={`${day.toString()}-${hour}`}
                     className="flex-1 border-r border-border last:border-r-0 relative hover:bg-muted/50 cursor-pointer transition-colors"
+                    onClick={() => onNewAppointment?.(day)}
                   >
                     {hourAppointments.map((appointment) => {
-                      const topOffset = (appointment.startHour - hour) * 64;
-                      const height = appointment.duration * 64;
-                      
+                      const startTime = new Date(`2000-01-01T${appointment.start_time}`);
+                      const startHour = startTime.getHours() + startTime.getMinutes() / 60;
+                      const duration = appointment.service?.duration ? appointment.service.duration / 60 : 1;
+                      const topOffset = (startHour - hour) * 64;
+                      const height = duration * 64;
+
                       return (
                         <div
                           key={appointment.id}
                           className="absolute left-1 right-1 rounded p-2 text-xs cursor-pointer hover:opacity-80 shadow-sm"
                           style={{
-                            backgroundColor: appointment.color + '20',
-                            borderLeft: `3px solid ${appointment.color}`,
+                            backgroundColor: appointment.team_member?.calendar_color ? appointment.team_member.calendar_color + '20' : '#007AFF20',
+                            borderLeft: `3px solid ${appointment.team_member?.calendar_color || '#007AFF'}`,
                             top: `${Math.max(0, topOffset)}px`,
                             height: `${height}px`,
-                            color: appointment.color
+                            color: appointment.team_member?.calendar_color || '#007AFF'
                           }}
                         >
-                          <div className="font-medium truncate">{appointment.title}</div>
-                          <div className="text-xs opacity-75 truncate">{appointment.teamMember}</div>
+                          <div className="font-medium truncate">
+                            {appointment.service?.name} - {appointment.client?.first_name} {appointment.client?.last_name}
+                          </div>
+                          <div className="text-xs opacity-75 truncate">with {appointment.team_member?.first_name} {appointment.team_member?.last_name}</div>
                         </div>
                       );
                     })}

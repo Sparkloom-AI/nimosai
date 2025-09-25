@@ -22,12 +22,16 @@ const CalendarView = ({
   dateRange,
   searchQuery,
   selectedTeamMembers,
+  onNewAppointment,
+  isLoading,
 }: CalendarViewProps) => {
   const commonProps = {
     currentDate,
     dateRange,
     searchQuery,
     selectedTeamMembers,
+    onNewAppointment,
+    isLoading,
   };
 
   switch (viewType) {

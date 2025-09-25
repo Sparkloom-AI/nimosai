@@ -136,17 +136,18 @@ const Calendar = () => {
     <DashboardLayout>
       <div className="flex h-full bg-background">
         {/* Sidebar */}
-        <CalendarSidebar 
+        <CalendarSidebar
           collapsed={sidebarCollapsed}
           onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
           selectedTeamMembers={selectedTeamMembers}
           onTeamMemberToggle={(memberId) => {
-            setSelectedTeamMembers(prev => 
-              prev.includes(memberId) 
+            setSelectedTeamMembers(prev =>
+              prev.includes(memberId)
                 ? prev.filter(id => id !== memberId)
                 : [...prev, memberId]
             );
           }}
+          studioId={studioId}
         />
 
         {/* Main Calendar Area */}

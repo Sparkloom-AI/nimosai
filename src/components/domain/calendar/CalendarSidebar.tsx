@@ -13,6 +13,7 @@ interface CalendarSidebarProps {
   onToggleCollapse: () => void;
   selectedTeamMembers: string[];
   onTeamMemberToggle: (memberId: string) => void;
+  studioId: string;
 }
 
 const CalendarSidebar = ({
@@ -20,13 +21,12 @@ const CalendarSidebar = ({
   onToggleCollapse,
   selectedTeamMembers,
   onTeamMemberToggle,
+  studioId,
 }: CalendarSidebarProps) => {
-  const { user } = useAuth();
-
   const { data: teamMembers = [] } = useQuery({
-    queryKey: ['team-members', user?.id],
-    queryFn: () => user?.id ? teamApi.getTeamMembers(user.id) : Promise.resolve([]),
-    enabled: !!user?.id,
+    queryKey: ['team-members', studioId],
+    queryFn: () => studioId ? teamApi.getTeamMembers(studioId) : Promise.resolve([]),
+    enabled: !!studioId,
   });
 
   const calendarCategories = [
