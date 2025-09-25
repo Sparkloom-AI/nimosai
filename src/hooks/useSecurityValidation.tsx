@@ -94,7 +94,12 @@ export const useSecurityValidation = () => {
       } else if (key.includes('password')) {
         results[key] = await validatePasswordInput(value);
       } else if (key.includes('name') || key.includes('Name')) {
-        results[key] = await validateNameInput(value);
+        // Skip security validation for empty required fields - let form validation handle it
+        if (value.trim() === '') {
+          results[key] = { isValid: true, sanitizedValue: value };
+        } else {
+          results[key] = await validateNameInput(value);
+        }
       } else {
         // Generic validation for other fields
         if (detectSuspiciousActivity(value)) {
