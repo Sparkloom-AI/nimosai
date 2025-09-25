@@ -22,6 +22,7 @@ const CalendarView = ({
   dateRange,
   searchQuery,
   selectedTeamMembers,
+  appointments,
   onNewAppointment,
   isLoading,
 }: CalendarViewProps) => {
@@ -30,6 +31,7 @@ const CalendarView = ({
     dateRange,
     searchQuery,
     selectedTeamMembers,
+    appointments,
     onNewAppointment,
     isLoading,
   };
