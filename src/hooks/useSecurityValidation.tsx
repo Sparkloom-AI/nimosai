@@ -90,7 +90,12 @@ export const useSecurityValidation = () => {
 
     for (const [key, value] of Object.entries(data)) {
       if (key.includes('email')) {
-        results[key] = await validateEmail(value);
+        // Skip security validation for empty email fields - let form validation handle it
+        if (value.trim() === '') {
+          results[key] = { isValid: true, sanitizedValue: value };
+        } else {
+          results[key] = await validateEmail(value);
+        }
       } else if (key.includes('password')) {
         results[key] = await validatePasswordInput(value);
       } else if (key.includes('name') || key.includes('Name')) {
