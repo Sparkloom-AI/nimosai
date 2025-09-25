@@ -4,7 +4,7 @@ import { z } from 'zod';
 // Input validation schemas
 export const emailSchema = z.string().email('Invalid email address').max(254);
 export const passwordSchema = z.string().min(6, 'Password must be at least 6 characters').max(128);
-export const nameSchema = z.string().min(1, 'Name is required').max(100);
+export const nameSchema = z.string().min(1, 'This field is required').max(100);
 export const phoneSchema = z.string().regex(/^\+?[\d\s\-()]+$/, 'Invalid phone number').max(20);
 
 // Enhanced sanitization functions
