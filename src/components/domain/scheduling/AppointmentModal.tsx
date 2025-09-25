@@ -364,7 +364,14 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
+                      <PopoverContent
+                        className="w-auto p-0"
+                        align="center"
+                        side="bottom"
+                        sideOffset={4}
+                        avoidCollisions={true}
+                        collisionPadding={8}
+                      >
                         <Calendar
                           mode="single"
                           selected={field.value}
