@@ -11,6 +11,7 @@ import { getAppointments, createAppointment } from '@/api/scheduling';
 import { getClients } from '@/api/scheduling';
 import { getTeamMembers, getServices, getLocations } from '@/api/team';
 import { useAuth } from '@/contexts/AuthContext';
+import { useRole } from '@/contexts/RoleContext';
 import { toast } from 'sonner';
 import type { BookingRequest } from '@/types/scheduling';
 
@@ -18,6 +19,7 @@ export type CalendarViewType = 'day' | '3-day' | 'week' | 'month';
 
 const Calendar = () => {
   const { user } = useAuth();
+  const { currentStudioId } = useRole();
   const queryClient = useQueryClient();
   
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -29,8 +31,8 @@ const Calendar = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTeamMember, setSelectedTeamMember] = useState<string | null>(null);
 
-  // Get studio ID from user context (you'll need to implement this)
-  const studioId = user?.user_metadata?.studio_id || '';
+  // Get studio ID from role context
+  const studioId = currentStudioId || '';
 
   const getDateRange = () => {
     switch (viewType) {
