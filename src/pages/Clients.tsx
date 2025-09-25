@@ -19,6 +19,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getClients, createClient, updateClient, deleteClient } from '@/api/scheduling';
 import { useAuth } from '@/contexts/AuthContext';
+import { useRole } from '@/contexts/RoleContext';
 import { toast } from 'sonner';
 import ClientModal from '@/components/domain/scheduling/ClientModal';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -27,6 +28,7 @@ import type { Client } from '@/types/scheduling';
 
 const Clients = () => {
   const { user } = useAuth();
+  const { currentStudioId } = useRole();
   const queryClient = useQueryClient();
   
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,8 +37,8 @@ const Clients = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
 
-  // Get studio ID from user context
-  const studioId = user?.user_metadata?.studio_id || '';
+  // Get studio ID from role context
+  const studioId = currentStudioId || '';
 
   // Fetch clients
   const { data: clients = [], isLoading } = useQuery({
